@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><g transform="translate(0 0) scale(1.0)">
+  <!-- anel de respiração: metade inspira, metade expira -->
+  <path d="M60 8 A52 52 0 0 0 60 112" fill="none" stroke="#1F2547" stroke-width="7" stroke-linecap="round" stroke-dasharray="0" opacity=".9"/>
+  <path d="M60 112 A52 52 0 0 0 60 8" fill="none" stroke="#1F2547" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+  <circle cx="60" cy="8" r="7" fill="#1F2547"/>
+  <!-- traqueia + brônquios -->
+  <rect x="56.5" y="26" width="7" height="30" rx="3.5" fill="#1F2547"/>
+  <path d="M60 52 C60 58 54 60 50 64 M60 52 C60 58 66 60 70 64" fill="none" stroke="#1F2547" stroke-width="5" stroke-linecap="round"/>
+  <!-- pulmões -->
+  <path d="M53 46 C40 40 28 54 27 72 C26 88 36 96 48 92 C54 90 55 84 55 78 L55 58 C55 52 55 48 53 46 Z" fill="#1F2547"/>
+  <path d="M67 46 C80 40 92 54 93 72 C94 88 84 96 72 92 C66 90 65 84 65 78 L65 58 C65 52 65 48 67 46 Z" fill="#1F2547"/>
+  <!-- rostinho do personagem -->
+  <circle cx="40" cy="72" r="3" fill="#fff"/>
+  <circle cx="80" cy="72" r="3" fill="#fff"/>
+  <path d="M53 82 Q60 88 67 82" fill="none" stroke="#1F2547" stroke-width="3.5" stroke-linecap="round"/>
+</g></svg>
