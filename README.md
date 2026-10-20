@@ -35,6 +35,8 @@ O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, 
 
 > **MVP:** caminho do ar em 3 etapas + respiração guiada com ritmo ajustável.
 
+📍 **Onde estamos:** veja o [roteiro do projeto](docs/roteiro.md) — o que já está pronto, checklist do Checkpoint 1 e próximos passos.
+
 ---
 
 ## 2. Descrição do problema
@@ -204,7 +206,8 @@ respira-comigo/
 ├── docs/
 │   ├── bases-de-dados.md     ← detalhes das bases públicas e tratamento
 │   ├── identidade-visual.md  ← guia de marca
-│   └── pitch.md              ← pitch e roteiro
+│   ├── pitch.md              ← pitch e roteiro do pitch final
+│   └── roteiro.md            ← o que está pronto, checklist e próximos passos
 ├── data/                     ← (CP2) notebooks e JSON tratados
 └── app/                      ← (CP2) código da aplicação
 ```
