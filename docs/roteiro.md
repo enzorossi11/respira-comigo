@@ -30,7 +30,7 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 | Solução, tecnologias e justificativas | ✅ | README, seções 3 e 6 |
 | Logo, paleta e tipografia | ✅ | `assets/` · `docs/identidade-visual.md` |
 | Pitch (relevância e diferencial) | ✅ | README 8 · `docs/pitch.md` |
-| Repositório público | ⚠️ Pendente | Hoje está privado |
+| Repositório público | ✅ | github.com/enzorossi11/respira-comigo |
 | Participação visível de todos | ⚠️ Pendente | Falta commit dos demais integrantes |
 
 ## 3. Checklist do Checkpoint 2 (09 a 13/11)
@@ -52,8 +52,8 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 
 ## 4. O que falta fazer (pelo grupo)
 
-- [ ] Tornar o repositório **público** (Settings → General → Danger Zone → Change visibility). Exigido pelos checkpoints e necessário para o site no GitHub Pages funcionar numa conta gratuita.
-- [ ] Ativar o site: **Settings → Pages → Source: GitHub Actions** (depois de tornar público).
+- [x] Tornar o repositório **público**
+- [x] Ativar o site no GitHub Pages
 - [ ] Preencher a tabela **Equipe** do README com nomes e @ do GitHub.
 - [ ] Convidar os integrantes como colaboradores (Settings → Collaborators).
 - [ ] Cada integrante fazer **commits pela própria conta**. Vale nota nos três momentos.
@@ -67,7 +67,7 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 |---|---|
 | Pitch de 5 minutos | Roteiro pronto, minuto a minuto, em [`docs/pitch.md`](pitch.md), com plano B e perguntas prováveis. Falta ensaiar. |
 | Projeto funcionando ao vivo | App pronto. Testar no computador da sala antes. |
-| Repositório final | Falta deixar público e com commits de todos. |
+| Repositório final | Público. Falta ter commits de todos. |
 | Vídeo de até 3 min | O atual tem 1min40. Dá para reaproveitar ou regravar com narração. |
 | Retornos do Professor Mentor | Incorporar depois do Checkpoint 2. |
 
