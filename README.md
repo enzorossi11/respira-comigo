@@ -5,9 +5,19 @@
 <p align="center"><b>Aprenda o caminho do ar. Respire no seu ritmo.</b></p>
 
 <p align="center">
-  <img alt="Checkpoint" src="https://img.shields.io/badge/etapa-Checkpoint%201%20·%20Idea%C3%A7%C3%A3o-7C6FE0">
+  <img alt="Checkpoint" src="https://img.shields.io/badge/etapa-Checkpoint%202%20·%20Prot%C3%B3tipo-7C6FE0">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
-  <img alt="Status" src="https://img.shields.io/badge/status-em%20desenvolvimento-FFB38A">
+  <img alt="Testes" src="https://img.shields.io/badge/testes-19%20passando-137A71">
+</p>
+
+<p align="center">
+  🌐 <a href="https://enzorossi11.github.io/respira-comigo/"><b>Abrir o app</b></a> ·
+  🎬 <a href="docs/demo.mp4"><b>Vídeo de demonstração</b></a> ·
+  📍 <a href="docs/roteiro.md"><b>Roteiro do projeto</b></a>
+</p>
+
+<p align="center">
+  <img src="docs/prints/06-respirar-inspire.png" alt="Tela de respiração guiada com o personagem 3D" width="820">
 </p>
 
 ---
@@ -16,13 +26,16 @@
 
 1. [Sobre o projeto](#1-sobre-o-projeto)
 2. [Descrição do problema](#2-descrição-do-problema)
-3. [Proposta de solução tecnológica](#3-proposta-de-solução-tecnológica)
-4. [Identidade visual](#4-identidade-visual)
-5. [Pitch inicial](#5-pitch-inicial)
-6. [Cronograma](#6-cronograma)
-7. [Estrutura do repositório](#7-estrutura-do-repositório)
-8. [Equipe](#8-equipe)
-9. [Referências](#9-referências)
+3. [Solução](#3-solução)
+4. [Protótipo](#4-protótipo)
+5. [Como executar](#5-como-executar)
+6. [Tecnologias e decisões técnicas](#6-tecnologias-e-decisões-técnicas)
+7. [Identidade visual](#7-identidade-visual)
+8. [Pitch](#8-pitch)
+9. [Cronograma e evolução](#9-cronograma-e-evolução)
+10. [Estrutura do repositório](#10-estrutura-do-repositório)
+11. [Equipe](#11-equipe)
+12. [Referências](#12-referências)
 
 ---
 
@@ -33,9 +46,7 @@
 
 O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, de forma animada, o **caminho que o ar percorre** no corpo — do nariz até os alvéolos — e, em seguida, **conduz o usuário em uma respiração guiada**, com o peito do personagem se expandindo e contraindo no ritmo escolhido.
 
-> **MVP:** caminho do ar em 3 etapas + respiração guiada com ritmo ajustável.
-
-📍 **Onde estamos:** veja o [roteiro do projeto](docs/roteiro.md) — o que já está pronto, checklist do Checkpoint 1 e próximos passos.
+> **MVP:** caminho do ar em 3 etapas + respiração guiada com ritmo ajustável. ✅ Funcionando.
 
 ---
 
@@ -49,14 +60,20 @@ Resultado: o aluno estuda o sistema respiratório, mas não aprende a **usar a p
 
 ### 2.2 Por que importa (dados)
 
-| Indicador | Dado | Fonte |
+Todos os números abaixo foram extraídos das planilhas oficiais pelos scripts em [`data/`](data/README.md) e aparecem no próprio app, com a fonte.
+
+| Indicador (estudantes de 13 a 17 anos, Brasil) | 2024 | Fonte |
 |---|---|---|
-| Ansiedade na população | O Brasil tem a maior prevalência de transtornos de ansiedade do mundo: **9,3%** da população (≈18,6 milhões de pessoas) | OMS, *Depression and Other Common Mental Disorders* (2017) |
-| Preocupação no dia a dia | **50,6%** dos estudantes de 13 a 17 anos se sentiam muito preocupados com coisas comuns do cotidiano | IBGE, PeNSE 2019 |
-| Irritação e nervosismo | **42,9%** dos estudantes de 13 a 17 anos dizem se sentir irritados, nervosos ou mal-humorados por qualquer coisa | IBGE, PeNSE 2024 |
-| Tristeza frequente | **3 em cada 10** estudantes de 13 a 17 anos se sentem tristes sempre ou na maioria das vezes | IBGE, PeNSE 2024 |
-| Apoio na escola | Só **34,1%** dos estudantes estudam em escolas com profissional de saúde mental no quadro | IBGE, PeNSE 2024 |
-| Saúde respiratória | As doenças do aparelho respiratório (como asma e pneumonia) estão entre as **principais causas de internação de crianças** no SUS | DATASUS, SIH/SUS |
+| Muito preocupados com as coisas comuns do dia a dia | **49,7%** | IBGE, PeNSE 2024, Tab. 12.2.1 |
+| Irritados, nervosos ou mal-humorados por qualquer coisa | **42,9%** | IBGE, PeNSE 2024, Tab. 12.5.1 |
+| Tristes na maioria das vezes ou sempre | **28,9%** | IBGE, PeNSE 2024, Tab. 12.3.1 |
+| Autoavaliação de saúde mental negativa | **14,9%** (meninas 22,9% · meninos 6,8%) | IBGE, PeNSE 2024, Tab. 12.7.1 |
+| Em escolas com profissional de saúde mental no quadro | **34,1%** | IBGE, PeNSE 2024, Tab. 19.14.1 |
+
+E mais:
+
+- O Brasil tem a maior prevalência de transtornos de ansiedade do mundo: **9,3%** da população (OMS, 2017).
+- As internações no SUS por doenças do aparelho respiratório entre crianças de 5 a 9 anos passaram de **≈90 mil (2019)** para **≈130 mil (2024)** (DATASUS, SIH/SUS).
 
 ### 2.3 Público e contexto
 
@@ -66,27 +83,23 @@ Resultado: o aluno estuda o sistema respiratório, mas não aprende a **usar a p
 
 ### 2.4 Delimitação
 
-O Respira Comigo **não é tratamento** e **não substitui atendimento** de saúde mental. Ele atua em **educação em saúde e autocuidado**: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. O app exibe, de forma discreta, onde buscar ajuda (UBS, CAPS, CVV 188).
+O Respira Comigo **não é tratamento** e **não substitui atendimento** de saúde mental. Ele atua em **educação em saúde e autocuidado**: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. O app mostra, no rodapé de todas as telas, onde buscar ajuda (UBS, CAPS, CVV 188).
 
-### 2.5 Bases de dados públicas e reais
+### 2.5 Bases de dados públicas
 
-| Base | Responsável | O que usaremos | Acesso |
-|---|---|---|---|
-| **PeNSE 2019 e 2024** – Pesquisa Nacional de Saúde do Escolar | IBGE | Indicadores de saúde mental dos estudantes (preocupação, irritação, tristeza, apoio na escola), por sexo, idade e região | [ibge.gov.br](https://www.ibge.gov.br/estatisticas/sociais/saude/9134-pesquisa-nacional-de-saude-do-escolar.html) – microdados públicos |
-| **SIH/SUS** – Sistema de Informações Hospitalares | DATASUS / Ministério da Saúde | Internações por doenças do aparelho respiratório (CID-10, cap. X) por faixa etária e UF | [TabNet DATASUS](https://datasus.saude.gov.br/informacoes-de-saude-tabnet/) ou biblioteca Python **PySUS** |
-| **Global Health Estimates** – saúde mental | OMS | Prevalência de ansiedade no Brasil vs. mundo | [who.int](https://www.who.int/publications/i/item/depression-global-health-estimates) |
-| **PNS 2019** – Pesquisa Nacional de Saúde | IBGE | Diagnóstico autorreferido de asma e de depressão na população | [ibge.gov.br](https://www.ibge.gov.br/estatisticas/sociais/saude/9160-pesquisa-nacional-de-saude.html) |
-| **BodyParts3D** | DBCLS (Japão) | Modelos 3D anatômicos abertos (traqueia, brônquios, pulmões) como base do modelo | [lifesciencedb.jp/bp3d](https://lifesciencedb.jp/bp3d/) – licença CC BY-SA |
+| Base | Responsável | O que usamos |
+|---|---|---|
+| **PeNSE 2019 e 2024** | IBGE | Indicadores de saúde mental dos estudantes e suporte psicológico na escola ([tabelas oficiais](https://ftp.ibge.gov.br/pense/)) |
+| **SIH/SUS** | DATASUS / Ministério da Saúde | Internações por doenças do aparelho respiratório (CID-10, cap. X), 5 a 19 anos, 2015–2024 ([TabNet](http://tabnet.datasus.gov.br/cgi/tabcgi.exe?sih/cnv/nrbr.def)) |
+| **Global Health Estimates** | OMS | Prevalência de ansiedade no Brasil ([publicação](https://www.who.int/publications/i/item/depression-global-health-estimates)) |
 
-Detalhes de cada base, variáveis e como serão tratadas: [`docs/bases-de-dados.md`](docs/bases-de-dados.md).
+Detalhes, tabelas exatas e como gerar os dados de novo: [`data/README.md`](data/README.md).
 
 ---
 
-## 3. Proposta de solução tecnológica
+## 3. Solução
 
-### 3.1 Como a solução ataca o problema
-
-O app une **aprender** e **praticar** em uma única experiência curta (3 a 5 minutos):
+O app une **aprender** e **praticar** em uma experiência curta (3 a 5 minutos):
 
 ```
  1. APRENDER                        2. PRATICAR                       3. ENTENDER
@@ -94,131 +107,197 @@ O app une **aprender** e **praticar** em uma única experiência curta (3 a 5 mi
  (personagem 3D animado)            (ritmo ajustável)                 (painel com dados reais)
 ```
 
-**Fluxo principal (MVP)**
+1. **Caminho do ar:** em cada etapa, a câmera se aproxima das partes do corpo, elas ficam destacadas com rótulos e as partículas de ar que estão naquele trecho brilham.
+   - **Etapa 1:** nariz, faringe e laringe
+   - **Etapa 2:** traqueia e brônquios
+   - **Etapa 3:** pulmões, alvéolos e diafragma
+2. **Respiração guiada:** três ritmos prontos (**Calma 4·6**, **Equilíbrio 5·5**, **Quadrada 4·4·4·4**) ou ajuste livre de inspirar, segurar, expirar e pausa. Os pulmões e o peito do personagem enchem e esvaziam no ritmo, as partículas de ar entram e saem pelo caminho aprendido, e o anel (o mesmo do logo) marca a fase e a contagem. Tem som suave opcional, duração de 1 a 5 minutos, pausa e fim automático.
+3. **Por que importa:** cards e gráficos com os dados oficiais, cada um com a fonte e o link.
 
-1. **Etapa 1 – Vias aéreas superiores:** o ar entra pelo nariz, é filtrado, aquecido e umedecido, passa pela faringe e laringe.
-2. **Etapa 2 – Traqueia e brônquios:** o ar desce pela traqueia e se divide nos brônquios direito e esquerdo.
-3. **Etapa 3 – Pulmões e alvéolos:** o ar chega aos alvéolos, onde acontece a troca de oxigênio e gás carbônico; o diafragma desce e os pulmões se expandem.
-4. **Respiração guiada:** o personagem convida o usuário a respirar junto. O usuário ajusta **inspirar / segurar / expirar** (em segundos) ou escolhe um ritmo pronto (ex.: 4-4-6). Partículas de ar percorrem o mesmo caminho aprendido, o peito do personagem expande e contrai em sincronia, com um sinal sonoro suave opcional.
-
-**Por que respiração lenta:** estudos de revisão mostram que a respiração lenta e controlada (≈6 ciclos por minuto) está associada a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). O app usa esse princípio como prática de autocuidado, sem prometer efeito clínico.
-
-### 3.2 Tecnologias
-
-| Camada | Tecnologia | Uso no projeto |
-|---|---|---|
-| Interface | **React + Vite + TypeScript** | Telas, fluxo de etapas, controles de ritmo |
-| 3D | **Three.js** via **React Three Fiber** + **drei** | Renderizar o personagem e o sistema respiratório no navegador |
-| Modelo 3D | **Blender** (+ base do **BodyParts3D**), exportado em **glTF/GLB** | Personagem estilizado com pulmões visíveis e animação de respiração |
-| Animação | **GSAP** + `useFrame` do R3F | Sincronizar câmera, partículas de ar e expansão do peito com o ritmo |
-| Som | **Web Audio API** | Sinais sonoros suaves de inspirar/expirar (opcional) |
-| Estado | **Zustand** | Etapa atual, ritmo escolhido, preferências |
-| Dados | **Python + pandas + Jupyter** (+ **PySUS**) | Tratar PeNSE e SIH/SUS e gerar JSON leve para o app |
-| Gráficos | **Recharts** | Painel “Por que isso importa” com os dados reais |
-| Persistência | **localStorage** | Guardar ritmo preferido e nº de sessões, sem login e sem coletar dados pessoais |
-| Entrega | **GitHub Pages** ou **Vercel** + GitHub Actions | Publicação gratuita a cada push na `main` |
-
-### 3.3 Justificativa das escolhas técnicas
-
-- **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação. Isso é decisivo para o uso em sala.
-- **React Three Fiber em vez de Three.js puro:** permite escrever a cena 3D como componentes React, no mesmo padrão do resto da interface. Menos código, mais organização, e o grupo aprende uma só forma de trabalhar.
-- **Personagem estilizado, não anatomia realista:** é mais acolhedor para adolescentes, mais leve para rodar em máquinas fracas e mais rápido de produzir no semestre. O BodyParts3D serve de referência anatômica para manter a correção do conteúdo.
-- **glTF/GLB:** formato aberto e padrão da web para 3D, com animações embutidas e arquivo compacto.
-- **Sem backend no MVP:** os dados públicos são pré-processados em Python e salvos como JSON estático. Isso elimina custo de servidor, reduz riscos e cabe no prazo. Não há cadastro nem coleta de dados de menores (alinhado à LGPD).
-- **Python para dados:** é a ferramenta padrão para microdados do IBGE e do DATASUS (PySUS já baixa e lê os arquivos do SUS).
-- **Viabilidade no semestre:** o MVP tem escopo fechado (3 etapas + 1 tela de respiração + 1 painel), com tecnologias gratuitas e bem documentadas. Recursos extras (modo professor, narração, novos exercícios) ficam como evolução.
-
-### 3.4 Escopo por entrega
-
-| Entrega | O que estará pronto |
-|---|---|
-| **Checkpoint 1** (19–23/10) | Problema, dados, solução, tecnologias, identidade visual e pitch (este README) |
-| **Checkpoint 2** (09–13/11) | Protótipo navegável: 3 etapas do caminho do ar + respiração guiada com ritmo ajustável (dados podem estar mockados), README com instruções, prints e vídeo |
-| **Apresentação final** (07–08/12) | Personagem 3D final, painel com dados reais da PeNSE/SIH, ajustes do Professor Mentor, deploy público e vídeo de até 3 min |
+**Por que respiração lenta:** revisões de estudos associam a respiração lenta e controlada (≈6 ciclos por minuto) a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). Todos os ritmos prontos do app ficam em 6 respirações por minuto ou menos.
 
 ---
 
-## 4. Identidade visual
+## 4. Protótipo
+
+🎬 **[Vídeo de demonstração (1min40)](docs/demo.mp4)**: o fluxo principal completo, do início ao painel de dados.
+
+| Início | Etapa 1 – Nariz, faringe e laringe |
+|---|---|
+| ![Início](docs/prints/01-inicio.png) | ![Etapa 1](docs/prints/02-caminho-etapa1.png) |
+| **Etapa 2 – Traqueia e brônquios** | **Etapa 3 – Pulmões e alvéolos** |
+| ![Etapa 2](docs/prints/03-caminho-etapa2.png) | ![Etapa 3](docs/prints/04-caminho-etapa3.png) |
+| **Respiração guiada – inspirando** | **Respiração guiada – soltando o ar** |
+| ![Inspire](docs/prints/06-respirar-inspire.png) | ![Expire](docs/prints/07-respirar-expire.png) |
+
+<details>
+<summary><b>Painel de dados e versão para celular</b></summary>
+
+| Por que importa | Celular |
+|---|---|
+| ![Dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="300"> |
+
+</details>
+
+---
+
+## 5. Como executar
+
+### Online
+
+O app é publicado automaticamente em **https://enzorossi11.github.io/respira-comigo/** a cada atualização da branch `main`.
+
+### No seu computador
+
+Pré-requisito: [Node.js](https://nodejs.org/) 20 ou mais recente.
+
+```bash
+git clone https://github.com/enzorossi11/respira-comigo.git
+cd respira-comigo/app
+npm install
+npm run dev
+```
+
+Abra o endereço que aparecer no terminal (normalmente http://localhost:5173).
+
+| Comando (dentro de `app/`) | O que faz |
+|---|---|
+| `npm run dev` | Abre o app em modo de desenvolvimento |
+| `npm test` | Roda os 19 testes automáticos |
+| `npm run build` | Gera a versão de produção em `app/dist/` |
+| `npm run preview` | Abre a versão de produção localmente |
+
+### Gerar os dados de novo (opcional)
+
+Os dados tratados já estão no repositório (`data/processed/indicadores.json`). Para baixar tudo de novo das fontes oficiais, com Python 3.10 ou mais recente:
+
+```bash
+pip install -r data/requirements.txt
+python3 data/scripts/baixar_pense.py
+python3 data/scripts/baixar_sih.py
+python3 data/scripts/gerar_json.py
+```
+
+---
+
+## 6. Tecnologias e decisões técnicas
+
+| Camada | Tecnologia | Uso no projeto |
+|---|---|---|
+| Interface | **React 19 + TypeScript + Vite** | Telas, navegação e controles de ritmo |
+| 3D | **Three.js** via **React Three Fiber** + **drei** | Personagem, vias aéreas, pulmões, diafragma e partículas de ar |
+| Estado | **Zustand** | Tela atual, etapa, ritmo e sessão de respiração |
+| Gráficos | **Recharts** | Painel “Por que importa” |
+| Som | **Web Audio API** | Sinais suaves gerados na hora, sem arquivos de áudio |
+| Fontes | **Nunito + Inter** (Fontsource) | Servidas junto com o app, sem depender do Google |
+| Dados | **Python + pandas** | Download e tratamento da PeNSE e do SIH/SUS → JSON |
+| Testes | **Vitest** | Lógica da respiração e integridade dos dados |
+| Entrega | **GitHub Actions + GitHub Pages** | Testa, compila e publica a cada push na `main` |
+
+**Decisões principais**
+
+- **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação.
+- **Personagem modelado em código:** o corpo e a anatomia são formas do Three.js (esferas, cápsulas e tubos que seguem curvas). Isso deixou o 3D leve, fácil de animar no ritmo da respiração e de destacar parte por parte, sem depender de um modelo externo. A geometria do caminho do ar fica em [`app/src/3d/anatomia.ts`](app/src/3d/anatomia.ts).
+- **Lógica da respiração separada da interface:** [`app/src/lib/respiracao.ts`](app/src/lib/respiracao.ts) é uma função pura que, dado o tempo e o ritmo, diz a fase, a contagem e quanto os pulmões estão cheios. O anel, o personagem e as partículas leem dela, então tudo fica sincronizado, e ela é coberta por testes.
+- **Animação sem re-render:** o 3D lê o estado direto no `useFrame`, sem re-renderizar o React a cada quadro, o que mantém a animação fluida.
+- **Carregamento em partes:** a cena 3D e o painel de dados são carregados separadamente, para a primeira tela abrir rápido.
+- **Sem backend e sem cadastro:** os dados públicos viram um JSON estático no momento do build. As preferências (ritmo, duração, som) ficam só no navegador do aluno. Nenhum dado pessoal é coletado (LGPD).
+- **Conteúdo sensível filtrado:** por ser voltado a adolescentes, o app não lê nem exibe os indicadores da PeNSE sobre autolesão e ideação suicida.
+- **Acessibilidade:** navegação por teclado (setas trocam de etapa), rótulos para leitores de tela e contraste de texto seguindo o guia de marca.
+
+---
+
+## 7. Identidade visual
 
 Guia completo: [`docs/identidade-visual.md`](docs/identidade-visual.md)
-
-### Logo
 
 | Versão principal | Ícone | Fundo escuro |
 |---|---|---|
 | <img src="assets/logo/logo-horizontal.png" width="260"> | <img src="assets/logo/icone.png" width="90"> | <img src="assets/logo/logo-horizontal-negativo.png" width="260"> |
 
-**Conceito:** dois pulmões com um rosto simpático (o personagem) dentro de um **anel de respiração**. A metade verde do anel é a **inspiração**, a metade lilás é a **expiração**, e o ponto pêssego marca o **ritmo** — o mesmo indicador que guia a respiração no app.
-
-### Paleta de cores
+**Conceito:** dois pulmões com um rosto simpático (o personagem) dentro de um **anel de respiração**. A metade verde do anel é a **inspiração**, a metade lilás é a **expiração**, e o ponto pêssego marca o **ritmo**. No app, esse mesmo anel guia a respiração.
 
 <img src="assets/paleta.png" alt="Paleta de cores" width="720">
 
 | Nome | HEX | Uso |
 |---|---|---|
-| Inspira | `#2BB5A8` | Inspiração, botões e ações principais |
-| Inspira escuro | `#137A71` | Texto em verde sobre fundo claro (contraste acessível) |
-| Expira | `#7C6FE0` | Expiração, destaques e estados ativos |
-| Fôlego | `#FFB38A` | Personagem, pausas, marcador de ritmo |
-| Noite | `#1F2547` | Textos e títulos; fundo do modo escuro |
+| Inspira | `#2BB5A8` | Inspiração, pulmão direito |
+| Inspira escuro | `#137A71` | Botões e texto em verde (contraste acessível) |
+| Expira | `#7C6FE0` | Expiração, pulmão esquerdo |
+| Fôlego | `#FFB38A` | Pausas, marcador de ritmo, destaques |
+| Noite | `#1F2547` | Textos e títulos |
 | Névoa | `#F5F8FC` | Fundo da aplicação |
-
-### Tipografia
 
 <img src="assets/tipografia.png" alt="Tipografia" width="720">
 
-- **Títulos:** [Nunito](https://fonts.google.com/specimen/Nunito) ExtraBold — cantos arredondados, amigável, combina com o personagem.
-- **Textos e interface:** [Inter](https://fonts.google.com/specimen/Inter) Regular/SemiBold — muito legível em telas pequenas.
-
-Ambas são gratuitas (Google Fonts, licença OFL).
+- **Títulos:** Nunito ExtraBold · **Textos:** Inter Regular/SemiBold (licença OFL)
 
 ---
 
-## 5. Pitch inicial
+## 8. Pitch
 
-Texto completo e roteiro: [`docs/pitch.md`](docs/pitch.md)
-
-> O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos nossos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia — mas só um terço deles tem um profissional de saúde mental na escola. A respiração é a ferramenta de autorregulação mais simples que existe, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O **Respira Comigo** muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com o aluno, no ritmo que ele escolher.
+> O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos nossos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia — mas só um terço estuda numa escola com profissional de saúde mental. A respiração é a ferramenta de autorregulação mais simples que existe, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O **Respira Comigo** muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com o aluno, no ritmo que ele escolher.
 >
-> **Diferencial:** une, em uma única experiência de poucos minutos, o **conteúdo de Ciências** e a **prática de bem-estar** — o aluno aprende como a respiração funciona e, na hora, sente isso no próprio corpo. Roda no navegador, sem instalação e sem cadastro, e é baseado em dados públicos reais sobre a saúde dos estudantes brasileiros.
+> **Diferencial:** une, em uma única experiência de poucos minutos, o **conteúdo de Ciências** e a **prática de bem-estar**. Roda no navegador, sem instalação e sem cadastro, e é baseado em dados públicos reais sobre a saúde dos estudantes brasileiros.
+
+Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`docs/pitch.md`](docs/pitch.md).
 
 ---
 
-## 6. Cronograma
+## 9. Cronograma e evolução
 
-| Período | Entrega | Foco |
+| Período | Entrega | Status |
 |---|---|---|
-| 19/10 a 23/10 | Checkpoint 1 | Ideação: problema, tecnologias, identidade visual e pitch inicial |
-| 09/11 a 13/11 | Checkpoint 2 | Protótipo funcional, GitHub documentado e vídeo de demonstração |
-| 07/12 e 08/12 | Apresentação final | Pitch de 5 minutos, projeto funcionando e repositório final |
+| 19/10 a 23/10 | **Checkpoint 1** – problema, tecnologias, identidade visual e pitch inicial | ✅ |
+| 09/11 a 13/11 | **Checkpoint 2** – protótipo funcional, GitHub documentado e vídeo | ✅ |
+| 07/12 e 08/12 | **Apresentação final** – pitch de 5 min, projeto funcionando e repositório final | ⏳ |
+
+**Do Checkpoint 1 para o 2**
+
+- O MVP planejado (3 etapas + ritmo ajustável) está completo e navegável, com **dados reais** no lugar de dados mockados.
+- O personagem passou a ser modelado direto em código, em vez de um modelo do Blender (ver seção 6).
+- Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
+- Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
+
+**Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
 
 ---
 
-## 7. Estrutura do repositório
+## 10. Estrutura do repositório
 
 ```
 respira-comigo/
-├── README.md                 ← visão geral do projeto (você está aqui)
-├── assets/
-│   ├── logo/                 ← logo em SVG e PNG (horizontal, vertical, ícone, negativo, mono)
-│   ├── paleta.png / .svg
-│   └── tipografia.png / .svg
-├── docs/
-│   ├── bases-de-dados.md     ← detalhes das bases públicas e tratamento
-│   ├── identidade-visual.md  ← guia de marca
-│   ├── pitch.md              ← pitch e roteiro do pitch final
-│   └── roteiro.md            ← o que está pronto, checklist e próximos passos
-├── data/                     ← (CP2) notebooks e JSON tratados
-└── app/                      ← (CP2) código da aplicação
+├── README.md
+├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
+├── app/                           ← aplicação (React + Three.js)
+│   └── src/
+│       ├── 3d/                    ← cena, personagem, anatomia e partículas de ar
+│       ├── telas/                 ← Início, Caminho do ar, Respirar, Por que importa
+│       ├── componentes/           ← anel de respiração
+│       ├── conteudo/etapas.ts     ← textos das 3 etapas
+│       ├── lib/respiracao.ts      ← lógica da respiração (+ testes)
+│       └── store.ts               ← estado do app
+├── data/
+│   ├── scripts/                   ← download e tratamento (PeNSE e SIH/SUS)
+│   ├── processed/                 ← JSON e CSVs usados pelo app
+│   └── README.md                  ← de onde vem cada número
+├── assets/                        ← logo, paleta e tipografia
+└── docs/
+    ├── prints/                    ← capturas de tela do protótipo
+    ├── demo.mp4                   ← vídeo de demonstração
+    ├── pitch.md                   ← pitch inicial e roteiro do pitch final
+    ├── identidade-visual.md
+    ├── bases-de-dados.md
+    └── roteiro.md                 ← o que está pronto e próximos passos
 ```
 
 ---
 
-## 8. Equipe
+## 11. Equipe
 
 | Integrante | GitHub | Responsabilidade principal |
 |---|---|---|
-| Enzo Rossi | [@usuario](https://github.com/usuario) | Gestão do projeto, problema e dados |
+| Enzo Rossi | [@enzorossi11](https://github.com/enzorossi11) | Gestão do projeto, problema e dados |
 | _Nome_ | [@usuario](https://github.com/usuario) | _Front-end e 3D_ |
 | _Nome_ | [@usuario](https://github.com/usuario) | _Identidade visual e personagem_ |
 | _Nome_ | [@usuario](https://github.com/usuario) | _Dados (PeNSE / DATASUS)_ |
@@ -227,14 +306,12 @@ respira-comigo/
 
 ---
 
-## 9. Referências
+## 12. Referências
 
 - IBGE. **Pesquisa Nacional de Saúde do Escolar – PeNSE 2019** e **PeNSE 2024**. Rio de Janeiro: IBGE.
-- IBGE. **Pesquisa Nacional de Saúde – PNS 2019**. Rio de Janeiro: IBGE, 2020.
-- Ministério da Saúde. **DATASUS – Sistema de Informações Hospitalares do SUS (SIH/SUS)**.
+- Ministério da Saúde. **DATASUS – Sistema de Informações Hospitalares do SUS (SIH/SUS)**, TabNet.
 - WORLD HEALTH ORGANIZATION. **Depression and Other Common Mental Disorders: Global Health Estimates**. Genebra: WHO, 2017.
 - ZACCARO, A. et al. How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing. **Frontiers in Human Neuroscience**, v. 12, 2018.
-- DBCLS. **BodyParts3D**. Database Center for Life Science, Japão.
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
 
 ---

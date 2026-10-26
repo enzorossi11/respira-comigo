@@ -114,6 +114,21 @@ def extrair_suporte(ano: int) -> dict | None:
     return out
 
 
+def extrair_profissional_quadro(ano: int) -> tuple[float, float, float] | None:
+    """Tabela 19.14.1, coluna 'A escola possui em seu quadro de funcionários
+    profissional de saúde psicológica/mental' – linha Brasil do bloco Total."""
+    try:
+        df = abrir_planilha(ano, "19", "19.14")
+    except (ValueError, FileNotFoundError):
+        return None
+    cabecalho = " ".join(str(v) for v in df.iloc[:10, 1].tolist())
+    if "quadro de funcionários" not in cabecalho:
+        return None
+    col0 = df[0].astype(str).str.strip()
+    i = col0[col0 == "Brasil"].index[0]  # 1ª linha Brasil = bloco Total
+    return num(df.iloc[i, 1]), num(df.iloc[i, 2]), num(df.iloc[i, 3])
+
+
 def r1(x: float) -> float:
     return round(x + 0.0, 1)
 
@@ -160,6 +175,16 @@ def main() -> int:
             "url": FONTES[2024]["12"][1],
         })
         print(f"{ind_id}_2024: {p:.2f}% (IC95% {li:.2f}–{ls:.2f})")
+    prof = extrair_profissional_quadro(2024)
+    if prof:
+        indicadores.append({
+            "id": "profissional_saude_mental_2024",
+            "titulo": "Em escolas com profissional de saúde mental no quadro de funcionários",
+            "valor": r1(prof[0]), "unidade": "%", "publico": PUBLICO, "ano": 2024,
+            "fonte": "IBGE – PeNSE 2024, Tabela 19.14.1",
+            "url": FONTES[2024]["19"][1],
+        })
+        print(f"profissional_saude_mental_2024: {prof[0]:.2f}% (IC95% {prof[1]:.2f}–{prof[2]:.2f})")
     indicadores.append({
         "id": "ansiedade_oms", "titulo": "População com transtorno de ansiedade",
         "valor": 9.3, "unidade": "%", "publico": "População brasileira", "ano": 2015,

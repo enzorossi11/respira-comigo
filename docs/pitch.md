@@ -36,7 +36,7 @@ O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos n
 
 > O Brasil é o país com a maior prevalência de transtornos de ansiedade do mundo, segundo a OMS: 9,3% da população.
 >
-> Entre os estudantes de 13 a 17 anos, a PeNSE do IBGE mostra que metade se sente muito preocupada com as coisas do dia a dia. E só cerca de um terço estuda numa escola que tem um profissional de saúde mental.
+> Entre os estudantes de 13 a 17 anos, a PeNSE 2024 do IBGE mostra que praticamente metade — 49,7% — se sente muito preocupada com as coisas do dia a dia. E só 34% estudam numa escola que tem um profissional de saúde mental no quadro.
 >
 > Ao mesmo tempo, o sistema respiratório está no currículo de Ciências — mas como lista de órgãos para decorar. O aluno aprende o nome “alvéolo”, mas não aprende a usar a própria respiração.
 
@@ -79,7 +79,7 @@ O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos n
 ### Plano B (se algo falhar ao vivo)
 
 - **Sem internet:** rodar a versão local (`npm run build` + `npm run preview`) no notebook antes da apresentação.
-- **3D travando no computador da sala:** usar o vídeo de demonstração (`docs/video.md`) a partir do trecho da respiração.
+- **3D travando no computador da sala:** usar o vídeo de demonstração (`docs/demo.mp4`, baixado no notebook antes) a partir do trecho da respiração.
 - **Tempo estourando:** cortar a etapa 2 do caminho do ar na demonstração (só citar).
 
 ### Perguntas prováveis da banca

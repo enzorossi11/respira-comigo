@@ -27,7 +27,7 @@ Todas as bases abaixo são públicas, oficiais e de acesso gratuito. No MVP elas
 
 - **Responsável:** Ministério da Saúde
 - **Link:** https://datasus.saude.gov.br/informacoes-de-saude-tabnet/
-- **Acesso via código:** biblioteca Python [PySUS](https://github.com/AlertaDengue/PySUS)
+- **Acesso via código:** consulta automática ao TabNet pelo script `data/scripts/baixar_sih.py`
 
 **Recorte**
 
@@ -59,16 +59,18 @@ Todas as bases abaixo são públicas, oficiais e de acesso gratuito. No MVP elas
 - **Responsável:** Database Center for Life Science (DBCLS), Japão
 - **Link:** https://lifesciencedb.jp/bp3d/
 - **Licença:** Creative Commons BY-SA
-- **Uso:** referência anatômica para traqueia, brônquios e pulmões do personagem (o modelo final é estilizado no Blender)
+- **Uso:** referência anatômica para traqueia, brônquios e pulmões do personagem (no protótipo, o personagem é modelado direto em código com Three.js; o BodyParts3D fica como referência)
 
 ---
 
-## Fluxo de tratamento (planejado para o Checkpoint 2)
+## Fluxo de tratamento
 
 ```
-PeNSE (SIDRA/microdados) ─┐
-SIH/SUS (PySUS)  ─────────┼──►  notebooks em data/  ──►  data/*.json  ──►  painel no app (Recharts)
-OMS / PNS (tabelas)  ─────┘
+PeNSE (planilhas IBGE)  ──┐
+SIH/SUS (TabNet) ─────────┼──►  scripts em data/scripts  ──►  data/processed/indicadores.json  ──►  painel no app (Recharts)
+OMS (valor publicado) ────┘
 ```
 
 Cada número exibido no app terá a fonte e o ano indicados logo abaixo do gráfico.
+
+Os números exatos, tabela por tabela, e como gerar tudo de novo estão em [`data/README.md`](../data/README.md).

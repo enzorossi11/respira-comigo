@@ -186,7 +186,8 @@ a { color: var(--rc-inspira-escuro); }
 
 /* ---------- Celular / telas estreitas ---------- */
 @media (max-width: 900px) {
-  .topo { padding: 10px 16px; flex-wrap: wrap; }
+  .topo { padding: 10px 16px; flex-wrap: wrap; position: static; }
+  .menu button { padding: 8px 11px; font-size: 0.88rem; }
   .menu { width: 100%; }
   .conteudo.com-3d { grid-template-columns: 1fr; }
   .palco { position: relative; top: 0; height: 46vh; min-height: 300px; }
