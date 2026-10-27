@@ -1,6 +1,6 @@
 import { Sparkles } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
+import { Suspense, useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import {
   Color,
   DirectionalLight,
@@ -10,7 +10,6 @@ import {
   InstancedMesh,
   Matrix4,
   Mesh,
-  MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
   PerspectiveCamera,
@@ -22,6 +21,7 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
+import { usePecasModelo, type ParteModelo } from '../3d/Corpo'
 import { anel, geometriaTunel } from './tunel'
 
 type SimRef = MutableRefObject<Simulacao>
@@ -43,8 +43,8 @@ export function jaVisivel(sObjeto: number, sJogador: number): boolean {
 
 const CEU = new Color('#cfeaf6')
 const CIMA = new Vector3(0, 1, 0)
-const COR_PELE = '#ffc7a3'
-const COR_NARIZ = '#f6a888'
+const COR_PELE = '#e9b597'
+const COR_NARIZ = '#c97a6a'
 const DENTRO = new Color('#5a1e2c')
 
 /* ------------------------------------------------------------------ túnel */
@@ -102,15 +102,18 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
 /* --------------------------------------------------------------- lá fora */
 
 /**
- * O personagem do app, em tamanho gigante, visto de fora. O nariz é posicionado
- * para que a narina fique exatamente na entrada do túnel; um shader abre o
- * buraco da narina (descarta a parte da pele que está dentro do túnel).
+ * O personagem do app (modelo anatômico), em tamanho gigante, visto de fora.
+ * O modelo é posicionado para que a narina direita fique exatamente na entrada
+ * do túnel; um shader abre o buraco da narina (descarta a pele dentro do túnel).
  */
-const RN = 10 // raio do nariz
-const RH = 44 // raio da cabeça
+/** Escala do gigante: 1 m do modelo = K unidades do jogo (a narina fica do tamanho do túnel) */
+const K = 480
+/** Narina direita do modelo (em metros, no sistema do modelo) */
+const NARINA_MODELO = new Vector3(-0.0055, 1.5504, 0.1026)
+const PECAS_GIGANTE: ParteModelo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Bermuda', 'Cabelo', 'Esclera', 'Iris']
 
 function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } | null, rugosidade = 0.7) {
-  const m = new MeshStandardMaterial({ color: cor, roughness: rugosidade })
+  const m = new MeshStandardMaterial({ color: cor, roughness: rugosidade, side: DoubleSide })
   if (furo) {
     m.onBeforeCompile = (sh) => {
       sh.uniforms.uA = { value: furo.a }
@@ -135,41 +138,27 @@ function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } |
 
 function PersonagemGigante({ sim }: { sim: SimRef }) {
   const raiz = useRef<Group>(null)
+  const pecas = usePecasModelo()
   const q = useMemo(() => quadroEm(CAMINHOS.direito, S.narina), [])
   const R = raioEm(S.narina)
-  const geo = useMemo(() => {
-    const P = q.ponto
-    // nariz: a narina (P) fica na parte de baixo/frente do nariz, levemente para o lado
-    const lado = new Vector3(1, 0, 0)
-    const C = P.clone().addScaledVector(q.tangente, RN * 0.92).addScaledVector(lado, -3.4)
-    const rNariz = C.distanceTo(P)
-    // cabeça: atrás e um pouco acima do nariz
-    const H = new Vector3(C.x, C.y + 6, C.z - RH + 3)
-    // ponto na superfície da frente da cabeça (dx, dy a partir do centro)
-    const sup = (dx: number, dy: number, sobe = 0) =>
-      new Vector3(H.x + dx, H.y + dy, H.z + Math.sqrt(Math.max(0, RH * RH - dx * dx - dy * dy)) + sobe)
-    const outra = C.clone().add(new Vector3(-(P.x - C.x), P.y - C.y, P.z - C.z)) // narina espelhada
-    const furo = { a: P.clone().addScaledVector(q.tangente, -3), b: P.clone().addScaledVector(q.tangente, RN * 2.2), r: R * 0.98 }
-    return { P, C, H, rNariz, sup, outra, furo }
-  }, [q, R])
+  const P = q.ponto
 
-  const mats = useMemo(
-    () => ({
-      pele: materialPele(COR_PELE, geo.furo),
-      peleNariz: materialPele(COR_NARIZ, geo.furo, 0.6),
-      cabelo: new MeshStandardMaterial({ color: '#1f2547', roughness: 0.75 }),
-      camiseta: new MeshStandardMaterial({ color: '#7c6fe0', roughness: 0.85 }),
-      branco: new MeshStandardMaterial({ color: '#ffffff', roughness: 0.25 }),
-      escuro: new MeshStandardMaterial({ color: '#1f2547', roughness: 0.3 }),
-      bochecha: new MeshStandardMaterial({ color: '#f28f6b', transparent: true, opacity: 0.55, roughness: 0.8 }),
-      narina: new MeshBasicMaterial({ color: '#4a1422' }),
-    }),
-    [geo],
-  )
+  const mats = useMemo(() => {
+    // o buraco da narina: um cilindro ao longo do túnel, a partir de um pouco antes da entrada
+    const furo = { a: P.clone().addScaledVector(q.tangente, -2), b: P.clone().addScaledVector(q.tangente, 40), r: R * 0.98 }
+    const pele = materialPele(COR_PELE, furo, 0.6)
+    return {
+      PeleCabeca: pele,
+      PeleTronco: pele,
+      PeleMembros: pele,
+      Bermuda: new MeshStandardMaterial({ color: '#1f2547', roughness: 0.85 }),
+      Cabelo: new MeshStandardMaterial({ color: '#3a2a22', roughness: 0.8 }),
+      Esclera: new MeshStandardMaterial({ color: '#f7f4f0', roughness: 0.3 }),
+      Iris: new MeshStandardMaterial({ color: '#5a3a24', roughness: 0.3 }),
+    } as Record<string, MeshStandardMaterial>
+  }, [P, q, R])
 
   const alvoAnel = useRef<Mesh>(null)
-  const olhos = useRef<Group>(null)
-  const proxPiscada = useRef(3)
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
     // o gigante só existe do lado de fora: por dentro, o pescoço e o corpo dele
@@ -180,103 +169,27 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
       alvoAnel.current.scale.setScalar(1 + k * 0.7)
       ;(alvoAnel.current.material as MeshStandardMaterial).opacity = 1 - k
     }
-    // o gigante também pisca
-    if (t > proxPiscada.current + 0.15) proxPiscada.current = t + 2.5 + Math.random() * 3
-    if (olhos.current) olhos.current.scale.y = t > proxPiscada.current ? 0.1 : 1
   })
 
-  const { P, C, H, rNariz, sup, outra } = geo
   const virado = (alvo: Vector3, de: Vector3) => new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), alvo.clone().sub(de).normalize())
-  const olhoE = sup(-15, 13, -1)
-  const olhoD = sup(15, 13, -1)
-  const sorriso = sup(0, -27, -0.5)
+  const origem = P.clone().sub(NARINA_MODELO.clone().multiplyScalar(K))
 
   return (
     <group ref={raiz}>
-      {/* cabeça e orelhas */}
-      <mesh position={H} material={mats.pele}>
-        <sphereGeometry args={[RH, 64, 64]} />
-      </mesh>
-      {[-1, 1].map((sx) => (
-        <mesh key={sx} position={[H.x + sx * RH * 0.97, H.y - 2, H.z]} scale={[0.45, 1, 0.75]} material={mats.pele}>
-          <sphereGeometry args={[9, 24, 24]} />
-        </mesh>
-      ))}
-      {/* cabelo */}
-      <mesh position={[H.x, H.y + 3, H.z - 1]} rotation={[-0.35, 0, 0]} material={mats.cabelo}>
-        <sphereGeometry args={[RH * 1.03, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2.5]} />
-      </mesh>
-      {[-11, 1, 13].map((dx, i) => (
-        <mesh key={dx} position={sup(dx, 33, 1)} rotation={[0.9, 0, (i - 1) * -0.35]} scale={[1, 1.4, 0.7]} material={mats.cabelo}>
-          <sphereGeometry args={[8, 20, 20]} />
-        </mesh>
-      ))}
-
-      {/* olhos */}
-      <group ref={olhos} position={[0, (olhoE.y + olhoD.y) / 2, 0]}>
-        {[olhoE, olhoD].map((o, i) => (
-          <group key={i} position={[o.x, 0, o.z]}>
-            <mesh scale={[1, 1.15, 0.55]} material={mats.branco}>
-              <sphereGeometry args={[6.5, 24, 24]} />
-            </mesh>
-            <mesh position={[0, -0.3, 3]} scale={[1, 1.1, 0.6]} material={mats.escuro}>
-              <sphereGeometry args={[4, 20, 20]} />
-            </mesh>
-            <mesh position={[1.4, 1.8, 5.2]} material={mats.branco}>
-              <sphereGeometry args={[1.1, 12, 12]} />
-            </mesh>
-          </group>
+      <group position={origem} scale={K}>
+        {PECAS_GIGANTE.map((p) => (
+          <mesh key={p} geometry={pecas[p].geometria} position={pecas[p].centro} material={mats[p]} />
         ))}
       </group>
-      {/* sobrancelhas */}
-      {[-1, 1].map((sx) => (
-        <mesh key={sx} position={sup(15 * sx, 24, 0.5)} rotation={[0, 0, Math.PI / 2 + 0.18 * sx]} material={mats.escuro}>
-          <capsuleGeometry args={[1.2, 7, 4, 8]} />
-        </mesh>
-      ))}
-      {/* bochechas */}
-      {[-1, 1].map((sx) => (
-        <mesh key={sx} position={sup(22 * sx, -4, 0.3)} scale={[1, 0.62, 0.4]} material={mats.bochecha}>
-          <sphereGeometry args={[6, 16, 16]} />
-        </mesh>
-      ))}
-      {/* sorriso */}
-      <mesh
-        position={sorriso}
-        quaternion={virado(sorriso.clone().add(sorriso.clone().sub(H)), sorriso).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI))}
-        material={mats.escuro}
-      >
-        <torusGeometry args={[8, 1.4, 10, 32, Math.PI]} />
-      </mesh>
-
-      {/* nariz, com a narina aberta onde começa o túnel */}
-      <mesh position={C} material={mats.peleNariz}>
-        <sphereGeometry args={[rNariz, 48, 48]} />
-      </mesh>
-      {/* borda da narina */}
-      <mesh position={P} quaternion={virado(P.clone().add(q.tangente), P)}>
-        <torusGeometry args={[R * 1.02, 0.5, 14, 48]} />
-        <meshStandardMaterial color="#e08a72" roughness={0.6} />
-      </mesh>
-      {/* a outra narina (só desenhada) */}
-      <mesh position={outra} quaternion={virado(outra.clone().add(outra.clone().sub(C)), outra)} material={mats.narina}>
-        <circleGeometry args={[R * 0.95, 40]} />
+      {/* fundo escuro da narina (o túnel começa logo atrás) */}
+      <mesh position={P.clone().addScaledVector(q.tangente, 1.2)} quaternion={virado(P.clone().add(q.tangente), P)}>
+        <torusGeometry args={[R * 1.0, 0.35, 14, 48]} />
+        <meshStandardMaterial color={COR_NARIZ} roughness={0.6} />
       </mesh>
       {/* alvo pulsando: "entre aqui" */}
       <mesh ref={alvoAnel} position={P.clone().addScaledVector(q.tangente, -0.6)} quaternion={virado(P.clone().add(q.tangente), P)}>
         <torusGeometry args={[R * 1.08, 0.3, 12, 48]} />
         <meshStandardMaterial color="#9ff4ff" emissive="#3fe0d0" emissiveIntensity={1.5} transparent toneMapped={false} depthWrite={false} />
-      </mesh>
-
-      {/* pescoço e corpo (de camiseta) — escondem as vias aéreas por dentro */}
-      <mesh position={[H.x, H.y - RH - 6, H.z]} material={mats.pele}>
-        <cylinderGeometry args={[17, 19, 26, 40]} />
-      </mesh>
-      <mesh position={[H.x, -150, H.z]} material={mats.camiseta}>
-        <capsuleGeometry args={[54, 120, 16, 48]} />
-      </mesh>
-      <mesh position={[H.x, H.y - RH - 16, H.z]} rotation={[Math.PI / 2, 0, 0]} material={mats.camiseta}>
-        <torusGeometry args={[19, 3, 12, 40]} />
       </mesh>
     </group>
   )
@@ -705,7 +618,9 @@ export function CenaJogo({ sim, tremor }: { sim: SimRef; tremor: MutableRefObjec
       <directionalLight ref={sol} position={[10, 30, 60]} intensity={1.4} />
       <Camera sim={sim} tremor={tremor} />
 
-      <PersonagemGigante sim={sim} />
+      <Suspense fallback={null}>
+        <PersonagemGigante sim={sim} />
+      </Suspense>
       <Tunel c={D} s0={S.narina - 0.5} s1={S.carina} />
       <Tunel c={D} s0={S.carina} s1={S.fim + 0.6} outro={E} />
       <Tunel c={E} s0={S.carina} s1={S.fim + 0.6} outro={D} />

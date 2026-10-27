@@ -1,52 +1,40 @@
 import { CatmullRomCurve3, Vector3 } from 'three'
 
 /**
- * Geometria do caminho do ar do personagem (unidades da cena, y para cima,
- * o personagem olha para +z). Lado "direito" do personagem = -x na tela.
+ * Geometria do caminho do ar, tirada do modelo anatômico do Z-Anatomy
+ * (public/modelos/corpo.glb, em metros, pés em y = 0, olhando para +z).
+ *
+ * O modelo é colocado na cena com escala ESCALA e os pés em BASE_Y
+ * (unidades locais do personagem). Lado "direito" do personagem = -x na tela.
  */
-const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
+export const ESCALA = 2.8
+export const BASE_Y = -2.47
+
+/** Converte um ponto do modelo (metros) para as unidades locais do personagem. */
+const m = (x: number, y: number, z: number) => new Vector3(x * ESCALA, BASE_Y + y * ESCALA, z * ESCALA)
 
 export const PONTOS = {
-  narina: v(0, 1.955, 0.5),
-  cavidadeNasal: v(0, 2.07, 0.34),
-  nasofaringe: v(0, 2.1, 0.12),
-  faringe: v(0, 1.88, -0.02),
-  faringeBaixa: v(0, 1.66, 0.0),
-  laringe: v(0, 1.48, 0.04),
-  inicioTraqueia: v(0, 1.4, 0.04),
-  carina: v(0, 0.88, 0.03),
+  narina: m(0, 1.541, 0.112),
+  cavidadeNasal: m(0, 1.556, 0.085),
+  cavidadeFundo: m(0, 1.567, 0.058),
+  nasofaringe: m(0, 1.568, 0.03),
+  faringe: m(0, 1.542, 0.022),
+  faringeBaixa: m(0, 1.51, 0.02),
+  laringe: m(0, 1.484, 0.017),
+  inicioTraqueia: m(0, 1.457, 0.009),
+  meioTraqueia: m(0, 1.416, 0.003),
+  fimTraqueia: m(0, 1.385, -0.006),
+  carina: m(0, 1.364, -0.012),
 }
 
-const lado = (s: 1 | -1) => ({
-  b1: v(0.2 * s, 0.74, 0.03),
-  b2: v(0.36 * s, 0.52, 0.03),
-  pulmao: v(0.42 * s, 0.28, 0.05),
-})
-
-export const LADO_DIREITO = lado(-1)
-export const LADO_ESQUERDO = lado(1)
+const lado = (s: 1 | -1) =>
+  s === -1
+    ? { b1: m(-0.0138, 1.348, -0.017), b2: m(-0.0315, 1.318, -0.021), pulmao: m(-0.068, 1.275, 0.0) }
+    : { b1: m(0.0271, 1.335, -0.018), b2: m(0.0436, 1.321, -0.021), pulmao: m(0.074, 1.272, 0.0) }
 
 export const CENTRO_PULMAO = {
-  direito: v(-0.4, 0.38, 0.02),
-  esquerdo: v(0.4, 0.38, 0.02),
-}
-
-/** Vias aéreas superiores (nariz → laringe) */
-export const curvaSuperior = new CatmullRomCurve3([
-  PONTOS.narina,
-  PONTOS.cavidadeNasal,
-  PONTOS.nasofaringe,
-  PONTOS.faringe,
-  PONTOS.faringeBaixa,
-  PONTOS.laringe,
-  PONTOS.inicioTraqueia,
-])
-
-export const curvaTraqueia = new CatmullRomCurve3([PONTOS.inicioTraqueia, v(0, 1.15, 0.035), PONTOS.carina])
-
-export const curvaBronquio = (s: 1 | -1) => {
-  const l = lado(s)
-  return new CatmullRomCurve3([PONTOS.carina, l.b1, l.b2, l.pulmao])
+  direito: m(-0.065, 1.3, 0.005),
+  esquerdo: m(0.068, 1.3, 0.008),
 }
 
 /** Caminho completo, da narina ao fundo de um pulmão — usado pelas partículas. */
@@ -56,12 +44,14 @@ export const caminhoCompleto = (s: 1 | -1) => {
     [
       PONTOS.narina,
       PONTOS.cavidadeNasal,
+      PONTOS.cavidadeFundo,
       PONTOS.nasofaringe,
       PONTOS.faringe,
       PONTOS.faringeBaixa,
       PONTOS.laringe,
       PONTOS.inicioTraqueia,
-      v(0, 1.15, 0.035),
+      PONTOS.meioTraqueia,
+      PONTOS.fimTraqueia,
       PONTOS.carina,
       l.b1,
       l.b2,
@@ -70,14 +60,4 @@ export const caminhoCompleto = (s: 1 | -1) => {
     false,
     'centripetal',
   )
-}
-
-/** Pequenos ramos (bronquíolos) saindo de cada brônquio para dentro do pulmão. */
-export const ramos = (s: 1 | -1): CatmullRomCurve3[] => {
-  const l = lado(s)
-  const alvos = [v(0.55 * s, 0.75, 0.05), v(0.62 * s, 0.4, 0.08), v(0.5 * s, 0.05, 0.04), v(0.3 * s, 0.1, 0.1)]
-  return alvos.map((a) => {
-    const meio = l.b2.clone().lerp(a, 0.5).add(v(0.03 * s, 0.03, 0))
-    return new CatmullRomCurve3([l.b2, meio, a])
-  })
 }

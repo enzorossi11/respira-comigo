@@ -69,6 +69,17 @@ export default function App() {
           O Respira Comigo é um projeto educativo e não substitui atendimento profissional. Se precisar conversar, procure a UBS ou o
           CAPS da sua região, ou ligue <b>188</b> (CVV, 24 horas, gratuito).
         </p>
+        <p className="credito">
+          Modelo anatômico 3D adaptado do{' '}
+          <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" target="_blank" rel="noreferrer">
+            Z-Anatomy
+          </a>{' '}
+          (Gauthier Kervyn e Marcin Zielinski, a partir do BodyParts3D), licença{' '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noreferrer">
+            CC BY-SA 4.0
+          </a>
+          .
+        </p>
       </footer>
     </div>
   )

@@ -29,7 +29,7 @@ O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos n
 
 > Antes de começar, eu queria pedir uma coisa para a banca: respirem com a gente por três ciclos.
 >
-> *(Operador: menu **Respirar** → modo **Livre** → preset **Calma** → **Começar**. Todos respiram 3 ciclos, cerca de 30 segundos. O personagem faz “o” com a boca a cada expiração.)*
+> *(Operador: menu **Respirar** → modo **Livre** → preset **Calma** → **Começar**. Todos respiram 3 ciclos, cerca de 30 segundos. Os pulmões do personagem enchem e o diafragma desce a cada inspiração.)*
 >
 > Obrigado. Isso que vocês acabaram de fazer — soltar o ar mais devagar do que puxaram — é uma das formas mais simples de o corpo desacelerar. E quase nenhum adolescente aprende isso na escola.
 
@@ -70,7 +70,7 @@ O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos n
 
 ### 3:45 – 4:30 · Tecnologia e decisões (fala 2)
 
-> Fizemos o app em React com TypeScript. O personagem, a anatomia e o túnel do jogo são desenhados em 3D direto no navegador com Three.js, pelo React Three Fiber.
+> Fizemos o app em React com TypeScript. O personagem é um modelo anatômico real, do atlas aberto Z-Anatomy, que recortamos no Blender para ficar só com a pele e o sistema respiratório. Ele e o túnel do jogo são desenhados em 3D direto no navegador com Three.js, pelo React Three Fiber.
 > As regras ficam separadas do desenho: a respiração, o jogo e a pontuação do desafio são código puro, coberto por 39 testes automáticos. No jogo, a colisão é calculada no referencial do próprio túnel, o que deixa o cálculo simples e exato.
 > Os dados foram baixados das bases do IBGE e do DATASUS e tratados com Python e pandas, gerando um arquivo leve que o app lê sem precisar de servidor.
 > E a cada atualização no GitHub, os testes rodam e o site é publicado sozinho.

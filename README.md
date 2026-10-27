@@ -198,6 +198,7 @@ python3 data/scripts/gerar_json.py
 |---|---|---|
 | Interface | **React 19 + TypeScript + Vite** | Telas, navegação e controles de ritmo |
 | 3D | **Three.js** via **React Three Fiber** + **drei** | Personagem, vias aéreas, pulmões, diafragma e partículas de ar |
+| Modelo anatômico | **Z-Anatomy** (CC BY-SA 4.0) recortado no **Blender** (via `bpy`) e comprimido com **gltfpack** | Corpo, pele e órgãos do sistema respiratório |
 | Estado | **Zustand** | Tela atual, etapa, ritmo e sessão de respiração |
 | Gráficos | **Recharts** | Painel “Por que importa” |
 | Som | **Web Audio API** | Sinais suaves gerados na hora, sem arquivos de áudio |
@@ -210,7 +211,7 @@ python3 data/scripts/gerar_json.py
 **Decisões principais**
 
 - **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação.
-- **Personagem modelado em código:** o corpo e a anatomia são formas do Three.js (esferas, cápsulas e tubos que seguem curvas). Isso deixou o 3D leve, fácil de animar no ritmo da respiração e de destacar parte por parte, sem depender de um modelo externo. A geometria do caminho do ar fica em [`app/src/3d/anatomia.ts`](app/src/3d/anatomia.ts).
+- **Modelo anatômico real:** o personagem vem do atlas aberto [Z-Anatomy](https://github.com/Z-Anatomy/Models-of-human-anatomy). O script [`data/modelo3d/exportar_modelo.py`](data/modelo3d/exportar_modelo.py) abre o arquivo do Blender sem interface, separa só o que o app usa (pele, cabelo, olhos e o sistema respiratório: cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma), gera uma bermuda moldada no corpo e exporta um `.glb`. O `gltfpack` reduz o arquivo para menos de 1 MB. No app, a pele do tronco é “de vidro” para mostrar os órgãos, os pulmões enchem e o diafragma desce no ritmo da respiração. O caminho do ar ([`app/src/3d/anatomia.ts`](app/src/3d/anatomia.ts)) usa as coordenadas reais do modelo.
 - **Lógica da respiração separada da interface:** [`app/src/lib/respiracao.ts`](app/src/lib/respiracao.ts) é uma função pura que, dado o tempo e o ritmo, diz a fase, a contagem e quanto os pulmões estão cheios. O anel, o personagem e as partículas leem dela, então tudo fica sincronizado, e ela é coberta por testes.
 - **Regras do jogo separadas do 3D:** [`app/src/jogo/simulacao.ts`](app/src/jogo/simulacao.ts) avança a partícula, aplica o controle e verifica colisões sem nada de 3D. A colisão é calculada no **referencial do próprio túnel** (distância percorrida + posição na seção), em 2D, o que a deixa simples e exata. O percurso é gerado com **semente fixa**, então todo mundo joga o mesmo caminho e os testes são reproduzíveis.
 - **Túnel de verdade:** a parede é uma malha própria com raio variável (nariz largo, laringe estreita, traqueia com anéis de cartilagem, bronquíolos finos) e textura de vasinhos desenhada na hora. Na bifurcação, um *shader* recorta a parte de um tubo que fica dentro do outro, formando o “Y” dos brônquios.
@@ -272,16 +273,16 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 **Do Checkpoint 1 para o 2**
 
 - O MVP planejado (3 etapas + ritmo ajustável) está completo e navegável, com **dados reais** no lugar de dados mockados.
-- O personagem passou a ser modelado direto em código, em vez de um modelo do Blender (ver seção 6).
+- No CP2 o personagem era modelado direto em código; depois ele foi trocado por um modelo anatômico real (ver abaixo e seção 6).
 - Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
 - Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
 
 **Gamificação e 3D (depois do Checkpoint 2)**
 
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
-- Personagem com **fisionomia humana**: cabeça com queixo e orelhas, olhos com íris e pálpebras, nariz, lábios, cabelo, pescoço, tronco com ombros e cintura, braços com cotovelo, mãos com dedos e pernas. O tronco continua transparente para mostrar as vias aéreas e os pulmões.
-- Ele **pisca**, **olha para o mouse**, faz **“o”** com a boca ao soltar o ar, **enche as bochechas** ao segurar, **acena** na tela inicial e **comemora** os acertos.
-- A Jornada do ar começa vendo o personagem **gigante** de longe, e a partícula entra pela **narina**.
+- Personagem trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
+- Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
+- A Jornada do ar começa vendo o mesmo personagem **gigante** de longe, e a partícula entra pela **narina** dele.
 - A cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
 
 **Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
@@ -295,8 +296,9 @@ respira-comigo/
 ├── README.md
 ├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
 ├── app/                           ← aplicação (React + Three.js)
+│   ├── public/modelos/corpo.glb   ← modelo anatômico (Z-Anatomy, CC BY-SA 4.0)
 │   └── src/
-│       ├── 3d/                    ← cena, personagem (Corpo.tsx), anatomia e partículas de ar
+│       ├── 3d/                    ← cena, personagem (carrega o modelo), anatomia e partículas de ar
 │       ├── jogo/                  ← Jornada do ar: percurso, obstáculos, regras (+ testes) e cena 3D
 │       ├── telas/                 ← Início, Caminho do ar, Respirar (livre e desafio), Por que importa
 │       ├── componentes/           ← anel de respiração
@@ -307,6 +309,7 @@ respira-comigo/
 ├── data/
 │   ├── scripts/                   ← download e tratamento (PeNSE e SIH/SUS)
 │   ├── processed/                 ← JSON e CSVs usados pelo app
+│   ├── modelo3d/                  ← script que recorta o modelo anatômico no Blender
 │   └── README.md                  ← de onde vem cada número
 ├── assets/                        ← logo, paleta e tipografia
 └── docs/
@@ -340,6 +343,7 @@ respira-comigo/
 - WORLD HEALTH ORGANIZATION. **Depression and Other Common Mental Disorders: Global Health Estimates**. Genebra: WHO, 2017.
 - ZACCARO, A. et al. How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing. **Frontiers in Human Neuroscience**, v. 12, 2018.
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
+- KERVYN, G.; ZIELINSKI, M. **Z-Anatomy** – atlas 3D de anatomia humana (derivado do BodyParts3D, DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. O modelo adaptado neste projeto (`app/public/modelos/corpo.glb`) é distribuído sob a mesma licença.
 
 ---
 

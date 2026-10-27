@@ -88,3 +88,4 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 7. Adiciona dados reais, prints, vídeo e documentação do Checkpoint 2
 8. Atualiza roteiro: repositório público e site ativado
 9. Gamificação: jogo Jornada do ar, desafio de ritmo e personagem mais vivo
+10. Personagem trocado por modelo anatômico real (Z-Anatomy, CC BY-SA 4.0), no app e no jogo

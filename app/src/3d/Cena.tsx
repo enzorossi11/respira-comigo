@@ -1,6 +1,6 @@
 import { ContactShadows, Environment, Lightformer, PresentationControls, Sparkles } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useMemo, useRef } from 'react'
+import { Suspense, useMemo, useRef } from 'react'
 import { BackSide, CanvasTexture, Color, Mesh, MeshBasicMaterial, SRGBColorSpace, Vector3 } from 'three'
 import { ETAPAS } from '../conteudo/etapas'
 import { MODO_TESTE } from '../lib/teste'
@@ -15,10 +15,10 @@ const DESLOCAMENTO_Y = -0.55
 const CHAO = -3.02
 
 const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, number]; alvo: [number, number, number] }> = {
-  inicio: { posicao: [2.6, 0.9, 9.6], alvo: [0, -0.1, 0] },
-  jornada: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
-  respirar: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
-  dados: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
+  inicio: { posicao: [1.9, 0.6, 8.2], alvo: [0, -0.2, 0] },
+  jornada: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
+  respirar: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
+  dados: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
 }
 
 function CameraGuiada() {
@@ -132,7 +132,9 @@ export function Cena() {
       <directionalLight position={[0, 0.5, 7]} intensity={0.55} color="#fff4ec" />
 
       <PresentationControls global={false} cursor snap speed={1.4} polar={[-0.1, 0.2]} azimuth={[-0.7, 0.7]}>
-        <Personagem />
+        <Suspense fallback={null}>
+          <Personagem />
+        </Suspense>
         <ParticulasAr />
       </PresentationControls>
 

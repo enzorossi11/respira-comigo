@@ -10,7 +10,7 @@ import { lerPulso } from './enchimento'
 const N = 44
 
 /** Fração do caminho em que o ar entra no pulmão e começa a se espalhar. */
-const INICIO_ESPALHAR = 0.9
+const INICIO_ESPALHAR = 0.86
 
 /**
  * Partículas de ar percorrendo o caminho narina → pulmão.
@@ -59,7 +59,7 @@ export function ParticulasAr() {
       u = Math.min(1, Math.max(0, u))
       const p = curvas[s.lado].getPointAt(u)
       // ao chegar no pulmão, o ar se espalha
-      const esp = Math.max(0, (u - INICIO_ESPALHAR) / (1 - INICIO_ESPALHAR)) * 0.22
+      const esp = Math.max(0, (u - INICIO_ESPALHAR) / (1 - INICIO_ESPALHAR)) * 0.16
       tmp.position.set(p.x + s.jx * esp * 1.2, p.y + s.jy * esp * 2.4, p.z + s.jz * esp)
       tmp.scale.setScalar(visivel ? 1 : 0.0001)
       tmp.updateMatrix()
@@ -80,7 +80,7 @@ export function ParticulasAr() {
   return (
     <group position={[0, -0.55, 0]}>
       <instancedMesh ref={ref} args={[undefined, undefined, N]}>
-        <sphereGeometry args={[0.045, 12, 12]} />
+        <sphereGeometry args={[0.026, 12, 12]} />
         <meshStandardMaterial emissive="#ffffff" emissiveIntensity={0.25} roughness={0.3} />
       </instancedMesh>
     </group>

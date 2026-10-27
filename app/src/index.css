@@ -183,6 +183,8 @@ a { color: var(--rc-inspira-escuro); }
 /* ---------- Rodapé ---------- */
 .rodape { padding: 14px 24px; border-top: 1px solid var(--rc-linha); background: #fff; font-size: 0.82rem; color: var(--rc-texto-2); text-align: center; }
 .rodape p { margin: 0; }
+.rodape .credito { margin-top: 4px; font-size: 0.74rem; opacity: 0.85; }
+.rodape .credito a { color: inherit; }
 
 /* ---------- Celular / telas estreitas ---------- */
 @media (max-width: 900px) {
