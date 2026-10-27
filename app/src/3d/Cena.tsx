@@ -16,9 +16,9 @@ const CHAO = -3.02
 
 const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, number]; alvo: [number, number, number] }> = {
   inicio: { posicao: [1.9, 0.6, 8.2], alvo: [0, -0.2, 0] },
-  jornada: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
-  respirar: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
-  dados: { posicao: [0, 1.0, 5.4], alvo: [0, 0.78, 0] },
+  jornada: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
+  respirar: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
+  dados: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
 }
 
 function CameraGuiada() {

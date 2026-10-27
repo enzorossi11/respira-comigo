@@ -6,11 +6,10 @@ import { ETAPAS, ROTULO_PARTE, type Parte } from '../conteudo/etapas'
 import { useApp } from '../store'
 import { BASE_Y, ESCALA } from './anatomia'
 import { COR } from './cores'
-import { alturaPulo, balancoOps, materialVidro, usePecasModelo, type ParteModelo } from './Corpo'
+import { alturaPulo, balancoOps, materiaisOlhos, materialPeleReal, materialVidro, usePecasModelo, type ParteModelo } from './Corpo'
 import { lerPulso } from './enchimento'
 
 const PELE = '#e9b597'
-const CABELO = '#3a2a22'
 const BERMUDA = '#1f2547'
 
 /** Cor de cada órgão, e qual parte do conteúdo ele representa (para destacar). */
@@ -104,14 +103,13 @@ export function Personagem() {
   const cabecaVidro = !!destaques
 
   const mats = useMemo(() => {
-    const pele = new MeshStandardMaterial({ color: PELE, roughness: 0.6, side: DoubleSide })
+    const pele = materialPeleReal(PELE)
+    const olhos = materiaisOlhos()
     return {
       pele,
+      ...olhos,
       vidroTronco: materialVidro('#e3a688', 0.3),
       vidroCabeca: materialVidro('#e3a688', 0.24),
-      cabelo: new MeshStandardMaterial({ color: CABELO, roughness: 0.8, transparent: true }),
-      esclera: new MeshStandardMaterial({ color: '#f7f4f0', roughness: 0.3, transparent: true }),
-      iris: new MeshStandardMaterial({ color: '#5a3a24', roughness: 0.3, transparent: true }),
       bermuda: new MeshStandardMaterial({ color: BERMUDA, roughness: 0.85 }),
       orgaos: Object.fromEntries(
         ORGAOS.map((o) => [
@@ -141,6 +139,7 @@ export function Personagem() {
       m.opacity = cabecaVidro ? 0.18 : 1
       m.depthWrite = !cabecaVidro
     }
+    mats.cornea.visible = !cabecaVidro
   }, [destaques, cabecaVidro, mats])
 
   useFrame(({ clock }) => {
@@ -175,6 +174,8 @@ export function Personagem() {
         return mats.esclera
       case 'Iris':
         return mats.iris
+      case 'Cornea':
+        return mats.cornea
       case 'Bermuda':
         return mats.bermuda
       default:
@@ -183,7 +184,7 @@ export function Personagem() {
   }
 
   // ordem de desenho: órgãos, depois a pele opaca, por último a pele de vidro
-  const ordem: Partial<Record<ParteModelo, number>> = { PeleTronco: 5, PeleCabeca: cabecaVidro ? 6 : 0 }
+  const ordem: Partial<Record<ParteModelo, number>> = { PeleTronco: 5, PeleCabeca: cabecaVidro ? 6 : 0, Cornea: 7 }
 
   return (
     <group ref={raiz} position={[0, -0.55, 0]}>

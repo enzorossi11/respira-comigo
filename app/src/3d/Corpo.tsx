@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import { useMemo } from 'react'
-import { BufferGeometry, Float32BufferAttribute, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { AdditiveBlending, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 import { useApp } from '../store'
 
 /**
@@ -17,6 +17,7 @@ export type ParteModelo =
   | 'Cabelo'
   | 'Esclera'
   | 'Iris'
+  | 'Cornea'
   | 'Bermuda'
   | 'PulmaoDireito'
   | 'PulmaoEsquerdo'
@@ -57,6 +58,17 @@ export function usePecasModelo(): Record<ParteModelo, PecaModelo> {
       }
       const geo = new BufferGeometry()
       geo.setAttribute('position', new Float32BufferAttribute(f, 3))
+      // cor de vértice (sombra de oclusão e tons do rosto gravados no Blender)
+      const cor = orig.getAttribute('color')
+      if (cor) {
+        const c = new Float32Array(cor.count * 3)
+        for (let i = 0; i < cor.count; i++) {
+          c[i * 3] = cor.getX(i)
+          c[i * 3 + 1] = cor.getY(i)
+          c[i * 3 + 2] = cor.getZ(i)
+        }
+        geo.setAttribute('color', new Float32BufferAttribute(c, 3))
+      }
       if (orig.index) geo.setIndex(orig.index.clone())
       geo.applyMatrix4(o.matrixWorld)
       geo.computeVertexNormals()
@@ -100,6 +112,7 @@ export function balancoOps(): number {
 export function materialVidro(cor: string, opacidade = 0.32): MeshStandardMaterial {
   const mat = new MeshStandardMaterial({
     color: cor,
+    vertexColors: true,
     roughness: 0.35,
     transparent: true,
     opacity: opacidade,
@@ -115,4 +128,46 @@ export function materialVidro(cor: string, opacidade = 0.32): MeshStandardMateri
   }
   mat.customProgramCacheKey = () => 'vidro'
   return mat
+}
+
+/** Pele com as cores de vértice do modelo e um brilho suave ("sheen"), como pele de verdade. */
+export function materialPeleReal(cor: string): MeshPhysicalMaterial {
+  return new MeshPhysicalMaterial({
+    color: cor,
+    vertexColors: true,
+    roughness: 0.52,
+    sheen: 0.35,
+    sheenRoughness: 0.6,
+    sheenColor: new Color('#ffb4a0'),
+    side: DoubleSide,
+  })
+}
+
+/** Materiais dos olhos e do cabelo, compartilhados pela cena do app e pelo jogo. */
+export function materiaisOlhos() {
+  return {
+    esclera: new MeshStandardMaterial({ color: '#fbf6f2', vertexColors: true, roughness: 0.35, transparent: true }),
+    iris: new MeshStandardMaterial({ color: '#ffffff', vertexColors: true, roughness: 0.4, transparent: true }),
+    // córnea: casca lisa na frente do olho. Com cor preta e mistura aditiva ela só
+    // soma o reflexo (o brilho do olhar), sem deixar o olho leitoso
+    cornea: new MeshPhysicalMaterial({
+      color: '#000000',
+      roughness: 0.04,
+      metalness: 0,
+      clearcoat: 1,
+      clearcoatRoughness: 0.03,
+      transparent: true,
+      blending: AdditiveBlending,
+      envMapIntensity: 1.6,
+      depthWrite: false,
+    }),
+    cabelo: new MeshPhysicalMaterial({
+      color: '#33241c',
+      roughness: 0.62,
+      sheen: 0.6,
+      sheenRoughness: 0.4,
+      sheenColor: new Color('#8a6a55'),
+      transparent: true,
+    }),
+  }
 }

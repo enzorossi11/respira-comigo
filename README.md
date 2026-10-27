@@ -282,6 +282,7 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
 - Personagem trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
 - Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
+- Rosto mais detalhado sem pesar o site: olhos com íris desenhada, pupila e córnea que reflete a luz; sombras de oclusão (canto dos olhos, narinas, boca) e tons de pele (lábios, bochechas, nariz, pálpebras) gravados como cor dos vértices no Blender; pele com brilho suave e mais polígonos só na cabeça.
 - A Jornada do ar começa vendo o mesmo personagem **gigante** de longe, e a partícula entra pela **narina** dele.
 - A cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
 

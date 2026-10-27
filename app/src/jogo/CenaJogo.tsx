@@ -21,7 +21,7 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
-import { usePecasModelo, type ParteModelo } from '../3d/Corpo'
+import { materiaisOlhos, materialPeleReal, usePecasModelo, type ParteModelo } from '../3d/Corpo'
 import { anel, geometriaTunel } from './tunel'
 
 type SimRef = MutableRefObject<Simulacao>
@@ -110,10 +110,10 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
 const K = 480
 /** Narina direita do modelo (em metros, no sistema do modelo) */
 const NARINA_MODELO = new Vector3(-0.0055, 1.5504, 0.1026)
-const PECAS_GIGANTE: ParteModelo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Bermuda', 'Cabelo', 'Esclera', 'Iris']
+const PECAS_GIGANTE: ParteModelo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Bermuda', 'Cabelo', 'Esclera', 'Iris', 'Cornea']
 
-function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } | null, rugosidade = 0.7) {
-  const m = new MeshStandardMaterial({ color: cor, roughness: rugosidade, side: DoubleSide })
+function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } | null) {
+  const m = materialPeleReal(cor)
   if (furo) {
     m.onBeforeCompile = (sh) => {
       sh.uniforms.uA = { value: furo.a }
@@ -146,15 +146,17 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
   const mats = useMemo(() => {
     // o buraco da narina: um cilindro ao longo do túnel, a partir de um pouco antes da entrada
     const furo = { a: P.clone().addScaledVector(q.tangente, -2), b: P.clone().addScaledVector(q.tangente, 40), r: R * 0.98 }
-    const pele = materialPele(COR_PELE, furo, 0.6)
+    const pele = materialPele(COR_PELE, furo)
+    const olhos = materiaisOlhos()
     return {
       PeleCabeca: pele,
       PeleTronco: pele,
       PeleMembros: pele,
       Bermuda: new MeshStandardMaterial({ color: '#1f2547', roughness: 0.85 }),
-      Cabelo: new MeshStandardMaterial({ color: '#3a2a22', roughness: 0.8 }),
-      Esclera: new MeshStandardMaterial({ color: '#f7f4f0', roughness: 0.3 }),
-      Iris: new MeshStandardMaterial({ color: '#5a3a24', roughness: 0.3 }),
+      Cabelo: olhos.cabelo,
+      Esclera: olhos.esclera,
+      Iris: olhos.iris,
+      Cornea: olhos.cornea,
     } as Record<string, MeshStandardMaterial>
   }, [P, q, R])
 
