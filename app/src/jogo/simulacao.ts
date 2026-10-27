@@ -79,7 +79,9 @@ export class Simulacao {
     this.t += dt
 
     // velocidade volta ao normal aos poucos depois de uma batida
-    this.vel += (VELOCIDADE - this.vel) * Math.min(1, dt * 1.5)
+    // lá fora a partícula voa mais rápido (o trecho até o nariz é longo)
+    const alvoVel = this.s < S.narina - 8 ? VELOCIDADE * 1.8 : VELOCIDADE
+    this.vel += (alvoVel - this.vel) * Math.min(1, dt * 1.5)
     this.s += this.vel * dt
 
     // movimento suave até o alvo, sem sair do túnel

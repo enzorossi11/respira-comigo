@@ -27,11 +27,14 @@ const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
 
 /** Pontos de controle comuns (de fora até a carina) */
 const PREFIXO = [
-  v(0, 0, 70), // lá fora
-  v(0, 0, 35),
-  v(0, 0, 0), // narina
-  v(0, 2.5, -18), // cavidade nasal
-  v(0, 1, -36),
+  v(0, -38, 112), // lá fora, na altura do peito do personagem gigante
+  v(0, -24, 64),
+  v(0, -10, 22),
+  v(0, -3.5, 5),
+  v(0, 0, 0), // narina (embaixo do nariz: o ar entra subindo)
+  v(0, 4, -6), // cavidade nasal
+  v(0, 6.5, -18),
+  v(0, 3, -34),
   v(0, -10, -48), // nasofaringe (curva para baixo)
   v(0, -30, -52), // faringe
   v(0, -48, -50), // laringe / epiglote
@@ -118,11 +121,11 @@ function sProximo(c: Caminho, alvo: Vector3): number {
 
 const D = CAMINHOS.direito
 export const S = {
-  narina: sProximo(D, PREFIXO[2]),
-  faringe: sProximo(D, PREFIXO[5]),
-  laringe: sProximo(D, PREFIXO[7]),
-  traqueia: sProximo(D, PREFIXO[8]),
-  carina: sProximo(D, PREFIXO[10]),
+  narina: sProximo(D, PREFIXO[4]),
+  faringe: sProximo(D, PREFIXO[8]),
+  laringe: sProximo(D, PREFIXO[10]),
+  traqueia: sProximo(D, PREFIXO[11]),
+  carina: sProximo(D, PREFIXO[13]),
   bronquiolo: sProximo(D, RAMO(-1)[3]),
   fim: D.comprimento - 2,
 }
