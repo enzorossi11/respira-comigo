@@ -30,7 +30,15 @@ type SimRef = MutableRefObject<Simulacao>
 function perto(sim: SimRef, s: number, c: Caminho): boolean {
   const j = sim.current
   if (s >= S_BIFURCACAO && j.lado && CAMINHOS[j.lado] !== c) return false
-  return s > j.s - 6 && s < j.s + 75
+  return jaVisivel(s, j.s)
+}
+
+/**
+ * A câmera vem atrás da partícula. O que a partícula já deixou para trás some
+ * na hora — senão a câmera atravessaria o objeto e ele cobriria a tela toda.
+ */
+export function jaVisivel(sObjeto: number, sJogador: number): boolean {
+  return sObjeto > sJogador - 0.9 && sObjeto < sJogador + 75
 }
 
 const CEU = new Color('#cfeaf6')
@@ -125,7 +133,8 @@ function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } |
   return m
 }
 
-function PersonagemGigante() {
+function PersonagemGigante({ sim }: { sim: SimRef }) {
+  const raiz = useRef<Group>(null)
   const q = useMemo(() => quadroEm(CAMINHOS.direito, S.narina), [])
   const R = raioEm(S.narina)
   const geo = useMemo(() => {
@@ -163,6 +172,9 @@ function PersonagemGigante() {
   const proxPiscada = useRef(3)
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
+    // o gigante só existe do lado de fora: por dentro, o pescoço e o corpo dele
+    // cruzariam o túnel e tampariam a tela
+    if (raiz.current) raiz.current.visible = sim.current.s < S.narina + 7
     if (alvoAnel.current) {
       const k = (t * 0.8) % 1
       alvoAnel.current.scale.setScalar(1 + k * 0.7)
@@ -180,7 +192,7 @@ function PersonagemGigante() {
   const sorriso = sup(0, -27, -0.5)
 
   return (
-    <group>
+    <group ref={raiz}>
       {/* cabeça e orelhas */}
       <mesh position={H} material={mats.pele}>
         <sphereGeometry args={[RH, 64, 64]} />
@@ -448,7 +460,7 @@ function Oxigenios({ sim }: { sim: SimRef }) {
     const c = CAMINHOS[j.ladoAtual]
     lista.forEach((o, i) => {
       const pego = j.coletados.has(o.id)
-      const longe = o.s < j.s - 8 || o.s > j.s + 90 || j.status === 'venceu'
+      const longe = !jaVisivel(o.s, j.s) || j.status === 'venceu'
       const caminho = o.s >= S_BIFURCACAO ? c : CAMINHOS.direito
       const bob = Math.sin(clock.elapsedTime * 3 + o.id) * 0.12
       paraMundo(caminho, o.s, o.x, o.y + bob, p)
@@ -693,7 +705,7 @@ export function CenaJogo({ sim, tremor }: { sim: SimRef; tremor: MutableRefObjec
       <directionalLight ref={sol} position={[10, 30, 60]} intensity={1.4} />
       <Camera sim={sim} tremor={tremor} />
 
-      <PersonagemGigante />
+      <PersonagemGigante sim={sim} />
       <Tunel c={D} s0={S.narina - 0.5} s1={S.carina} />
       <Tunel c={D} s0={S.carina} s1={S.fim + 0.6} outro={E} />
       <Tunel c={E} s0={S.carina} s1={S.fim + 0.6} outro={D} />
