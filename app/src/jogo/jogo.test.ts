@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { aleatorio, colide, gerarPercurso, pegouOxigenio, posVirus, type Obstaculo } from './obstaculos'
-import { CAMINHOS, FASES, faseEm, LADO_POR_SINAL, paraMundo, raioEm, S } from './percurso'
+import { CAMINHOS, FASES, faseEm, LADO_POR_SINAL, S_ESCOLHA, paraMundo, raioEm, S } from './percurso'
 import { Simulacao, VIDAS } from './simulacao'
 
 describe('percurso', () => {
@@ -115,5 +115,37 @@ describe('Simulacao', () => {
     expect(j.estrelas()).toBeGreaterThanOrEqual(1)
     expect(j.estrelas()).toBeLessThanOrEqual(3)
     expect(VIDAS).toBe(3)
+  })
+
+  it('para o jogo por 2 s a cada mensagem', () => {
+    const j = new Simulacao()
+    j.iniciar()
+    expect(j.pausa?.tipo).toBe('aviso')
+    const s0 = j.s
+    for (let i = 0; i < 100; i++) j.passo(1 / 60) // 1,67 s: ainda pausado
+    expect(j.s).toBe(s0)
+    expect(j.pausa).not.toBeNull()
+    for (let i = 0; i < 30; i++) j.passo(1 / 60) // passa dos 2 s
+    expect(j.pausa).toBeNull()
+    j.passo(1 / 60)
+    expect(j.s).toBeGreaterThan(s0)
+  })
+
+  it('na bifurcação, espera 3 s e escolhe o lado em que a partícula ficou', () => {
+    const j = new Simulacao()
+    j.iniciar()
+    j.vidas = 999
+    j.mirar(1, 0)
+    for (let i = 0; i < 40000 && j.pausa?.tipo !== 'escolha'; i++) j.passo(1 / 60)
+    expect(j.pausa?.tipo).toBe('escolha')
+    expect(j.s).toBe(S_ESCOLHA)
+    // o jogador muda de ideia durante a contagem
+    j.mirar(-1, 0)
+    for (let i = 0; i < 170; i++) j.passo(1 / 60)
+    expect(j.lado).toBeNull()
+    expect(j.s).toBe(S_ESCOLHA)
+    for (let i = 0; i < 20 && !j.lado; i++) j.passo(1 / 60)
+    expect(j.lado).toBe(LADO_POR_SINAL.negativo)
+    expect(j.pausa?.tipo).toBe('aviso') // depois mostra o pulmão escolhido
   })
 })

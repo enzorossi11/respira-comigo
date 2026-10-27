@@ -1,5 +1,5 @@
 import { colide, gerarPercurso, pegouOxigenio, RAIO_JOGADOR, type Obstaculo, type Oxigenio } from './obstaculos'
-import { faseEm, LADO_POR_SINAL, raioEm, S, S_BIFURCACAO, type Lado } from './percurso'
+import { faseEm, LADO_POR_SINAL, raioEm, S, S_BIFURCACAO, S_ESCOLHA, type Lado } from './percurso'
 
 /**
  * Regras da Jornada do ar, sem nada de 3D: avança a partícula, aplica o
@@ -13,8 +13,23 @@ export type Evento =
   | { tipo: 'oxigenio'; id: number }
   | { tipo: 'fase'; id: string }
   | { tipo: 'lado'; lado: Lado }
+  | { tipo: 'escolha' }
   | { tipo: 'venceu' }
   | { tipo: 'perdeu' }
+
+/**
+ * Pausas: toda mensagem para o jogo por PAUSA_AVISO segundos (dá tempo de ler);
+ * na bifurcação, o jogo para por PAUSA_ESCOLHA segundos e o lado em que a
+ * partícula estiver quando a contagem acabar é o pulmão escolhido.
+ */
+export interface Pausa {
+  tipo: 'aviso' | 'escolha'
+  dur: number
+  resta: number
+  id: number
+}
+export const PAUSA_AVISO = 2
+export const PAUSA_ESCOLHA = 3
 
 export const VIDAS = 3
 export const VELOCIDADE = 10 // unidades por segundo
@@ -37,6 +52,8 @@ export class Simulacao {
   batidas = 0
   invulneravelAte = 0
   lado: Lado | null = null
+  pausa: Pausa | null = null
+  private nPausas = 0
   fase = faseEm(0).id
   /** velocidade atual (desacelera um pouco depois de bater) */
   vel = VELOCIDADE
@@ -63,28 +80,22 @@ export class Simulacao {
   }
 
   iniciar() {
-    if (this.status === 'pronto') this.status = 'jogando'
+    if (this.status !== 'pronto') return
+    this.status = 'jogando'
+    this.pausar('aviso') // a primeira dica (lá fora) também para o jogo
   }
 
-  /** Alvo em coordenadas normalizadas (-1 a 1), vindas do mouse, toque ou teclado */
-  mirar(nx: number, ny: number) {
-    this.alvoX = Math.max(-1, Math.min(1, nx))
-    this.alvoY = Math.max(-1, Math.min(1, ny))
+  pausar(tipo: Pausa['tipo'], dur = tipo === 'aviso' ? PAUSA_AVISO : PAUSA_ESCOLHA) {
+    this.pausa = { tipo, dur, resta: dur, id: ++this.nPausas }
   }
 
-  passo(dt: number): Evento[] {
-    const ev: Evento[] = []
-    if (this.status !== 'jogando') return ev
-    dt = Math.min(dt, this.maxDt) // evita "teletransporte" se a aba travar
-    this.t += dt
+  /** Lado que seria escolhido agora (pela posição da partícula) */
+  get ladoPelaPosicao(): Lado {
+    return this.x >= 0 ? LADO_POR_SINAL.positivo : LADO_POR_SINAL.negativo
+  }
 
-    // velocidade volta ao normal aos poucos depois de uma batida
-    // lá fora a partícula voa mais rápido (o trecho até o nariz é longo)
-    const alvoVel = this.s < S.narina - 8 ? VELOCIDADE * 1.8 : VELOCIDADE
-    this.vel += (alvoVel - this.vel) * Math.min(1, dt * 1.5)
-    this.s += this.vel * dt
-
-    // movimento suave até o alvo, sem sair do túnel
+  /** movimento suave até o alvo, sem sair do túnel */
+  private mover(dt: number) {
     const R = raioEm(this.s) - RAIO_JOGADOR - 0.15
     const tx = this.alvoX * R
     const ty = this.alvoY * R
@@ -96,18 +107,62 @@ export class Simulacao {
       this.x *= R / d
       this.y *= R / d
     }
+  }
 
-    // escolha do pulmão
-    if (!this.lado && this.s >= S_BIFURCACAO) {
-      this.lado = this.x >= 0 ? LADO_POR_SINAL.positivo : LADO_POR_SINAL.negativo
-      ev.push({ tipo: 'lado', lado: this.lado })
+  private escolherLado(ev: Evento[]) {
+    this.lado = this.ladoPelaPosicao
+    ev.push({ tipo: 'lado', lado: this.lado })
+    this.pausar('aviso')
+  }
+
+  /** Alvo em coordenadas normalizadas (-1 a 1), vindas do mouse, toque ou teclado */
+  mirar(nx: number, ny: number) {
+    this.alvoX = Math.max(-1, Math.min(1, nx))
+    this.alvoY = Math.max(-1, Math.min(1, ny))
+  }
+
+  passo(dt: number): Evento[] {
+    const ev: Evento[] = []
+    if (this.status !== 'jogando') return ev
+
+    // jogo pausado: só o relógio da pausa anda (na escolha, a partícula ainda se mexe para os lados)
+    if (this.pausa) {
+      const p = this.pausa
+      p.resta -= Math.min(dt, 0.25)
+      if (p.tipo === 'escolha') this.mover(Math.min(dt, this.maxDt))
+      if (p.resta <= 0) {
+        this.pausa = null
+        if (p.tipo === 'escolha') this.escolherLado(ev)
+      }
+      return ev
     }
+
+    dt = Math.min(dt, this.maxDt) // evita "teletransporte" se a aba travar
+    this.t += dt
+
+    // velocidade volta ao normal aos poucos depois de uma batida
+    // lá fora a partícula voa mais rápido (o trecho até o nariz é longo)
+    const alvoVel = this.s < S.narina - 8 ? VELOCIDADE * 1.8 : VELOCIDADE
+    this.vel += (alvoVel - this.vel) * Math.min(1, dt * 1.5)
+    this.s += this.vel * dt
+
+    this.mover(dt)
+
+    // escolha do pulmão: para o jogo um pouco antes da bifurcação
+    if (!this.lado && this.s >= S_ESCOLHA) {
+      this.s = S_ESCOLHA
+      this.pausar('escolha')
+      ev.push({ tipo: 'escolha' })
+      return ev
+    }
+    if (!this.lado && this.s >= S_BIFURCACAO) this.escolherLado(ev)
 
     // fase
     const f = faseEm(this.s).id
     if (f !== this.fase) {
       this.fase = f
       ev.push({ tipo: 'fase', id: f })
+      this.pausar('aviso')
     }
 
     // oxigênio
@@ -134,7 +189,7 @@ export class Simulacao {
           if (this.vidas <= 0) {
             this.status = 'perdeu'
             ev.push({ tipo: 'perdeu' })
-          }
+          } else this.pausar('aviso')
           break
         }
       }

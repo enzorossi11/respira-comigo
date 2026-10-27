@@ -132,13 +132,15 @@ export const S = {
 
 /** O jogador escolhe o pulmão quando chega aqui */
 export const S_BIFURCACAO = S.carina + 1
+/** Onde o jogo para para o jogador escolher o pulmão (a bifurcação já aparece logo à frente) */
+export const S_ESCOLHA = S.carina - 4
 
 export const FASES: Fase[] = [
   { id: 'fora', nome: 'Lá fora', dica: 'Você é uma partícula de ar. Mire na narina e desvie da poeira e do pólen!', inicio: 0 },
   { id: 'nariz', nome: 'Nariz', dica: 'Os pelos e o muco seguram a sujeira. Desvie dos pelos!', inicio: S.narina },
   { id: 'faringe', nome: 'Faringe e laringe', dica: 'A epiglote fecha a passagem quando a gente engole. Passe pelo lado aberto!', inicio: S.faringe },
   { id: 'traqueia', nome: 'Traqueia', dica: 'Os cílios varrem a sujeira para cima. Cuidado com os vírus!', inicio: S.traqueia },
-  { id: 'bronquios', nome: 'Brônquios', dica: 'Escolha um pulmão: vá para um lado ou para o outro!', inicio: S.carina - 10 },
+  { id: 'bronquios', nome: 'Brônquios', dica: 'Os brônquios levam o ar para cada pulmão. Logo à frente o caminho se divide em dois.', inicio: S.carina - 10 },
   { id: 'bronquiolos', nome: 'Bronquíolos', dica: 'Os tubos ficam cada vez mais finos. Quase lá!', inicio: S.bronquiolo },
   { id: 'alveolo', nome: 'Alvéolo', dica: 'Chegou! Aqui o oxigênio passa para o sangue.', inicio: S.fim - 6 },
 ]

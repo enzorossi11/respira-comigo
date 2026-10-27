@@ -5,8 +5,8 @@ import { MODO_TESTE } from '../lib/teste'
 import { useApp } from '../store'
 import { CenaJogo } from './CenaJogo'
 import { colide, MARCOS } from './obstaculos'
-import { FASES, raioEm, type Lado } from './percurso'
-import { Simulacao, VIDAS, type Evento, type Status } from './simulacao'
+import { FASES, LADO_POR_SINAL, raioEm, S_ESCOLHA, type Lado } from './percurso'
+import { Simulacao, VIDAS, type Evento, type Pausa, type Status } from './simulacao'
 
 const NOME_LADO: Record<Lado, string> = { direito: 'Pulmão direito', esquerdo: 'Pulmão esquerdo' }
 const MSG_BATIDA = {
@@ -25,6 +25,9 @@ interface Hud {
   progresso: number
   fase: string
   lado: Lado | null
+  pausa: Pick<Pausa, 'tipo' | 'dur' | 'id'> | null
+  /** lado que a partícula escolheria agora (durante a escolha do pulmão) */
+  ladoAgora: Lado
 }
 
 function lerHud(j: Simulacao): Hud {
@@ -36,6 +39,8 @@ function lerHud(j: Simulacao): Hud {
     progresso: j.progresso,
     fase: j.fase,
     lado: j.lado,
+    pausa: j.pausa && { tipo: j.pausa.tipo, dur: j.pausa.dur, id: j.pausa.id },
+    ladoAgora: j.ladoPelaPosicao,
   }
 }
 
@@ -114,7 +119,7 @@ export function Jornada() {
   // gancho só para testes automáticos (prints e vídeo): /?teste
   useEffect(() => {
     if (new URLSearchParams(location.search).has('teste')) {
-      Object.assign(window, { __jornada: sim, __colide: colide, __raioEm: raioEm })
+      Object.assign(window, { __jornada: sim, __colide: colide, __raioEm: raioEm, __sEscolha: S_ESCOLHA })
       sim.current.maxDt = 0.25
     }
   }, [])
@@ -127,11 +132,13 @@ export function Jornada() {
     return () => clearInterval(id)
   }, [partida])
 
+  // na escolha do pulmão, o HUD acompanha o dedo/mouse mais de perto
+  const escolhendo = hud.status === 'jogando' && hud.pausa?.tipo === 'escolha'
   useEffect(() => {
-    if (!aviso) return
-    const id = setTimeout(() => setAviso(null), aviso.tipo === 'info' ? 3800 : 1600)
-    return () => clearTimeout(id)
-  }, [aviso])
+    if (!escolhendo) return
+    const id = setInterval(() => setHud(lerHud(sim.current)), 50)
+    return () => clearInterval(id)
+  }, [escolhendo])
 
   const onEventos = useCallback(
     (ev: Evento[]) => {
@@ -150,6 +157,9 @@ export function Jornada() {
           if (tocar) tocarEfeito('fase')
         } else if (e.tipo === 'lado') {
           avisar(`${NOME_LADO[e.lado]}! Siga até um alvéolo.`, 'bom')
+          if (tocar) tocarEfeito('fase')
+        } else if (e.tipo === 'escolha') {
+          if (tocar) tocarEfeito('fase')
         } else if (e.tipo === 'venceu') {
           const j = sim.current
           setRecorde(registrar(j.pontos, j.estrelas()))
@@ -246,9 +256,37 @@ export function Jornada() {
           </div>
         </div>
 
-        {aviso && hud.status === 'jogando' && (
-          <div key={aviso.id} className={`hud-aviso ${aviso.tipo}`} role="status">
-            {aviso.texto}
+        {/* mensagem com o jogo pausado: dá tempo de ler */}
+        {aviso && hud.status === 'jogando' && hud.pausa?.tipo === 'aviso' && (
+          <div key={hud.pausa.id} className="hud-pausa">
+            <div className={`hud-aviso ${aviso.tipo}`} role="status">
+              {aviso.texto}
+              <div className="hud-contagem" aria-hidden="true">
+                <span style={{ animationDuration: `${hud.pausa.dur}s` }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* escolha do pulmão: arraste e segure de um lado até a contagem acabar */}
+        {escolhendo && hud.pausa && (
+          <div key={hud.pausa.id} className="hud-escolha">
+            {(['negativo', 'positivo'] as const).map((sinal) => {
+              const lado = LADO_POR_SINAL[sinal]
+              return (
+                <div key={sinal} className={`zona-escolha ${sinal === 'negativo' ? 'esq' : 'dir'}`} data-ativa={hud.ladoAgora === lado}>
+                  <strong>{NOME_LADO[lado]}</strong>
+                  <span>{hud.ladoAgora === lado ? 'Segure aqui' : 'Arraste para cá'}</span>
+                </div>
+              )
+            })}
+            <div className="hud-aviso info escolha-titulo" role="status">
+              Escolha um pulmão
+              <small>Arraste o dedo (ou o mouse) para um lado e segure até a contagem acabar.</small>
+              <div className="hud-contagem" aria-hidden="true">
+                <span style={{ animationDuration: `${hud.pausa.dur}s` }} />
+              </div>
+            </div>
           </div>
         )}
 

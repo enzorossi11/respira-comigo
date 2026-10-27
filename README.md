@@ -279,6 +279,7 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 
 **Gamificação e 3D (depois do Checkpoint 2)**
 
+- No jogo, toda mensagem **pausa por 2 s** com uma barra de contagem, para dar tempo de ler; na bifurcação, o jogo para por **3 s** e o jogador arrasta e segura de um lado para **escolher o pulmão**.
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
 - Personagem trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
 - Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
