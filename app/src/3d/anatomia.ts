@@ -7,8 +7,8 @@ import { CatmullRomCurve3, Vector3 } from 'three'
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
 
 export const PONTOS = {
-  narina: v(0, 2.0, 0.66),
-  cavidadeNasal: v(0, 2.13, 0.42),
+  narina: v(0, 1.955, 0.5),
+  cavidadeNasal: v(0, 2.07, 0.34),
   nasofaringe: v(0, 2.1, 0.12),
   faringe: v(0, 1.88, -0.02),
   faringeBaixa: v(0, 1.66, 0.0),

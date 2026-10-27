@@ -6,7 +6,7 @@ import { ETAPAS, ROTULO_PARTE, type Parte } from '../conteudo/etapas'
 import { useApp } from '../store'
 import { CENTRO_PULMAO, curvaBronquio, curvaSuperior, curvaTraqueia, ramos } from './anatomia'
 import { COR } from './cores'
-import { alturaPulo, Cabeca, Membros } from './Corpo'
+import { alturaPulo, Cabeca, geometriaTronco, Membros, PELE } from './Corpo'
 import { lerPulso } from './enchimento'
 
 function useDestaques(): Set<Parte> | null {
@@ -50,7 +50,7 @@ function Rotulo({ parte, posicao }: { parte: Parte; posicao: [number, number, nu
 }
 
 const POS_ROTULO: Record<Parte, [number, number, number]> = {
-  nariz: [0.42, 2.12, 0.72],
+  nariz: [0.38, 2.02, 0.66],
   faringe: [-0.5, 1.86, 0.05],
   laringe: [0.42, 1.5, 0.1],
   traqueia: [0.42, 1.12, 0.1],
@@ -72,6 +72,7 @@ export function Personagem() {
   const raiz = useRef<Group>(null)
   const alveolos = useRef<Group>(null)
 
+  const geoTronco = useMemo(() => geometriaTronco(), [])
   const brD = useMemo(() => curvaBronquio(-1), [])
   const brE = useMemo(() => curvaBronquio(1), [])
   const ramosD = useMemo(() => ramos(-1), [])
@@ -100,7 +101,7 @@ export function Personagem() {
     const sp = 1 + 0.13 * e
     pulmaoD.current?.scale.set(0.3 * sp, 0.58 * (1 + 0.08 * e), 0.28 * sp)
     pulmaoE.current?.scale.set(0.3 * sp, 0.58 * (1 + 0.08 * e), 0.28 * sp)
-    tronco.current?.scale.set(1 + 0.045 * e, 1 + 0.015 * e, 1 + 0.06 * e)
+    tronco.current?.scale.set(1 + 0.04 * e, 1 + 0.01 * e, 1 + 0.07 * e)
     if (diafragma.current) diafragma.current.position.y = -0.2 - 0.13 * e
     if (raiz.current) raiz.current.position.y = -0.55 + alturaPulo()
     if (alveolos.current) alveolos.current.scale.setScalar(0.85 + 0.25 * e)
@@ -123,22 +124,21 @@ export function Personagem() {
     <group ref={raiz} position={[0, -0.55, 0]}>
       <Cabeca transparente={!!destaques} />
 
-      {/* Pescoço */}
-      <mesh position={[0, 1.48, 0]}>
-        <cylinderGeometry args={[0.2, 0.24, 0.3, 32]} />
-        <meshStandardMaterial color={COR.pele} transparent opacity={0.4} depthWrite={false} />
+      {/* Pescoço (meio transparente: a laringe e a traqueia passam por dentro) */}
+      <mesh position={[0, 1.52, 0]}>
+        <cylinderGeometry args={[0.13, 0.15, 0.42, 32]} />
+        <meshStandardMaterial color={PELE} transparent opacity={0.45} depthWrite={false} roughness={0.6} />
       </mesh>
 
-      {/* Tronco de "vidro" para ver por dentro */}
-      <mesh ref={tronco} position={[0, 0.4, 0]}>
-        <capsuleGeometry args={[0.7, 0.7, 16, 48]} />
+      {/* Tronco com forma humana, "de vidro" cor de pele, para ver por dentro */}
+      <mesh ref={tronco} geometry={geoTronco}>
         <meshPhysicalMaterial
-          color="#DDEBFA"
-          roughness={0.15}
-          transmission={0.6}
+          color="#ffd9c4"
+          roughness={0.2}
+          transmission={0.5}
           thickness={0.3}
           transparent
-          opacity={0.28}
+          opacity={0.3}
           depthWrite={false}
           side={DoubleSide}
         />
@@ -147,7 +147,8 @@ export function Personagem() {
       <Membros />
 
       {/* Vias aéreas superiores */}
-      <Tubo curva={trechosSuperiores.nariz} raio={0.05} destacado={d('nariz')} esmaecido={esm('nariz')} />
+      {/* o trecho do nariz só aparece no caminho do ar (com a cabeça transparente) */}
+      {destaques && <Tubo curva={trechosSuperiores.nariz} raio={0.038} destacado={d('nariz')} esmaecido={esm('nariz')} />}
       <Tubo curva={trechosSuperiores.faringe} raio={0.055} destacado={d('faringe')} esmaecido={esm('faringe')} />
       <Tubo curva={trechosSuperiores.laringe} raio={0.065} destacado={d('laringe')} esmaecido={esm('laringe')} />
 

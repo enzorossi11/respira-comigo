@@ -279,8 +279,10 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 **Gamificação e 3D (depois do Checkpoint 2)**
 
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
-- Personagem mais expressivo: **pisca**, **olha para o mouse**, faz **“o”** com a boca ao soltar o ar, **enche as bochechas** ao segurar, **acena** na tela inicial e **comemora** os acertos.
-- Ganhou roupa, mãos, pernas e tênis, e a cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
+- Personagem com **fisionomia humana**: cabeça com queixo e orelhas, olhos com íris e pálpebras, nariz, lábios, cabelo, pescoço, tronco com ombros e cintura, braços com cotovelo, mãos com dedos e pernas. O tronco continua transparente para mostrar as vias aéreas e os pulmões.
+- Ele **pisca**, **olha para o mouse**, faz **“o”** com a boca ao soltar o ar, **enche as bochechas** ao segurar, **acena** na tela inicial e **comemora** os acertos.
+- A Jornada do ar começa vendo o personagem **gigante** de longe, e a partícula entra pela **narina**.
+- A cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
 
 **Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
 

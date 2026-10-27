@@ -54,7 +54,8 @@ export function ParticulasAr() {
       } else {
         u = (clock.elapsedTime * 0.09 + s.k) % 1
       }
-      const visivel = u > 0.015
+      // fora do caminho do ar, o trecho do nariz fica escondido (passaria rente à pele)
+      const visivel = u > (trecho ? 0.015 : 0.2)
       u = Math.min(1, Math.max(0, u))
       const p = curvas[s.lado].getPointAt(u)
       // ao chegar no pulmão, o ar se espalha

@@ -12,13 +12,13 @@ import { Personagem } from './Personagem'
 
 /** O personagem fica deslocado 0,55 para baixo dentro da cena. */
 const DESLOCAMENTO_Y = -0.55
-const CHAO = -1.72
+const CHAO = -3.02
 
 const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, number]; alvo: [number, number, number] }> = {
-  inicio: { posicao: [2.4, 1.5, 6.6], alvo: [0, 0.55, 0] },
-  jornada: { posicao: [0, 1.3, 6.9], alvo: [0, 0.74, 0] },
-  respirar: { posicao: [0, 1.3, 6.9], alvo: [0, 0.74, 0] },
-  dados: { posicao: [0, 1.3, 6.9], alvo: [0, 0.74, 0] },
+  inicio: { posicao: [2.6, 0.9, 9.6], alvo: [0, -0.1, 0] },
+  jornada: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
+  respirar: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
+  dados: { posicao: [0, 1.0, 7.2], alvo: [0, 0.45, 0] },
 }
 
 function CameraGuiada() {
@@ -111,7 +111,7 @@ function Chao() {
 export function Cena() {
   return (
     <Canvas
-      camera={{ position: [2.4, 1.0, 6.6], fov: 36 }}
+      camera={{ position: [2.6, 0.4, 9.6], fov: 36 }}
       dpr={[1, 2]}
       gl={{ antialias: !MODO_TESTE, preserveDrawingBuffer: true }}
       aria-label="Personagem 3D mostrando o sistema respiratório"
@@ -128,6 +128,8 @@ export function Cena() {
       <ambientLight intensity={0.35} />
       <directionalLight position={[3, 5, 4]} intensity={1.3} />
       <directionalLight position={[-4, 2, -2]} intensity={0.45} color="#c9c2ff" />
+      {/* luz de frente, suave, para o rosto não ficar com sombra no queixo */}
+      <directionalLight position={[0, 0.5, 7]} intensity={0.55} color="#fff4ec" />
 
       <PresentationControls global={false} cursor snap speed={1.4} polar={[-0.1, 0.2]} azimuth={[-0.7, 0.7]}>
         <Personagem />
@@ -135,8 +137,8 @@ export function Cena() {
       </PresentationControls>
 
       {/* partículas de ar flutuando no ambiente */}
-      <Sparkles count={45} scale={[7, 5, 4]} position={[0, 0.3, -0.5]} size={2.6} speed={0.25} opacity={0.55} color={COR.inspira} />
-      <Sparkles count={30} scale={[7, 5, 4]} position={[0, 0.3, -0.5]} size={2.2} speed={0.2} opacity={0.5} color={COR.expira} />
+      <Sparkles count={45} scale={[8, 7, 4]} position={[0, -0.6, -0.5]} size={2.6} speed={0.25} opacity={0.55} color={COR.inspira} />
+      <Sparkles count={30} scale={[8, 7, 4]} position={[0, -0.6, -0.5]} size={2.2} speed={0.2} opacity={0.5} color={COR.expira} />
 
       <Chao />
       <ContactShadows position={[0, CHAO, 0]} opacity={0.32} scale={6} blur={2.6} far={2.5} />
