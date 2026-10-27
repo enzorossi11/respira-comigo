@@ -215,12 +215,12 @@ export function Jornada() {
         onPointerDown={mover}
         aria-label="Área do jogo. Use o mouse, o dedo ou as setas para guiar a partícula de ar."
       >
-        <Canvas key={partida} camera={{ fov: 70, near: 0.1, far: 400 }} dpr={[1, 1.75]} gl={{ antialias: !MODO_TESTE, preserveDrawingBuffer: true }}>
+        <Canvas key={`partida-${partida}`} camera={{ fov: 70, near: 0.1, far: 400 }} dpr={[1, 1.75]} gl={{ antialias: !MODO_TESTE, preserveDrawingBuffer: true }}>
           <CenaJogo sim={sim} tremor={tremor} />
           <Motor sim={sim} onEventos={onEventos} />
         </Canvas>
 
-        <div className="jornada-flash" key={flash} data-ativo={flash > 0} />
+        <div className="jornada-flash" key={`flash-${flash}`} data-ativo={flash > 0} />
 
         {/* HUD */}
         <div className="hud-topo">

@@ -7,17 +7,19 @@
 <p align="center">
   <img alt="Checkpoint" src="https://img.shields.io/badge/etapa-Checkpoint%202%20·%20Prot%C3%B3tipo-7C6FE0">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
-  <img alt="Testes" src="https://img.shields.io/badge/testes-39%20passando-137A71">
+  <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-V2-1F2547">
+  <img alt="Testes" src="https://img.shields.io/badge/testes-48%20passando-137A71">
 </p>
 
 <p align="center">
   🌐 <a href="https://enzorossi11.github.io/respira-comigo/"><b>Abrir o app</b></a> ·
   🎬 <a href="docs/demo.mp4"><b>Vídeo de demonstração</b></a> ·
-  📍 <a href="docs/roteiro.md"><b>Roteiro do projeto</b></a>
+  📍 <a href="docs/roteiro.md"><b>Roteiro do projeto</b></a> ·
+  📝 <a href="CHANGELOG.md"><b>O que mudou (V1 → V2)</b></a>
 </p>
 
 <p align="center">
-  <img src="docs/prints/06-respirar-inspire.png" alt="Tela de respiração guiada com o personagem 3D" width="820">
+  <img src="docs/prints/18-perfil-variacao.png" alt="Tela de criação do personagem 3D" width="820">
 </p>
 
 ---
@@ -130,7 +132,7 @@ O app une **aprender**, **jogar** e **praticar** em uma experiência curta (5 a 
 
 ## 4. Protótipo
 
-🎬 **[Vídeo de demonstração](docs/demo.mp4)**: o fluxo completo — caminho do ar, jogo até o alvéolo, desafio de ritmo e painel de dados.
+🎬 **[Vídeo de demonstração](docs/demo.mp4)** (V2): o fluxo completo — criação do personagem, caminho do ar, jogo até o alvéolo, desafio de ritmo e painel de dados.
 
 | Crie seu personagem | Outra combinação (corpo, idade, pele e cabelo) |
 |---|---|
@@ -284,16 +286,23 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 - Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
 - Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
 
-**Gamificação e 3D (depois do Checkpoint 2)**
+**Depois do Checkpoint 2 — gamificação (base da V1)**
 
-- No jogo, toda mensagem **pausa por 2 s** com uma barra de contagem, para dar tempo de ler; na bifurcação, o jogo para por **3 s** e o jogador arrasta e segura de um lado para **escolher o pulmão**.
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
-- **Personagem personalizável** com corpo do **MakeHuman** (pele realista, olhos, cabelo e roupa) e órgãos do Z-Anatomy encaixados no tronco de cada corpo; tela "Crie seu personagem" no primeiro acesso.
-- Antes disso, o personagem tinha sido trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
-- Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
-- Rosto mais detalhado sem pesar o site: olhos com íris desenhada, pupila e córnea que reflete a luz; sombras de oclusão (canto dos olhos, narinas, boca) e tons de pele (lábios, bochechas, nariz, pálpebras) gravados como cor dos vértices no Blender; pele com brilho suave e mais polígonos só na cabeça.
-- A Jornada do ar começa vendo o mesmo personagem **gigante** de longe, e a partícula entra pela **narina** dele.
+- A Jornada do ar começa vendo o personagem **gigante** de longe, e a partícula entra pela **narina** dele.
 - A cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
+
+**V1 — personagem anatômico**
+
+- Personagem trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
+- Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
+
+**V2 — personagem personalizável (versão atual)**
+
+- **Crie seu personagem:** corpo, idade, tom de pele e cabelo, com o boneco mudando ao vivo; salvo só no navegador; ícone discreto na tela inicial para refazer.
+- Corpo do **MakeHuman** (CC0): pele com textura realista, olhos, sobrancelhas, cílios, cabelo e roupa. Os órgãos do Z-Anatomy são **encaixados no tronco de cada corpo**, e o caminho do ar acompanha.
+- No jogo, o gigante do começo é **o personagem do aluno**; toda mensagem **pausa por 2 s** com uma barra de contagem; na bifurcação o jogo para por **3 s** e o jogador arrasta e segura no lado do pulmão que quer (direita da tela = pulmão direito).
+- Detalhes completos no [CHANGELOG](CHANGELOG.md).
 
 **Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
 
@@ -304,6 +313,7 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 ```
 respira-comigo/
 ├── README.md
+├── CHANGELOG.md                   ← o que mudou em cada versão (V1, V2)
 ├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
 ├── app/                           ← aplicação (React + Three.js)
 │   ├── public/modelos/            ← corpo.glb (MakeHuman, CC0), orgaos.glb (Z-Anatomy, CC BY-SA 4.0) e texturas de pele
