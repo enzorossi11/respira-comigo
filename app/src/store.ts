@@ -1,7 +1,8 @@
 import { create } from 'zustand'
+import { normalizarPerfil, PERFIL_PADRAO, type Perfil } from './3d/perfil'
 import { ciclosNaSessao, duracaoCiclo, normalizarRitmo, PRESETS, type Ritmo } from './lib/respiracao'
 
-export type Tela = 'inicio' | 'caminho' | 'jornada' | 'respirar' | 'dados'
+export type Tela = 'perfil' | 'inicio' | 'caminho' | 'jornada' | 'respirar' | 'dados'
 export type ModoRespirar = 'livre' | 'desafio'
 export type Reacao = 'feliz' | 'uau' | 'ops'
 
@@ -16,6 +17,8 @@ interface Prefs {
   recordeJornada: number
   estrelasJornada: number
   recordeRitmo: number
+  /** personagem criado pelo usuário (null = ainda não criou) */
+  perfil: Perfil | null
 }
 
 const PADRAO: Prefs = {
@@ -27,6 +30,7 @@ const PADRAO: Prefs = {
   recordeJornada: 0,
   estrelasJornada: 0,
   recordeRitmo: 0,
+  perfil: null,
 }
 
 /** localStorage pode falhar (aba anônima, bloqueio) — o app funciona sem ele. */
@@ -35,7 +39,7 @@ function carregar(): Prefs {
     const bruto = localStorage.getItem(CHAVE)
     if (!bruto) return PADRAO
     const p = { ...PADRAO, ...JSON.parse(bruto) } as Prefs
-    return { ...p, ritmo: normalizarRitmo(p.ritmo) }
+    return { ...p, ritmo: normalizarRitmo(p.ritmo), perfil: p.perfil ? normalizarPerfil(p.perfil) : null }
   } catch {
     return PADRAO
   }
@@ -78,20 +82,27 @@ interface Estado extends Prefs {
   reagir: (tipo: Reacao) => void
   registrarJornada: (pontos: number, estrelas: number) => boolean
   registrarRitmo: (pontos: number) => boolean
+  /** perfil em edição na tela de personalização (ainda não salvo) */
+  rascunho: Perfil
+  setRascunho: (p: Partial<Perfil>) => void
+  salvarPerfil: () => void
+  editarPerfil: () => void
 }
 
 const inicial = carregar()
 
 export const useApp = create<Estado>((set, get) => {
   const persistir = () => {
-    const { ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo } = get()
-    salvar({ ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo })
+    const { ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo, perfil } = get()
+    salvar({ ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo, perfil })
   }
 
   return {
     ...inicial,
-    tela: 'inicio',
+    // primeiro acesso: começa criando o personagem
+    tela: inicial.perfil ? 'inicio' : 'perfil',
     etapa: 0,
+    rascunho: inicial.perfil ?? PERFIL_PADRAO,
     rodando: false,
     inicioMs: 0,
     acumulado: 0,
@@ -150,6 +161,16 @@ export const useApp = create<Estado>((set, get) => {
       set({ recordeJornada: Math.max(get().recordeJornada, pontos), estrelasJornada: Math.max(get().estrelasJornada, estrelas) })
       persistir()
       return recorde
+    },
+    setRascunho: (p) => set({ rascunho: normalizarPerfil({ ...get().rascunho, ...p }) }),
+    salvarPerfil: () => {
+      set({ perfil: get().rascunho, tela: 'inicio' })
+      persistir()
+      window.scrollTo?.({ top: 0 })
+    },
+    editarPerfil: () => {
+      set({ rascunho: get().perfil ?? PERFIL_PADRAO, tela: 'perfil' })
+      window.scrollTo?.({ top: 0 })
     },
     registrarRitmo: (pontos) => {
       const recorde = pontos > get().recordeRitmo

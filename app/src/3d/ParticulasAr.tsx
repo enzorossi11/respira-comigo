@@ -3,7 +3,8 @@ import { useMemo, useRef } from 'react'
 import { Color, InstancedMesh, Object3D } from 'three'
 import { ETAPAS } from '../conteudo/etapas'
 import { useApp } from '../store'
-import { caminhoCompleto } from './anatomia'
+import { caminhoCompleto, ESCALA } from './anatomia'
+import { ALTURA_BASE, useCorpo, usePerfilAtual } from './Corpo'
 import { COR } from './cores'
 import { lerPulso } from './enchimento'
 
@@ -19,7 +20,11 @@ const INICIO_ESPALHAR = 0.86
  */
 export function ParticulasAr() {
   const ref = useRef<InstancedMesh>(null)
-  const curvas = useMemo(() => [caminhoCompleto(-1), caminhoCompleto(1)], [])
+  const corpo = useCorpo(usePerfilAtual())
+  const curvas = useMemo(() => {
+    const k = (ESCALA * ALTURA_BASE) / corpo.altura
+    return [caminhoCompleto(-1, corpo.mapa, k), caminhoCompleto(1, corpo.mapa, k)]
+  }, [corpo])
   const sementes = useMemo(
     () =>
       Array.from({ length: N }, (_, i) => ({

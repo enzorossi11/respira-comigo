@@ -1,4 +1,15 @@
-# Modelo anatômico 3D
+# Modelos 3D
+
+O personagem junta dois arquivos:
+
+| Arquivo | Origem | Licença | Script |
+|---|---|---|---|
+| `app/public/modelos/corpo.glb` (+ `pele_clara.webp`, `pele_escura.webp`) | MakeHuman: malha base, pele, olhos, sobrancelhas, cílios, cabelo e roupa, com morph targets de sexo e idade | CC0 1.0 | `makehuman/construir_corpo.py` e `makehuman/comprimir.sh` (lista dos assets em `makehuman/LICENCAS.md`) |
+| `app/public/modelos/orgaos.glb` | Z-Anatomy: cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma | CC BY-SA 4.0 | `exportar_modelo.py` e depois `exportar_orgaos.py` |
+
+No app, `src/3d/ajuste.ts` encaixa os órgãos no corpo escolhido na personalização.
+
+## Z-Anatomy
 
 O personagem do app vem do **Z-Anatomy** (Gauthier Kervyn e Marcin Zielinski, derivado do BodyParts3D/DBCLS),
 licença [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). O arquivo adaptado,

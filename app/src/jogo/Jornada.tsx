@@ -8,7 +8,14 @@ import { colide, MARCOS } from './obstaculos'
 import { FASES, LADO_POR_SINAL, raioEm, S_ESCOLHA, type Lado } from './percurso'
 import { Simulacao, VIDAS, type Evento, type Pausa, type Status } from './simulacao'
 
-const NOME_LADO: Record<Lado, string> = { direito: 'Pulmão direito', esquerdo: 'Pulmão esquerdo' }
+/**
+ * Nome mostrado para cada lado da bifurcação. Usa o lado da TELA (direita = "Pulmão
+ * direito"), que é mais fácil de entender do que o lado do corpo visto por dentro.
+ */
+const NOME_LADO: Record<Lado, string> = {
+  [LADO_POR_SINAL.positivo]: 'Pulmão direito',
+  [LADO_POR_SINAL.negativo]: 'Pulmão esquerdo',
+} as Record<Lado, string>
 const MSG_BATIDA = {
   pelo: 'Ai! Um pelo do nariz segurou você.',
   poeira: 'Poeira! O muco prende a sujeira.',

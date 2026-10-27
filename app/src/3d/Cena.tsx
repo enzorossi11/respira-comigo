@@ -15,7 +15,8 @@ const DESLOCAMENTO_Y = -0.55
 const CHAO = -3.02
 
 const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, number]; alvo: [number, number, number] }> = {
-  inicio: { posicao: [1.9, 0.6, 8.2], alvo: [0, -0.2, 0] },
+  inicio: { posicao: [1.9, 0.75, 8.9], alvo: [0, -0.05, 0] },
+  perfil: { posicao: [0.9, 0.7, 8.6], alvo: [0, 0.0, 0] },
   jornada: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
   respirar: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
   dados: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
@@ -134,8 +135,8 @@ export function Cena() {
       <PresentationControls global={false} cursor snap speed={1.4} polar={[-0.1, 0.2]} azimuth={[-0.7, 0.7]}>
         <Suspense fallback={null}>
           <Personagem />
+          <ParticulasAr />
         </Suspense>
-        <ParticulasAr />
       </PresentationControls>
 
       {/* partículas de ar flutuando no ambiente */}

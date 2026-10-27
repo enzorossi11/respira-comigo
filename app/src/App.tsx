@@ -3,6 +3,7 @@ import icone from './componentes/icone.svg'
 import { useApp, type Tela } from './store'
 import { Caminho } from './telas/Caminho'
 import { Inicio } from './telas/Inicio'
+import { IconeRefazer, Perfil } from './telas/Perfil'
 import { Respirar } from './telas/Respirar'
 
 // a cena 3D e o painel de dados são carregados à parte, para o app abrir mais rápido
@@ -21,6 +22,7 @@ const MENU: { tela: Tela; rotulo: string }[] = [
 export default function App() {
   const tela = useApp((s) => s.tela)
   const irPara = useApp((s) => s.irPara)
+  const editarPerfil = useApp((s) => s.editarPerfil)
   const com3d = tela !== 'dados' && tela !== 'jornada'
 
   return (
@@ -46,8 +48,14 @@ export default function App() {
           <Suspense fallback={<div className="palco-carregando">Carregando personagem…</div>}>
             <Cena />
           </Suspense>
+          {tela === 'inicio' && (
+            <button className="btn-refazer" onClick={editarPerfil} aria-label="Personalizar personagem" title="Personalizar personagem">
+              <IconeRefazer />
+            </button>
+          )}
         </div>
         <div className="lado">
+          {tela === 'perfil' && <Perfil />}
           {tela === 'inicio' && <Inicio />}
           {tela === 'caminho' && <Caminho />}
           {tela === 'respirar' && <Respirar />}
@@ -70,7 +78,11 @@ export default function App() {
           CAPS da sua região, ou ligue <b>188</b> (CVV, 24 horas, gratuito).
         </p>
         <p className="credito">
-          Modelo anatômico 3D adaptado do{' '}
+          Corpo 3D feito com o{' '}
+          <a href="https://www.makehumancommunity.org/" target="_blank" rel="noreferrer">
+            MakeHuman
+          </a>{' '}
+          (CC0). Órgãos adaptados do{' '}
           <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" target="_blank" rel="noreferrer">
             Z-Anatomy
           </a>{' '}

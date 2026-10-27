@@ -21,7 +21,9 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
-import { materiaisOlhos, materialPeleReal, usePecasModelo, type ParteModelo } from '../3d/Corpo'
+import { aplicarTom, materialPele, useCorpo, type ParteCorpo } from '../3d/Corpo'
+import { CORES_CABELO, PERFIL_PADRAO } from '../3d/perfil'
+import { useApp } from '../store'
 import { anel, geometriaTunel } from './tunel'
 
 type SimRef = MutableRefObject<Simulacao>
@@ -43,7 +45,6 @@ export function jaVisivel(sObjeto: number, sJogador: number): boolean {
 
 const CEU = new Color('#cfeaf6')
 const CIMA = new Vector3(0, 1, 0)
-const COR_PELE = '#e9b597'
 const COR_NARIZ = '#c97a6a'
 const DENTRO = new Color('#5a1e2c')
 
@@ -108,57 +109,68 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
  */
 /** Escala do gigante: 1 m do modelo = K unidades do jogo (a narina fica do tamanho do túnel) */
 const K = 480
-/** Narina direita do modelo (em metros, no sistema do modelo) */
-const NARINA_MODELO = new Vector3(-0.0055, 1.5504, 0.1026)
-const PECAS_GIGANTE: ParteModelo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Bermuda', 'Cabelo', 'Esclera', 'Iris', 'Cornea']
+const PECAS_GIGANTE: ParteCorpo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Olhos', 'Sobrancelhas', 'Cilios', 'Cabelo', 'CabeloLongo', 'Top', 'Bermuda']
 
-function materialPele(cor: string, furo: { a: Vector3; b: Vector3; r: number } | null) {
-  const m = materialPeleReal(cor)
-  if (furo) {
-    m.onBeforeCompile = (sh) => {
-      sh.uniforms.uA = { value: furo.a }
-      sh.uniforms.uB = { value: furo.b }
-      sh.uniforms.uR = { value: furo.r }
-      sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nvarying vec3 vMundo;')
-        .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;')
-      sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nvarying vec3 vMundo;\nuniform vec3 uA;\nuniform vec3 uB;\nuniform float uR;')
-        .replace(
-          'void main() {',
-          `void main() {
+function abrirNarina(m: MeshStandardMaterial, furo: { a: Vector3; b: Vector3; r: number }) {
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uA = { value: furo.a }
+    sh.uniforms.uB = { value: furo.b }
+    sh.uniforms.uR = { value: furo.r }
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vMundo;')
+      .replace('#include <worldpos_vertex>', '#include <worldpos_vertex>\nvMundo = (modelMatrix * vec4(transformed, 1.0)).xyz;')
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vMundo;\nuniform vec3 uA;\nuniform vec3 uB;\nuniform float uR;')
+      .replace(
+        'void main() {',
+        `void main() {
   vec3 ab = uB - uA;
   float h = clamp(dot(vMundo - uA, ab) / dot(ab, ab), 0.0, 1.0);
   if (length(vMundo - (uA + ab * h)) < uR) discard;`,
-        )
-    }
+      )
   }
+  m.customProgramCacheKey = () => 'narina'
   return m
 }
 
 function PersonagemGigante({ sim }: { sim: SimRef }) {
   const raiz = useRef<Group>(null)
-  const pecas = usePecasModelo()
+  const perfil = useApp((s) => s.perfil) ?? PERFIL_PADRAO
+  const corpo = useCorpo(perfil)
   const q = useMemo(() => quadroEm(CAMINHOS.direito, S.narina), [])
   const R = raioEm(S.narina)
   const P = q.ponto
 
-  const mats = useMemo(() => {
+  const clones = useMemo(() => {
     // o buraco da narina: um cilindro ao longo do túnel, a partir de um pouco antes da entrada
     const furo = { a: P.clone().addScaledVector(q.tangente, -2), b: P.clone().addScaledVector(q.tangente, 40), r: R * 0.98 }
-    const pele = materialPele(COR_PELE, furo)
-    const olhos = materiaisOlhos()
-    return {
-      PeleCabeca: pele,
-      PeleTronco: pele,
-      PeleMembros: pele,
-      Bermuda: new MeshStandardMaterial({ color: '#1f2547', roughness: 0.85 }),
-      Cabelo: olhos.cabelo,
-      Esclera: olhos.esclera,
-      Iris: olhos.iris,
-      Cornea: olhos.cornea,
-    } as Record<string, MeshStandardMaterial>
-  }, [P, q, R])
+    const orig = (p: ParteCorpo) => corpo.malhas[p].material as MeshStandardMaterial
+    const pele = abrirNarina(materialPele(orig('PeleCabeca')), furo)
+    aplicarTom([pele], orig('PeleCabeca').map, perfil.pele)
+    const [cr, cg, cb] = (CORES_CABELO[perfil.corCabelo] ?? CORES_CABELO[1]).fator
+    const out = {} as Record<ParteCorpo, Mesh>
+    for (const p of PECAS_GIGANTE) {
+      const c = corpo.malhas[p].clone()
+      c.frustumCulled = false
+      c.morphTargetInfluences = corpo.pesos.slice()
+      if (p.startsWith('Pele')) c.material = pele
+      else if (p === 'Cabelo' || p === 'CabeloLongo' || p === 'Sobrancelhas') {
+        const m = orig(p).clone()
+        if (p === 'Sobrancelhas') m.color.setRGB(Math.min(1, cr), Math.min(1, cg), Math.min(1, cb))
+        else m.color.setRGB(cr, cg, cb)
+        if (p !== 'Sobrancelhas') {
+          m.alphaToCoverage = true
+          m.alphaTest = 0.2
+        }
+        c.material = m
+      }
+      out[p] = c
+    }
+    out.Top.visible = perfil.corpo === 'feminino'
+    out.Cabelo.visible = perfil.cabelo === 'curto'
+    out.CabeloLongo.visible = perfil.cabelo === 'longo'
+    return out
+  }, [corpo, perfil, P, q, R])
 
   const alvoAnel = useRef<Mesh>(null)
   useFrame(({ clock }) => {
@@ -174,13 +186,13 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
   })
 
   const virado = (alvo: Vector3, de: Vector3) => new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), alvo.clone().sub(de).normalize())
-  const origem = P.clone().sub(NARINA_MODELO.clone().multiplyScalar(K))
+  const origem = P.clone().sub(corpo.narinaDir.clone().multiplyScalar(K))
 
   return (
     <group ref={raiz}>
       <group position={origem} scale={K}>
         {PECAS_GIGANTE.map((p) => (
-          <mesh key={p} geometry={pecas[p].geometria} position={pecas[p].centro} material={mats[p]} />
+          <primitive key={p} object={clones[p]} />
         ))}
       </group>
       {/* fundo escuro da narina (o túnel começa logo atrás) */}

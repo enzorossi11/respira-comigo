@@ -103,19 +103,21 @@ Detalhes, tabelas exatas e como gerar os dados de novo: [`data/README.md`](data/
 O app une **aprender**, **jogar** e **praticar** em uma experiência curta (5 a 8 minutos):
 
 ```
- 1. APRENDER               2. JOGAR                    3. PRATICAR                  4. ENTENDER
- Caminho do ar       ──►   Jornada do ar         ──►   Respiração guiada      ──►   Por que isso importa
- em 3 etapas (3D)          (guiar o O₂ até o           + Desafio de ritmo           (dados reais do
-                            alvéolo)                    (pontos e combo)             IBGE e do SUS)
+ 0. CRIAR            1. APRENDER          2. JOGAR              3. PRATICAR            4. ENTENDER
+ Seu personagem ──►  Caminho do ar   ──►  Jornada do ar   ──►   Respiração guiada ──►  Por que isso importa
+ (corpo, idade,      em 3 etapas (3D)     (guiar o O₂ até       + Desafio de ritmo     (dados reais do
+  pele, cabelo)                            o alvéolo)            (pontos e combo)       IBGE e do SUS)
 ```
 
+0. **Crie seu personagem:** no primeiro acesso, o aluno escolhe **corpo** (feminino ou masculino), **idade** (12 a 25+), **tom de pele** (5 tons) e **cabelo** (curto ou comprido, 5 cores). O boneco muda ao vivo enquanto ele mexe — e, sem perceber, ele monta alguém parecido consigo. O biotipo fica sempre no padrão saudável, de propósito: o app não pede peso nem cria motivo de comparação de corpo. As escolhas ficam **só no navegador** (nada é enviado). Na tela inicial, um ícone discreto ao lado do boneco (silhueta com seta circular) volta para a personalização. Os **órgãos acompanham o corpo escolhido**: pulmões, traqueia e brônquios são encaixados no tronco de cada personagem.
 1. **Caminho do ar:** em cada etapa, a câmera se aproxima das partes do corpo, elas ficam destacadas com rótulos e as partículas de ar que estão naquele trecho brilham.
    - **Etapa 1:** nariz, faringe e laringe
    - **Etapa 2:** traqueia e brônquios
    - **Etapa 3:** pulmões, alvéolos e diafragma
 2. **Jornada do ar (jogo):** você é uma molécula de oxigênio. Começa **fora do corpo**, mira na **narina** e desce por dentro das vias aéreas até um **alvéolo**, guiando com o mouse, o dedo ou as setas.
    - Cada trecho tem o seu obstáculo, ligado ao que a etapa ensina: **poeira e pólen** lá fora, **pelos** no nariz, a **epiglote** que abre e fecha na laringe, **cílios e vírus** na traqueia e tubos cada vez mais **finos** nos bronquíolos.
-   - Na **carina**, o jogador escolhe o **pulmão direito ou esquerdo** indo para um lado ou para o outro.
+   - Na **carina**, o jogo para por **3 s** e a tela se divide em duas zonas: o jogador arrasta e segura no lado do **pulmão** que quiser.
+   - Toda mensagem (dica de cada região, batida, pulmão escolhido) **pausa o jogo por 2 s**, com uma barra de contagem, para dar tempo de ler.
    - **3 fôlegos**, bolinhas de **O₂** para coletar, pontos, até **3 estrelas** e recorde salvo no aparelho. Ao chegar, as **hemácias** passam pelo capilar em volta do alvéolo.
    - Ao bater, aparece o porquê ("Pólen! É ele que causa alergia"). Se o fôlego acaba, o jogo explica que é exatamente isso que o corpo faz com a sujeira.
 3. **Respiração guiada:** três ritmos prontos (**Calma 4·6**, **Equilíbrio 5·5**, **Quadrada 4·4·4·4**) ou ajuste livre de inspirar, segurar, expirar e pausa. Os pulmões e o peito do personagem enchem e esvaziam no ritmo, as partículas de ar entram e saem pelo caminho aprendido, e o anel (o mesmo do logo) marca a fase e a contagem. Tem som suave opcional, duração de 1 a 5 minutos, pausa e fim automático.
@@ -130,15 +132,19 @@ O app une **aprender**, **jogar** e **praticar** em uma experiência curta (5 a 
 
 🎬 **[Vídeo de demonstração](docs/demo.mp4)**: o fluxo completo — caminho do ar, jogo até o alvéolo, desafio de ritmo e painel de dados.
 
-| Início | Etapa 1 – Nariz, faringe e laringe |
+| Crie seu personagem | Outra combinação (corpo, idade, pele e cabelo) |
 |---|---|
+| ![Perfil](docs/prints/17-perfil.png) | ![Perfil 2](docs/prints/18-perfil-variacao.png) |
+| **Início** | **Etapa 1 – Nariz, faringe e laringe** |
 | ![Início](docs/prints/01-inicio.png) | ![Etapa 1](docs/prints/02-caminho-etapa1.png) |
 | **Etapa 2 – Traqueia e brônquios** | **Etapa 3 – Pulmões e alvéolos** |
 | ![Etapa 2](docs/prints/03-caminho-etapa2.png) | ![Etapa 3](docs/prints/04-caminho-etapa3.png) |
 | **Jornada do ar – lá fora, mirando a narina** | **Jornada do ar – traqueia, com cílios e vírus** |
 | ![Jogo lá fora](docs/prints/10-jogo-fora.png) | ![Jogo na traqueia](docs/prints/11-jogo-traqueia.png) |
-| **Jornada do ar – epiglote** | **Jornada do ar – chegada ao alvéolo** |
-| ![Epiglote](docs/prints/12-jogo-epiglote.png) | ![Vitória](docs/prints/13-jogo-vitoria.png) |
+| **Jornada do ar – epiglote** | **Jornada do ar – escolha do pulmão** |
+| ![Epiglote](docs/prints/12-jogo-epiglote.png) | ![Escolha](docs/prints/19-jogo-escolha.png) |
+| **Jornada do ar – chegada ao alvéolo** | **Respiração guiada** |
+| ![Vitória](docs/prints/13-jogo-vitoria.png) | ![Respirar](docs/prints/05-respirar-pronto.png) |
 | **Desafio de ritmo – acerto “Perfeito!”** | **Respiração guiada – soltando o ar** |
 | ![Desafio](docs/prints/14-desafio.png) | ![Expire](docs/prints/07-respirar-expire.png) |
 
@@ -198,7 +204,8 @@ python3 data/scripts/gerar_json.py
 |---|---|---|
 | Interface | **React 19 + TypeScript + Vite** | Telas, navegação e controles de ritmo |
 | 3D | **Three.js** via **React Three Fiber** + **drei** | Personagem, vias aéreas, pulmões, diafragma e partículas de ar |
-| Modelo anatômico | **Z-Anatomy** (CC BY-SA 4.0) recortado no **Blender** (via `bpy`) e comprimido com **gltfpack** | Corpo, pele e órgãos do sistema respiratório |
+| Corpo 3D | **MakeHuman** (assets CC0), com *morph targets* de sexo e idade; texturas em WebP | Pele, rosto, olhos, cabelo e roupa do personagem personalizável |
+| Órgãos 3D | **Z-Anatomy** (CC BY-SA 4.0) recortado no **Blender** (via `bpy`) e comprimido com **gltfpack** | Cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma |
 | Estado | **Zustand** | Tela atual, etapa, ritmo e sessão de respiração |
 | Gráficos | **Recharts** | Painel “Por que importa” |
 | Som | **Web Audio API** | Sinais suaves gerados na hora, sem arquivos de áudio |
@@ -211,7 +218,7 @@ python3 data/scripts/gerar_json.py
 **Decisões principais**
 
 - **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação.
-- **Modelo anatômico real:** o personagem vem do atlas aberto [Z-Anatomy](https://github.com/Z-Anatomy/Models-of-human-anatomy). O script [`data/modelo3d/exportar_modelo.py`](data/modelo3d/exportar_modelo.py) abre o arquivo do Blender sem interface, separa só o que o app usa (pele, cabelo, olhos e o sistema respiratório: cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma), gera uma bermuda moldada no corpo e exporta um `.glb`. O `gltfpack` reduz o arquivo para menos de 1 MB. No app, a pele do tronco é “de vidro” para mostrar os órgãos, os pulmões enchem e o diafragma desce no ritmo da respiração. O caminho do ar ([`app/src/3d/anatomia.ts`](app/src/3d/anatomia.ts)) usa as coordenadas reais do modelo.
+- **Dois modelos, um personagem:** o corpo vem do **MakeHuman** (pele com textura real, olhos, cabelo e roupa, todos CC0) e os órgãos vêm do **Z-Anatomy** (CC BY-SA 4.0). O corpo tem *morph targets* (formas embutidas) de sexo e idade, então a personalização muda o boneco ao vivo, sem baixar outro arquivo. Para os órgãos caberem em qualquer corpo, [`app/src/3d/ajuste.ts`](app/src/3d/ajuste.ts) mede, na pele do tronco, a fúrcula, a cintura e a largura e profundidade do peito, e leva os órgãos e o caminho do ar para dentro do corpo atual (o trecho do nariz é puxado até a narina). Essa conta tem testes. Os scripts que montam os dois arquivos ficam em [`data/modelo3d`](data/modelo3d).
 - **Lógica da respiração separada da interface:** [`app/src/lib/respiracao.ts`](app/src/lib/respiracao.ts) é uma função pura que, dado o tempo e o ritmo, diz a fase, a contagem e quanto os pulmões estão cheios. O anel, o personagem e as partículas leem dela, então tudo fica sincronizado, e ela é coberta por testes.
 - **Regras do jogo separadas do 3D:** [`app/src/jogo/simulacao.ts`](app/src/jogo/simulacao.ts) avança a partícula, aplica o controle e verifica colisões sem nada de 3D. A colisão é calculada no **referencial do próprio túnel** (distância percorrida + posição na seção), em 2D, o que a deixa simples e exata. O percurso é gerado com **semente fixa**, então todo mundo joga o mesmo caminho e os testes são reproduzíveis.
 - **Túnel de verdade:** a parede é uma malha própria com raio variável (nariz largo, laringe estreita, traqueia com anéis de cartilagem, bronquíolos finos) e textura de vasinhos desenhada na hora. Na bifurcação, um *shader* recorta a parte de um tubo que fica dentro do outro, formando o “Y” dos brônquios.
@@ -281,7 +288,8 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 
 - No jogo, toda mensagem **pausa por 2 s** com uma barra de contagem, para dar tempo de ler; na bifurcação, o jogo para por **3 s** e o jogador arrasta e segura de um lado para **escolher o pulmão**.
 - Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
-- Personagem trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
+- **Personagem personalizável** com corpo do **MakeHuman** (pele realista, olhos, cabelo e roupa) e órgãos do Z-Anatomy encaixados no tronco de cada corpo; tela "Crie seu personagem" no primeiro acesso.
+- Antes disso, o personagem tinha sido trocado por um **modelo anatômico real** (Z-Anatomy, CC BY-SA 4.0): corpo humano com pele “de vidro” no tronco e órgãos de verdade por dentro — cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma. No caminho do ar, a cabeça também fica transparente e o órgão de cada etapa acende.
 - Os pulmões **enchem**, o peito **expande** e o diafragma **desce** no ritmo da respiração; o personagem **comemora** os acertos do desafio.
 - Rosto mais detalhado sem pesar o site: olhos com íris desenhada, pupila e córnea que reflete a luz; sombras de oclusão (canto dos olhos, narinas, boca) e tons de pele (lábios, bochechas, nariz, pálpebras) gravados como cor dos vértices no Blender; pele com brilho suave e mais polígonos só na cabeça.
 - A Jornada do ar começa vendo o mesmo personagem **gigante** de longe, e a partícula entra pela **narina** dele.
@@ -298,7 +306,7 @@ respira-comigo/
 ├── README.md
 ├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
 ├── app/                           ← aplicação (React + Three.js)
-│   ├── public/modelos/corpo.glb   ← modelo anatômico (Z-Anatomy, CC BY-SA 4.0)
+│   ├── public/modelos/            ← corpo.glb (MakeHuman, CC0), orgaos.glb (Z-Anatomy, CC BY-SA 4.0) e texturas de pele
 │   └── src/
 │       ├── 3d/                    ← cena, personagem (carrega o modelo), anatomia e partículas de ar
 │       ├── jogo/                  ← Jornada do ar: percurso, obstáculos, regras (+ testes) e cena 3D
@@ -311,7 +319,7 @@ respira-comigo/
 ├── data/
 │   ├── scripts/                   ← download e tratamento (PeNSE e SIH/SUS)
 │   ├── processed/                 ← JSON e CSVs usados pelo app
-│   ├── modelo3d/                  ← script que recorta o modelo anatômico no Blender
+│   ├── modelo3d/                  ← scripts dos modelos 3D (MakeHuman e Z-Anatomy) e licenças
 │   └── README.md                  ← de onde vem cada número
 ├── assets/                        ← logo, paleta e tipografia
 └── docs/
@@ -345,6 +353,7 @@ respira-comigo/
 - WORLD HEALTH ORGANIZATION. **Depression and Other Common Mental Disorders: Global Health Estimates**. Genebra: WHO, 2017.
 - ZACCARO, A. et al. How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing. **Frontiers in Human Neuroscience**, v. 12, 2018.
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
+- MAKEHUMAN COMMUNITY. **MakeHuman** – malha base, texturas de pele, olhos, cabelo e roupa (assets de sistema, CC0 1.0). Disponível em: https://www.makehumancommunity.org/. Lista dos assets usados: `data/modelo3d/makehuman/LICENCAS.md`.
 - KERVYN, G.; ZIELINSKI, M. **Z-Anatomy** – atlas 3D de anatomia humana (derivado do BodyParts3D, DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. O modelo adaptado neste projeto (`app/public/modelos/corpo.glb`) é distribuído sob a mesma licença.
 
 ---

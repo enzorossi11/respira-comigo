@@ -44,7 +44,7 @@ export const ETAPAS: Etapa[] = [
     curiosidade: 'Respirar pelo nariz é melhor do que pela boca: o ar chega aos pulmões mais limpo, quente e úmido.',
     partes: ['nariz', 'faringe', 'laringe'],
     trecho: [0, 0.48],
-    camera: { posicao: [1.35, 2.0, 1.45], alvo: [0, 1.76, 0.06] },
+    camera: { posicao: [1.55, 2.2, 1.95], alvo: [0, 1.86, 0.12] },
   },
   {
     numero: 2,
@@ -67,7 +67,7 @@ export const ETAPAS: Etapa[] = [
     curiosidade: 'A asma acontece quando os brônquios inflamam e se estreitam, deixando menos espaço para o ar passar.',
     partes: ['traqueia', 'bronquios'],
     trecho: [0.48, 0.86],
-    camera: { posicao: [-0.9, 1.6, 2.0], alvo: [0, 1.38, 0] },
+    camera: { posicao: [-1.0, 1.6, 2.4], alvo: [0, 1.32, 0.05] },
   },
   {
     numero: 3,
