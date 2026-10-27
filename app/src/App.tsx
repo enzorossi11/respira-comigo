@@ -8,10 +8,12 @@ import { Respirar } from './telas/Respirar'
 // a cena 3D e o painel de dados são carregados à parte, para o app abrir mais rápido
 const Cena = lazy(() => import('./3d/Cena').then((m) => ({ default: m.Cena })))
 const Dados = lazy(() => import('./telas/Dados').then((m) => ({ default: m.Dados })))
+const Jornada = lazy(() => import('./jogo/Jornada').then((m) => ({ default: m.Jornada })))
 
 const MENU: { tela: Tela; rotulo: string }[] = [
   { tela: 'inicio', rotulo: 'Início' },
   { tela: 'caminho', rotulo: 'Caminho do ar' },
+  { tela: 'jornada', rotulo: '🎮 Jogar' },
   { tela: 'respirar', rotulo: 'Respirar' },
   { tela: 'dados', rotulo: 'Por que importa' },
 ]
@@ -19,7 +21,7 @@ const MENU: { tela: Tela; rotulo: string }[] = [
 export default function App() {
   const tela = useApp((s) => s.tela)
   const irPara = useApp((s) => s.irPara)
-  const com3d = tela !== 'dados'
+  const com3d = tela !== 'dados' && tela !== 'jornada'
 
   return (
     <div className="app">
@@ -39,7 +41,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main className={`conteudo ${com3d ? 'com-3d' : 'sem-3d'}`}>
+      <main className={`conteudo ${com3d ? 'com-3d' : 'sem-3d'} tela-${tela}`}>
         <div className="palco" hidden={!com3d}>
           <Suspense fallback={<div className="palco-carregando">Carregando personagem…</div>}>
             <Cena />
@@ -49,6 +51,11 @@ export default function App() {
           {tela === 'inicio' && <Inicio />}
           {tela === 'caminho' && <Caminho />}
           {tela === 'respirar' && <Respirar />}
+          {tela === 'jornada' && (
+            <Suspense fallback={<p className="painel">Carregando o jogo…</p>}>
+              <Jornada />
+            </Suspense>
+          )}
           {tela === 'dados' && (
             <Suspense fallback={<p className="painel">Carregando dados…</p>}>
               <Dados />

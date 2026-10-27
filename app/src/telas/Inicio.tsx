@@ -2,13 +2,17 @@ import { useApp } from '../store'
 
 const PASSOS = [
   { n: '1', titulo: 'Aprender', texto: 'Siga o caminho do ar, do nariz até os alvéolos, em 3 etapas.' },
-  { n: '2', titulo: 'Praticar', texto: 'Respire junto com o personagem, no ritmo que você escolher.' },
-  { n: '3', titulo: 'Entender', texto: 'Veja, com dados do IBGE e do SUS, por que isso importa.' },
+  { n: '2', titulo: 'Jogar', texto: 'Vire uma molécula de oxigênio e chegue até o alvéolo desviando de poeira e vírus.' },
+  { n: '3', titulo: 'Praticar', texto: 'Respire junto com o personagem e tente acertar o ritmo para ganhar pontos.' },
+  { n: '4', titulo: 'Entender', texto: 'Veja, com dados do IBGE e do SUS, por que isso importa.' },
 ]
 
 export function Inicio() {
   const irPara = useApp((s) => s.irPara)
   const sessoes = useApp((s) => s.sessoes)
+  const recordeJornada = useApp((s) => s.recordeJornada)
+  const estrelas = useApp((s) => s.estrelasJornada)
+  const recordeRitmo = useApp((s) => s.recordeRitmo)
 
   return (
     <section className="painel" aria-labelledby="titulo-inicio">
@@ -36,15 +40,29 @@ export function Inicio() {
         <button className="btn btn-primario" onClick={() => irPara('caminho')}>
           Começar pelo caminho do ar
         </button>
-        <button className="btn btn-secundario" onClick={() => irPara('respirar')}>
-          Ir direto para a respiração
+        <button className="btn btn-secundario" onClick={() => irPara('jornada')}>
+          🎮 Jogar a Jornada do ar
         </button>
       </div>
 
-      {sessoes > 0 && (
-        <p className="nota">
-          Você já completou {sessoes} {sessoes === 1 ? 'sessão' : 'sessões'} de respiração neste aparelho.
-        </p>
+      {(sessoes > 0 || recordeJornada > 0 || recordeRitmo > 0) && (
+        <div className="conquistas" aria-label="Seu progresso neste aparelho">
+          {recordeJornada > 0 && (
+            <span>
+              🏆 Jornada: <b>{recordeJornada}</b> pts {'★'.repeat(estrelas)}
+            </span>
+          )}
+          {recordeRitmo > 0 && (
+            <span>
+              🎯 Ritmo: <b>{recordeRitmo}</b> pts
+            </span>
+          )}
+          {sessoes > 0 && (
+            <span>
+              🫁 <b>{sessoes}</b> {sessoes === 1 ? 'sessão' : 'sessões'} de respiração
+            </span>
+          )}
+        </div>
       )}
       <p className="nota dica">Dica: arraste o personagem para girá-lo.</p>
     </section>

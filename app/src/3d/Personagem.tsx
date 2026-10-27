@@ -6,6 +6,7 @@ import { ETAPAS, ROTULO_PARTE, type Parte } from '../conteudo/etapas'
 import { useApp } from '../store'
 import { CENTRO_PULMAO, curvaBronquio, curvaSuperior, curvaTraqueia, ramos } from './anatomia'
 import { COR } from './cores'
+import { alturaPulo, Cabeca, Membros } from './Corpo'
 import { lerPulso } from './enchimento'
 
 function useDestaques(): Set<Parte> | null {
@@ -68,8 +69,7 @@ export function Personagem() {
   const pulmaoE = useRef<Mesh>(null)
   const tronco = useRef<Mesh>(null)
   const diafragma = useRef<Mesh>(null)
-  const ombros = useRef<Group>(null)
-  const cabeca = useRef<Group>(null)
+  const raiz = useRef<Group>(null)
   const alveolos = useRef<Group>(null)
 
   const brD = useMemo(() => curvaBronquio(-1), [])
@@ -102,11 +102,7 @@ export function Personagem() {
     pulmaoE.current?.scale.set(0.3 * sp, 0.58 * (1 + 0.08 * e), 0.28 * sp)
     tronco.current?.scale.set(1 + 0.045 * e, 1 + 0.015 * e, 1 + 0.06 * e)
     if (diafragma.current) diafragma.current.position.y = -0.2 - 0.13 * e
-    if (ombros.current) ombros.current.position.y = 0.025 * e
-    if (cabeca.current) {
-      cabeca.current.position.y = 0.025 * e
-      cabeca.current.rotation.z = Math.sin(clock.elapsedTime * 0.6) * 0.03
-    }
+    if (raiz.current) raiz.current.position.y = -0.55 + alturaPulo()
     if (alveolos.current) alveolos.current.scale.setScalar(0.85 + 0.25 * e)
   })
 
@@ -124,43 +120,8 @@ export function Personagem() {
   )
 
   return (
-    <group position={[0, -0.55, 0]}>
-      {/* Cabeça */}
-      <group ref={cabeca}>
-        <mesh position={[0, 2.05, 0]}>
-          <sphereGeometry args={[0.6, 48, 48]} />
-          <meshStandardMaterial color={COR.pele} roughness={0.7} transparent opacity={destaques ? 0.55 : 1} depthWrite={!destaques} />
-        </mesh>
-        {/* cabelo */}
-        <mesh position={[0, 2.08, -0.02]} rotation={[-0.35, 0, 0]}>
-          <sphereGeometry args={[0.625, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2.6]} />
-          <meshStandardMaterial color={COR.noite} roughness={0.8} transparent opacity={destaques ? 0.45 : 1} depthWrite={!destaques} />
-        </mesh>
-        {/* nariz */}
-        <mesh position={[0, 2.0, 0.6]}>
-          <sphereGeometry args={[0.1, 24, 24]} />
-          <meshStandardMaterial color={d('nariz') ? COR.destaque : COR.folegoEscuro} roughness={0.6} />
-        </mesh>
-        {/* olhos */}
-        {[-0.2, 0.2].map((x) => (
-          <mesh key={x} position={[x, 2.17, 0.54]}>
-            <sphereGeometry args={[0.055, 20, 20]} />
-            <meshStandardMaterial color={COR.noite} roughness={0.3} />
-          </mesh>
-        ))}
-        {/* bochechas */}
-        {[-0.34, 0.34].map((x) => (
-          <mesh key={x} position={[x, 1.98, 0.47]} scale={[1, 0.6, 0.4]}>
-            <sphereGeometry args={[0.08, 16, 16]} />
-            <meshStandardMaterial color={COR.folegoEscuro} transparent opacity={0.55} />
-          </mesh>
-        ))}
-        {/* sorriso */}
-        <mesh position={[0, 1.88, 0.55]} rotation={[0.25, 0, Math.PI]}>
-          <torusGeometry args={[0.1, 0.022, 10, 24, Math.PI]} />
-          <meshStandardMaterial color={COR.noite} />
-        </mesh>
-      </group>
+    <group ref={raiz} position={[0, -0.55, 0]}>
+      <Cabeca transparente={!!destaques} />
 
       {/* Pescoço */}
       <mesh position={[0, 1.48, 0]}>
@@ -183,15 +144,7 @@ export function Personagem() {
         />
       </mesh>
 
-      {/* Braços */}
-      <group ref={ombros}>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[0.78 * s, 0.55, 0]} rotation={[0, 0, 0.16 * s]}>
-            <capsuleGeometry args={[0.15, 0.75, 8, 24]} />
-            <meshStandardMaterial color={COR.pele} roughness={0.7} />
-          </mesh>
-        ))}
-      </group>
+      <Membros />
 
       {/* Vias aéreas superiores */}
       <Tubo curva={trechosSuperiores.nariz} raio={0.05} destacado={d('nariz')} esmaecido={esm('nariz')} />

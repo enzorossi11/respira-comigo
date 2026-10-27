@@ -58,9 +58,14 @@ export function Caminho() {
           ← Anterior
         </button>
         {ultima ? (
-          <button className="btn btn-primario" onClick={() => irPara('respirar')}>
-            Agora, respire comigo →
-          </button>
+          <>
+            <button className="btn btn-primario" onClick={() => irPara('jornada')}>
+              🎮 Agora, faça a jornada do ar →
+            </button>
+            <button className="btn btn-secundario" onClick={() => irPara('respirar')}>
+              Ir para a respiração
+            </button>
+          </>
         ) : (
           <button className="btn btn-primario" onClick={() => setEtapa(etapa + 1)}>
             Próxima etapa →

@@ -1,7 +1,9 @@
 import { create } from 'zustand'
 import { ciclosNaSessao, duracaoCiclo, normalizarRitmo, PRESETS, type Ritmo } from './lib/respiracao'
 
-export type Tela = 'inicio' | 'caminho' | 'respirar' | 'dados'
+export type Tela = 'inicio' | 'caminho' | 'jornada' | 'respirar' | 'dados'
+export type ModoRespirar = 'livre' | 'desafio'
+export type Reacao = 'feliz' | 'uau' | 'ops'
 
 const CHAVE = 'respira-comigo:prefs'
 
@@ -11,14 +13,20 @@ interface Prefs {
   duracaoMin: number
   som: boolean
   sessoes: number
+  recordeJornada: number
+  estrelasJornada: number
+  recordeRitmo: number
 }
 
 const PADRAO: Prefs = {
   ritmo: PRESETS[0].ritmo,
   presetId: PRESETS[0].id,
   duracaoMin: 2,
-  som: false,
+  som: true,
   sessoes: 0,
+  recordeJornada: 0,
+  estrelasJornada: 0,
+  recordeRitmo: 0,
 }
 
 /** localStorage pode falhar (aba anônima, bloqueio) — o app funciona sem ele. */
@@ -49,6 +57,9 @@ interface Estado extends Prefs {
   inicioMs: number
   acumulado: number
   concluida: boolean
+  modo: ModoRespirar
+  /** última reação do personagem (o 3D usa o instante para animar) */
+  reacao: { tipo: Reacao; em: number } | null
 
   irPara: (t: Tela) => void
   setEtapa: (i: number) => void
@@ -63,14 +74,18 @@ interface Estado extends Prefs {
   /** duração total da sessão, arredondada para ciclos inteiros */
   duracaoSessao: () => number
   concluir: () => void
+  setModo: (m: ModoRespirar) => void
+  reagir: (tipo: Reacao) => void
+  registrarJornada: (pontos: number, estrelas: number) => boolean
+  registrarRitmo: (pontos: number) => boolean
 }
 
 const inicial = carregar()
 
 export const useApp = create<Estado>((set, get) => {
   const persistir = () => {
-    const { ritmo, presetId, duracaoMin, som, sessoes } = get()
-    salvar({ ritmo, presetId, duracaoMin, som, sessoes })
+    const { ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo } = get()
+    salvar({ ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo })
   }
 
   return {
@@ -81,6 +96,8 @@ export const useApp = create<Estado>((set, get) => {
     inicioMs: 0,
     acumulado: 0,
     concluida: false,
+    modo: 'livre',
+    reacao: null,
 
     irPara: (tela) => {
       if (tela !== 'respirar' && get().rodando) get().pausar()
@@ -125,6 +142,20 @@ export const useApp = create<Estado>((set, get) => {
     concluir: () => {
       set({ rodando: false, concluida: true, acumulado: 0, sessoes: get().sessoes + 1 })
       persistir()
+    },
+    setModo: (modo) => set({ modo, rodando: false, acumulado: 0, concluida: false }),
+    reagir: (tipo) => set({ reacao: { tipo, em: performance.now() } }),
+    registrarJornada: (pontos, estrelas) => {
+      const recorde = pontos > get().recordeJornada
+      set({ recordeJornada: Math.max(get().recordeJornada, pontos), estrelasJornada: Math.max(get().estrelasJornada, estrelas) })
+      persistir()
+      return recorde
+    },
+    registrarRitmo: (pontos) => {
+      const recorde = pontos > get().recordeRitmo
+      set({ recordeRitmo: Math.max(get().recordeRitmo, pontos) })
+      persistir()
+      return recorde
     },
   }
 })

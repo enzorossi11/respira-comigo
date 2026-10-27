@@ -2,12 +2,12 @@
   <img src="assets/logo/logo-horizontal.png" alt="Respira Comigo" width="440">
 </p>
 
-<p align="center"><b>Aprenda o caminho do ar. Respire no seu ritmo.</b></p>
+<p align="center"><b>Aprenda o caminho do ar. Jogue. Respire no seu ritmo.</b></p>
 
 <p align="center">
   <img alt="Checkpoint" src="https://img.shields.io/badge/etapa-Checkpoint%202%20·%20Prot%C3%B3tipo-7C6FE0">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
-  <img alt="Testes" src="https://img.shields.io/badge/testes-19%20passando-137A71">
+  <img alt="Testes" src="https://img.shields.io/badge/testes-39%20passando-137A71">
 </p>
 
 <p align="center">
@@ -44,9 +44,10 @@
 **Título:** Respira Comigo
 **Tema:** Sistema respiratório · Saúde e Bem-Estar (ODS 3)
 
-O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, de forma animada, o **caminho que o ar percorre** no corpo — do nariz até os alvéolos — e, em seguida, **conduz o usuário em uma respiração guiada**, com o peito do personagem se expandindo e contraindo no ritmo escolhido.
+O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, de forma animada, o **caminho que o ar percorre** no corpo — do nariz até os alvéolos —, transforma esse caminho em um **jogo** (você guia uma molécula de oxigênio por dentro do corpo) e, em seguida, **conduz o usuário em uma respiração guiada**, com um **desafio de ritmo** que dá pontos a quem acompanha o personagem.
 
 > **MVP:** caminho do ar em 3 etapas + respiração guiada com ritmo ajustável. ✅ Funcionando.
+> **Além do MVP:** jogo **Jornada do ar** e **Desafio de ritmo** com pontos, combo, estrelas e recordes.
 
 ---
 
@@ -99,20 +100,27 @@ Detalhes, tabelas exatas e como gerar os dados de novo: [`data/README.md`](data/
 
 ## 3. Solução
 
-O app une **aprender** e **praticar** em uma experiência curta (3 a 5 minutos):
+O app une **aprender**, **jogar** e **praticar** em uma experiência curta (5 a 8 minutos):
 
 ```
- 1. APRENDER                        2. PRATICAR                       3. ENTENDER
- Caminho do ar em 3 etapas   ──►    Respiração guiada            ──►  Por que isso importa
- (personagem 3D animado)            (ritmo ajustável)                 (painel com dados reais)
+ 1. APRENDER               2. JOGAR                    3. PRATICAR                  4. ENTENDER
+ Caminho do ar       ──►   Jornada do ar         ──►   Respiração guiada      ──►   Por que isso importa
+ em 3 etapas (3D)          (guiar o O₂ até o           + Desafio de ritmo           (dados reais do
+                            alvéolo)                    (pontos e combo)             IBGE e do SUS)
 ```
 
 1. **Caminho do ar:** em cada etapa, a câmera se aproxima das partes do corpo, elas ficam destacadas com rótulos e as partículas de ar que estão naquele trecho brilham.
    - **Etapa 1:** nariz, faringe e laringe
    - **Etapa 2:** traqueia e brônquios
    - **Etapa 3:** pulmões, alvéolos e diafragma
-2. **Respiração guiada:** três ritmos prontos (**Calma 4·6**, **Equilíbrio 5·5**, **Quadrada 4·4·4·4**) ou ajuste livre de inspirar, segurar, expirar e pausa. Os pulmões e o peito do personagem enchem e esvaziam no ritmo, as partículas de ar entram e saem pelo caminho aprendido, e o anel (o mesmo do logo) marca a fase e a contagem. Tem som suave opcional, duração de 1 a 5 minutos, pausa e fim automático.
-3. **Por que importa:** cards e gráficos com os dados oficiais, cada um com a fonte e o link.
+2. **Jornada do ar (jogo):** você é uma molécula de oxigênio. Começa **fora do corpo**, mira na **narina** e desce por dentro das vias aéreas até um **alvéolo**, guiando com o mouse, o dedo ou as setas.
+   - Cada trecho tem o seu obstáculo, ligado ao que a etapa ensina: **poeira e pólen** lá fora, **pelos** no nariz, a **epiglote** que abre e fecha na laringe, **cílios e vírus** na traqueia e tubos cada vez mais **finos** nos bronquíolos.
+   - Na **carina**, o jogador escolhe o **pulmão direito ou esquerdo** indo para um lado ou para o outro.
+   - **3 fôlegos**, bolinhas de **O₂** para coletar, pontos, até **3 estrelas** e recorde salvo no aparelho. Ao chegar, as **hemácias** passam pelo capilar em volta do alvéolo.
+   - Ao bater, aparece o porquê ("Pólen! É ele que causa alergia"). Se o fôlego acaba, o jogo explica que é exatamente isso que o corpo faz com a sujeira.
+3. **Respiração guiada:** três ritmos prontos (**Calma 4·6**, **Equilíbrio 5·5**, **Quadrada 4·4·4·4**) ou ajuste livre de inspirar, segurar, expirar e pausa. Os pulmões e o peito do personagem enchem e esvaziam no ritmo, as partículas de ar entram e saem pelo caminho aprendido, e o anel (o mesmo do logo) marca a fase e a contagem. Tem som suave opcional, duração de 1 a 5 minutos, pausa e fim automático.
+   - **Desafio de ritmo:** o jogador **segura o botão** (ou a barra de espaço) enquanto inspira e **solta** enquanto expira. Cada ciclo recebe nota (*Perfeito*, *Bom*, *Quase*), acertos seguidos fazem **combo**, e o personagem **comemora** com os braços para cima. No fim: pontos, precisão média, estrelas e recorde.
+4. **Por que importa:** cards e gráficos com os dados oficiais, cada um com a fonte e o link.
 
 **Por que respiração lenta:** revisões de estudos associam a respiração lenta e controlada (≈6 ciclos por minuto) a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). Todos os ritmos prontos do app ficam em 6 respirações por minuto ou menos.
 
@@ -120,22 +128,26 @@ O app une **aprender** e **praticar** em uma experiência curta (3 a 5 minutos):
 
 ## 4. Protótipo
 
-🎬 **[Vídeo de demonstração (1min40)](docs/demo.mp4)**: o fluxo principal completo, do início ao painel de dados.
+🎬 **[Vídeo de demonstração](docs/demo.mp4)**: o fluxo completo — caminho do ar, jogo até o alvéolo, desafio de ritmo e painel de dados.
 
 | Início | Etapa 1 – Nariz, faringe e laringe |
 |---|---|
 | ![Início](docs/prints/01-inicio.png) | ![Etapa 1](docs/prints/02-caminho-etapa1.png) |
 | **Etapa 2 – Traqueia e brônquios** | **Etapa 3 – Pulmões e alvéolos** |
 | ![Etapa 2](docs/prints/03-caminho-etapa2.png) | ![Etapa 3](docs/prints/04-caminho-etapa3.png) |
-| **Respiração guiada – inspirando** | **Respiração guiada – soltando o ar** |
-| ![Inspire](docs/prints/06-respirar-inspire.png) | ![Expire](docs/prints/07-respirar-expire.png) |
+| **Jornada do ar – lá fora, mirando a narina** | **Jornada do ar – traqueia, com cílios e vírus** |
+| ![Jogo lá fora](docs/prints/10-jogo-fora.png) | ![Jogo na traqueia](docs/prints/11-jogo-traqueia.png) |
+| **Jornada do ar – epiglote** | **Jornada do ar – chegada ao alvéolo** |
+| ![Epiglote](docs/prints/12-jogo-epiglote.png) | ![Vitória](docs/prints/13-jogo-vitoria.png) |
+| **Desafio de ritmo – acerto “Perfeito!”** | **Respiração guiada – soltando o ar** |
+| ![Desafio](docs/prints/14-desafio.png) | ![Expire](docs/prints/07-respirar-expire.png) |
 
 <details>
 <summary><b>Painel de dados e versão para celular</b></summary>
 
-| Por que importa | Celular |
-|---|---|
-| ![Dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="300"> |
+| Por que importa | Celular | Celular – jogo |
+|---|---|---|
+| ![Dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="260"> | <img src="docs/prints/16-celular-jogo.png" width="260"> |
 
 </details>
 
@@ -163,7 +175,7 @@ Abra o endereço que aparecer no terminal (normalmente http://localhost:5173).
 | Comando (dentro de `app/`) | O que faz |
 |---|---|
 | `npm run dev` | Abre o app em modo de desenvolvimento |
-| `npm test` | Roda os 19 testes automáticos |
+| `npm test` | Roda os 39 testes automáticos |
 | `npm run build` | Gera a versão de produção em `app/dist/` |
 | `npm run preview` | Abre a versão de produção localmente |
 
@@ -191,7 +203,8 @@ python3 data/scripts/gerar_json.py
 | Som | **Web Audio API** | Sinais suaves gerados na hora, sem arquivos de áudio |
 | Fontes | **Nunito + Inter** (Fontsource) | Servidas junto com o app, sem depender do Google |
 | Dados | **Python + pandas** | Download e tratamento da PeNSE e do SIH/SUS → JSON |
-| Testes | **Vitest** | Lógica da respiração e integridade dos dados |
+| Jogo | **Three.js** (túnel com geometria própria, shader de recorte na bifurcação, instancing) | Jornada do ar |
+| Testes | **Vitest** | Lógica da respiração, regras do jogo, pontuação do desafio e integridade dos dados |
 | Entrega | **GitHub Actions + GitHub Pages** | Testa, compila e publica a cada push na `main` |
 
 **Decisões principais**
@@ -199,6 +212,10 @@ python3 data/scripts/gerar_json.py
 - **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação.
 - **Personagem modelado em código:** o corpo e a anatomia são formas do Three.js (esferas, cápsulas e tubos que seguem curvas). Isso deixou o 3D leve, fácil de animar no ritmo da respiração e de destacar parte por parte, sem depender de um modelo externo. A geometria do caminho do ar fica em [`app/src/3d/anatomia.ts`](app/src/3d/anatomia.ts).
 - **Lógica da respiração separada da interface:** [`app/src/lib/respiracao.ts`](app/src/lib/respiracao.ts) é uma função pura que, dado o tempo e o ritmo, diz a fase, a contagem e quanto os pulmões estão cheios. O anel, o personagem e as partículas leem dela, então tudo fica sincronizado, e ela é coberta por testes.
+- **Regras do jogo separadas do 3D:** [`app/src/jogo/simulacao.ts`](app/src/jogo/simulacao.ts) avança a partícula, aplica o controle e verifica colisões sem nada de 3D. A colisão é calculada no **referencial do próprio túnel** (distância percorrida + posição na seção), em 2D, o que a deixa simples e exata. O percurso é gerado com **semente fixa**, então todo mundo joga o mesmo caminho e os testes são reproduzíveis.
+- **Túnel de verdade:** a parede é uma malha própria com raio variável (nariz largo, laringe estreita, traqueia com anéis de cartilagem, bronquíolos finos) e textura de vasinhos desenhada na hora. Na bifurcação, um *shader* recorta a parte de um tubo que fica dentro do outro, formando o “Y” dos brônquios.
+- **Pontuação justa no desafio:** a parte de segurar e a de soltar valem o mesmo, para que “nunca apertar” ou “apertar sempre” não pareça bom; e há uma tolerância de 0,45 s no começo de cada fase para o tempo de reação.
+- **Jogo leve:** só os obstáculos perto da partícula são desenhados, e cílios e oxigênio usam *instancing* (um único desenho para centenas de objetos).
 - **Animação sem re-render:** o 3D lê o estado direto no `useFrame`, sem re-renderizar o React a cada quadro, o que mantém a animação fluida.
 - **Carregamento em partes:** a cena 3D e o painel de dados são carregados separadamente, para a primeira tela abrir rápido.
 - **Sem backend e sem cadastro:** os dados públicos viram um JSON estático no momento do build. As preferências (ritmo, duração, som) ficam só no navegador do aluno. Nenhum dado pessoal é coletado (LGPD).
@@ -259,6 +276,12 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 - Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
 - Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
 
+**Gamificação e 3D (depois do Checkpoint 2)**
+
+- Novo jogo **Jornada do ar** e novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho (mostrados na tela inicial).
+- Personagem mais expressivo: **pisca**, **olha para o mouse**, faz **“o”** com a boca ao soltar o ar, **enche as bochechas** ao segurar, **acena** na tela inicial e **comemora** os acertos.
+- Ganhou roupa, mãos, pernas e tênis, e a cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um **anel no chão que pulsa com a respiração**.
+
 **Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
 
 ---
@@ -271,11 +294,13 @@ respira-comigo/
 ├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
 ├── app/                           ← aplicação (React + Three.js)
 │   └── src/
-│       ├── 3d/                    ← cena, personagem, anatomia e partículas de ar
-│       ├── telas/                 ← Início, Caminho do ar, Respirar, Por que importa
+│       ├── 3d/                    ← cena, personagem (Corpo.tsx), anatomia e partículas de ar
+│       ├── jogo/                  ← Jornada do ar: percurso, obstáculos, regras (+ testes) e cena 3D
+│       ├── telas/                 ← Início, Caminho do ar, Respirar (livre e desafio), Por que importa
 │       ├── componentes/           ← anel de respiração
 │       ├── conteudo/etapas.ts     ← textos das 3 etapas
 │       ├── lib/respiracao.ts      ← lógica da respiração (+ testes)
+│       ├── lib/desafio.ts         ← pontuação do desafio de ritmo (+ testes)
 │       └── store.ts               ← estado do app
 ├── data/
 │   ├── scripts/                   ← download e tratamento (PeNSE e SIH/SUS)

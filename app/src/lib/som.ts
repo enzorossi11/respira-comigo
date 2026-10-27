@@ -45,6 +45,51 @@ export function tocarFase(fase: Fase) {
   osc.stop(agora + 1)
 }
 
+export type Efeito = 'oxigenio' | 'batida' | 'fase' | 'vitoria' | 'acerto' | 'combo'
+
+/** Efeitos curtos dos jogos */
+export function tocarEfeito(efeito: Efeito) {
+  const c = contexto()
+  if (!c) return
+  const agora = c.currentTime
+  const nota = (freq: number, ini: number, dur: number, vol: number, tipo: OscillatorType = 'sine', ate?: number) => {
+    const osc = c.createOscillator()
+    const g = c.createGain()
+    osc.type = tipo
+    osc.frequency.setValueAtTime(freq, agora + ini)
+    if (ate) osc.frequency.exponentialRampToValueAtTime(ate, agora + ini + dur)
+    g.gain.setValueAtTime(0.0001, agora + ini)
+    g.gain.exponentialRampToValueAtTime(vol, agora + ini + 0.02)
+    g.gain.exponentialRampToValueAtTime(0.0001, agora + ini + dur)
+    osc.connect(g).connect(c.destination)
+    osc.start(agora + ini)
+    osc.stop(agora + ini + dur + 0.05)
+  }
+  switch (efeito) {
+    case 'oxigenio':
+      nota(880, 0, 0.12, 0.05)
+      nota(1320, 0.05, 0.14, 0.04)
+      break
+    case 'batida':
+      nota(180, 0, 0.3, 0.09, 'triangle', 70)
+      break
+    case 'fase':
+      nota(523, 0, 0.18, 0.04)
+      nota(784, 0.1, 0.25, 0.04)
+      break
+    case 'acerto':
+      nota(659, 0, 0.18, 0.045)
+      break
+    case 'combo':
+      nota(659, 0, 0.12, 0.045)
+      nota(988, 0.08, 0.2, 0.045)
+      break
+    case 'vitoria':
+      ;[523, 659, 784, 1047].forEach((f, i) => nota(f, i * 0.12, 0.35, 0.05))
+      break
+  }
+}
+
 /** Precisa ser chamado a partir de um clique (regra dos navegadores). */
 export function liberarAudio() {
   contexto()

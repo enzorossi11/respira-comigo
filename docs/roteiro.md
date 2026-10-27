@@ -2,7 +2,7 @@
 
 Guia rápido para quem chega no repositório (professor, mentor ou integrante novo): o que já está pronto, onde ver cada coisa e quais são os próximos passos.
 
-**Situação atual:** Checkpoint 1 ✅ · Checkpoint 2 ✅ (protótipo, dados reais, prints e vídeo) · próximo marco: **Apresentação final (07 e 08/12)**
+**Situação atual:** Checkpoint 1 ✅ · Checkpoint 2 ✅ (protótipo, dados reais, prints e vídeo) · Gamificação ✅ (jogo Jornada do ar + Desafio de ritmo) · próximo marco: **Apresentação final (07 e 08/12)**
 
 ---
 
@@ -12,7 +12,9 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 |---|---|
 | Visão geral do projeto | [README](../README.md) |
 | App funcionando | https://enzorossi11.github.io/respira-comigo/ (ou `npm run dev` dentro de `app/`) |
-| Vídeo de demonstração (1min40) | [`docs/demo.mp4`](demo.mp4) |
+| Vídeo de demonstração | [`docs/demo.mp4`](demo.mp4) |
+| Jogo Jornada do ar | Menu **🎮 Jogar** no app · código em [`app/src/jogo/`](../app/src/jogo) |
+| Desafio de ritmo | Tela **Respirar** → **🎯 Desafio de ritmo** · regras em [`app/src/lib/desafio.ts`](../app/src/lib/desafio.ts) |
 | Prints de todas as telas | [`docs/prints/`](prints) |
 | Código do app | [`app/src/`](../app/src) |
 | Dados e de onde vem cada número | [`data/README.md`](../data/README.md) |
@@ -46,7 +48,7 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 | Tecnologias utilizadas | ✅ | README, seção 6 |
 | Vídeo com o fluxo principal | ✅ | `docs/demo.mp4` |
 | Evolução desde o Checkpoint 1 | ✅ | README, seção 9 |
-| Qualidade técnica | ✅ | 19 testes, lint sem erros, publicação automática com testes |
+| Qualidade técnica | ✅ | 39 testes, publicação automática com testes |
 
 ---
 
@@ -65,10 +67,10 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 
 | Entrega | Situação |
 |---|---|
-| Pitch de 5 minutos | Roteiro pronto, minuto a minuto, em [`docs/pitch.md`](pitch.md), com plano B e perguntas prováveis. Falta ensaiar. |
+| Pitch de 5 minutos | Roteiro pronto, minuto a minuto, em [`docs/pitch.md`](pitch.md), já com o jogo e o desafio na demonstração. Falta ensaiar (principalmente jogar até o fim). |
 | Projeto funcionando ao vivo | App pronto. Testar no computador da sala antes. |
 | Repositório final | Público. Falta ter commits de todos. |
-| Vídeo de até 3 min | O atual tem 1min40. Dá para reaproveitar ou regravar com narração. |
+| Vídeo de até 3 min | O atual mostra o fluxo completo, com o jogo e o desafio. Dá para regravar com narração. |
 | Retornos do Professor Mentor | Incorporar depois do Checkpoint 2. |
 
 **Ideias para depois do mentor:** modo professor (para projetar em sala), narração em áudio das etapas, mais exercícios de respiração, testes com alunos.
@@ -84,3 +86,5 @@ Guia rápido para quem chega no repositório (professor, mentor ou integrante no
 5. Adiciona protótipo do app: personagem 3D, caminho do ar e respiração guiada
 6. Adiciona scripts de download dos dados
 7. Adiciona dados reais, prints, vídeo e documentação do Checkpoint 2
+8. Atualiza roteiro: repositório público e site ativado
+9. Gamificação: jogo Jornada do ar, desafio de ritmo e personagem mais vivo
