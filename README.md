@@ -5,20 +5,17 @@
 <p align="center"><b>Aprenda o caminho do ar. Jogue. Respire no seu ritmo.</b></p>
 
 <p align="center">
-  <img alt="Status" src="https://img.shields.io/badge/status-prot%C3%B3tipo%20funcionando-7C6FE0">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
-  <img alt="Testes" src="https://img.shields.io/badge/testes-48%20passando-137A71">
+  <img alt="Status" src="https://img.shields.io/badge/status-prot%C3%B3tipo%20funcionando-7C6FE0">
 </p>
 
 <p align="center">
-  🌐 <a href="https://enzorossi11.github.io/respira-comigo/"><b>Abrir o app</b></a> ·
-  🎬 <a href="docs/demo.mp4"><b>Vídeo de demonstração</b></a> ·
-  📍 <a href="docs/roteiro.md"><b>Roteiro do projeto</b></a>
+  <a href="https://enzorossi11.github.io/respira-comigo/"><b>Abrir o app</b></a> ·
+  <a href="docs/demo.mp4"><b>Vídeo de demonstração</b></a>
 </p>
 
 <p align="center">
   <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="Demonstração: criação do personagem e começo do jogo" width="820"></a>
-  <br><sub>Prévia do vídeo. Clique para ver a demonstração completa (2 min).</sub>
 </p>
 
 ---
@@ -30,10 +27,10 @@
 3. [Solução](#3-solução)
 4. [Protótipo](#4-protótipo)
 5. [Como executar](#5-como-executar)
-6. [Tecnologias e decisões técnicas](#6-tecnologias-e-decisões-técnicas)
+6. [Tecnologias](#6-tecnologias)
 7. [Identidade visual](#7-identidade-visual)
 8. [Pitch](#8-pitch)
-9. [Cronograma e evolução](#9-cronograma-e-evolução)
+9. [Cronograma](#9-cronograma)
 10. [Estrutura do repositório](#10-estrutura-do-repositório)
 11. [Equipe](#11-equipe)
 12. [Referências](#12-referências)
@@ -46,10 +43,9 @@
 **Tema:** Sistema respiratório · Saúde e Bem-Estar (ODS 3)
 **Equipe:** Enzo Rossi, Mariane Paiva, Maria Eduarda Morais e Gleicy Crispim
 
-O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, de forma animada, o **caminho que o ar percorre** no corpo — do nariz até os alvéolos —, transforma esse caminho em um **jogo** (você guia uma molécula de oxigênio por dentro do corpo) e, em seguida, **conduz o usuário em uma respiração guiada**, com um **desafio de ritmo** que dá pontos a quem acompanha o personagem.
+O Respira Comigo é uma aplicação web em que um personagem 3D mostra o caminho que o ar percorre no corpo, do nariz até os alvéolos, e depois respira junto com o usuário, num ritmo escolhido por ele. O conteúdo também vira um jogo, em que o aluno guia uma molécula de oxigênio por dentro das vias aéreas.
 
-> **MVP:** caminho do ar em 3 etapas + respiração guiada com ritmo ajustável. ✅ Funcionando.
-> **Além do MVP:** jogo **Jornada do ar** e **Desafio de ritmo** com pontos, combo, estrelas e recordes.
+**MVP:** caminho do ar em 3 etapas e respiração guiada com ritmo ajustável.
 
 ---
 
@@ -57,119 +53,92 @@ O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, 
 
 ### 2.1 O problema
 
-Adolescentes brasileiros convivem com níveis altos de **ansiedade, preocupação e irritabilidade**, e têm pouco acesso a apoio dentro da escola. Ao mesmo tempo, a **respiração** — uma das ferramentas mais simples e acessíveis de autorregulação — costuma ser ensinada só como conteúdo de prova (nomes de órgãos para decorar), sem ligação com o próprio bem-estar.
+Adolescentes brasileiros convivem com níveis altos de ansiedade, preocupação e irritabilidade, e têm pouco apoio para lidar com isso dentro da escola. Ao mesmo tempo, a respiração, uma das formas mais simples de autorregulação, costuma ser ensinada apenas como conteúdo de prova, com nomes de órgãos para decorar e sem relação com o bem-estar do próprio aluno.
 
-Resultado: o aluno estuda o sistema respiratório, mas não aprende a **usar a própria respiração** a seu favor.
+O aluno estuda o sistema respiratório, mas não aprende a usar a respiração a seu favor.
 
-### 2.2 Por que importa (dados)
+### 2.2 Dados
 
-Todos os números abaixo foram extraídos das planilhas oficiais pelos scripts em [`data/`](data/README.md) e aparecem no próprio app, com a fonte.
+Os números abaixo foram extraídos das tabelas oficiais pelos scripts da pasta [`data/`](data/README.md) e também aparecem no app, com a fonte.
 
 | Indicador (estudantes de 13 a 17 anos, Brasil) | 2024 | Fonte |
 |---|---|---|
 | Muito preocupados com as coisas comuns do dia a dia | **49,7%** | IBGE, PeNSE 2024, Tab. 12.2.1 |
 | Irritados, nervosos ou mal-humorados por qualquer coisa | **42,9%** | IBGE, PeNSE 2024, Tab. 12.5.1 |
 | Tristes na maioria das vezes ou sempre | **28,9%** | IBGE, PeNSE 2024, Tab. 12.3.1 |
-| Autoavaliação de saúde mental negativa | **14,9%** (meninas 22,9% · meninos 6,8%) | IBGE, PeNSE 2024, Tab. 12.7.1 |
+| Autoavaliação de saúde mental negativa | **14,9%** (meninas 22,9%, meninos 6,8%) | IBGE, PeNSE 2024, Tab. 12.7.1 |
 | Em escolas com profissional de saúde mental no quadro | **34,1%** | IBGE, PeNSE 2024, Tab. 19.14.1 |
 
-E mais:
-
-- O Brasil tem a maior prevalência de transtornos de ansiedade do mundo: **9,3%** da população (OMS, 2017).
-- As internações no SUS por doenças do aparelho respiratório entre crianças de 5 a 9 anos passaram de **≈90 mil (2019)** para **≈130 mil (2024)** (DATASUS, SIH/SUS).
+Além disso, o Brasil tem a maior prevalência de transtornos de ansiedade do mundo, 9,3% da população (OMS, 2017), e as internações no SUS por doenças do aparelho respiratório entre crianças de 5 a 9 anos passaram de cerca de 90 mil em 2019 para cerca de 130 mil em 2024 (DATASUS, SIH/SUS).
 
 ### 2.3 Público e contexto
 
-- **Público principal:** estudantes de **11 a 17 anos** (anos finais do Ensino Fundamental e Ensino Médio), faixa em que o sistema respiratório é conteúdo escolar e em que a PeNSE mostra sinais de sofrimento emocional.
-- **Público secundário:** **professores de Ciências/Biologia** (usam o app em aula) e **orientadores/psicólogos escolares** (usam a respiração guiada em momentos de acolhimento).
-- **Contexto de uso:** sala de aula, laboratório de informática, celular do aluno antes de provas e apresentações, ou em casa.
+- **Público principal:** estudantes de 11 a 17 anos (anos finais do Ensino Fundamental e Ensino Médio), fase em que o sistema respiratório é conteúdo escolar e em que a PeNSE mostra sinais de sofrimento emocional.
+- **Público secundário:** professores de Ciências e Biologia, que podem usar o app em aula, e orientadores ou psicólogos escolares, que podem usar a respiração guiada em momentos de acolhimento.
+- **Contexto de uso:** sala de aula, laboratório de informática, em casa ou no celular, antes de uma prova ou apresentação.
 
 ### 2.4 Delimitação
 
-O Respira Comigo **não é tratamento** e **não substitui atendimento** de saúde mental. Ele atua em **educação em saúde e autocuidado**: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. O app mostra, no rodapé de todas as telas, onde buscar ajuda (UBS, CAPS, CVV 188).
+O Respira Comigo não é tratamento e não substitui atendimento de saúde mental. A proposta é de educação em saúde e autocuidado: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. O rodapé de todas as telas indica onde buscar ajuda (UBS, CAPS e CVV 188).
 
 ### 2.5 Bases de dados públicas
 
-| Base | Responsável | O que usamos |
+| Base | Responsável | Uso no projeto |
 |---|---|---|
-| **PeNSE 2019 e 2024** | IBGE | Indicadores de saúde mental dos estudantes e suporte psicológico na escola ([tabelas oficiais](https://ftp.ibge.gov.br/pense/)) |
-| **SIH/SUS** | DATASUS / Ministério da Saúde | Internações por doenças do aparelho respiratório (CID-10, cap. X), 5 a 19 anos, 2015–2024 ([TabNet](http://tabnet.datasus.gov.br/cgi/tabcgi.exe?sih/cnv/nrbr.def)) |
+| **PeNSE 2019 e 2024** | IBGE | Indicadores de saúde mental dos estudantes e presença de profissional de saúde mental na escola ([tabelas oficiais](https://ftp.ibge.gov.br/pense/)) |
+| **SIH/SUS** | DATASUS / Ministério da Saúde | Internações por doenças do aparelho respiratório (CID-10, cap. X), de 5 a 19 anos, 2015 a 2024 ([TabNet](http://tabnet.datasus.gov.br/cgi/tabcgi.exe?sih/cnv/nrbr.def)) |
 | **Global Health Estimates** | OMS | Prevalência de ansiedade no Brasil ([publicação](https://www.who.int/publications/i/item/depression-global-health-estimates)) |
 
-Detalhes, tabelas exatas e como gerar os dados de novo: [`data/README.md`](data/README.md).
+Mais detalhes sobre as bases e as tabelas usadas: [`docs/bases-de-dados.md`](docs/bases-de-dados.md) e [`data/README.md`](data/README.md).
 
 ---
 
 ## 3. Solução
 
-O app une **aprender**, **jogar** e **praticar** em uma experiência curta (5 a 8 minutos):
+A experiência leva de 5 a 8 minutos e tem cinco partes:
 
-```
- 0. CRIAR            1. APRENDER          2. JOGAR              3. PRATICAR            4. ENTENDER
- Seu personagem ──►  Caminho do ar   ──►  Jornada do ar   ──►   Respiração guiada ──►  Por que isso importa
- (corpo, idade,      em 3 etapas (3D)     (guiar o O₂ até       + Desafio de ritmo     (dados reais do
-  pele, cabelo)                            o alvéolo)            (pontos e combo)       IBGE e do SUS)
-```
+1. **Criação do personagem.** No primeiro acesso, o aluno escolhe corpo (feminino ou masculino), idade, tom de pele e cabelo, e o personagem muda na hora. A ideia é que o aluno se reconheça no personagem e veja o caminho do ar num corpo parecido com o dele. O biotipo não é uma opção, para não abrir espaço para comparação de corpo. As escolhas ficam salvas só no navegador.
+2. **Caminho do ar.** Em três etapas, a câmera se aproxima de cada parte do corpo, que aparece destacada e com nome:
+   - nariz, faringe e laringe;
+   - traqueia e brônquios;
+   - pulmões, alvéolos e diafragma.
+3. **Jornada do ar (jogo).** O aluno é uma molécula de oxigênio: entra pela narina do personagem e precisa chegar até um alvéolo. Cada trecho tem um obstáculo ligado ao conteúdo, como pelos no nariz, a epiglote na laringe, cílios e vírus na traqueia e bronquíolos cada vez mais finos. Ao bater, o jogo explica o que aconteceu, por exemplo: "Pólen! É ele que causa alergia".
+4. **Respiração guiada.** Três ritmos prontos (Calma 4·6, Equilíbrio 5·5 e Quadrada 4·4·4·4) ou ajuste livre. Os pulmões do personagem enchem e esvaziam no ritmo escolhido, e um anel marca cada fase. No modo **Desafio de ritmo**, o aluno segura um botão enquanto inspira e solta enquanto expira, e ganha pontos por acompanhar o ritmo.
+5. **Por que importa.** Painel com os dados oficiais que fundamentam o problema, cada um com a fonte.
 
-0. **Crie seu personagem:** no primeiro acesso, o aluno escolhe **corpo** (feminino ou masculino), **idade** (12 a 25+), **tom de pele** (5 tons) e **cabelo** (curto ou comprido, 5 cores). O boneco muda ao vivo enquanto ele mexe — e, sem perceber, ele monta alguém parecido consigo. O biotipo fica sempre no padrão saudável, de propósito: o app não pede peso nem cria motivo de comparação de corpo. As escolhas ficam **só no navegador** (nada é enviado). Na tela inicial, um ícone discreto ao lado do boneco (silhueta com seta circular) volta para a personalização. Os **órgãos acompanham o corpo escolhido**: pulmões, traqueia e brônquios são encaixados no tronco de cada personagem.
-1. **Caminho do ar:** em cada etapa, a câmera se aproxima das partes do corpo, elas ficam destacadas com rótulos e as partículas de ar que estão naquele trecho brilham.
-   - **Etapa 1:** nariz, faringe e laringe
-   - **Etapa 2:** traqueia e brônquios
-   - **Etapa 3:** pulmões, alvéolos e diafragma
-2. **Jornada do ar (jogo):** você é uma molécula de oxigênio. Começa **fora do corpo**, mira na **narina** e desce por dentro das vias aéreas até um **alvéolo**, guiando com o mouse, o dedo ou as setas.
-   - Cada trecho tem o seu obstáculo, ligado ao que a etapa ensina: **poeira e pólen** lá fora, **pelos** no nariz, a **epiglote** que abre e fecha na laringe, **cílios e vírus** na traqueia e tubos cada vez mais **finos** nos bronquíolos.
-   - Na **carina**, o jogo para por **3 s** e a tela se divide em duas zonas: o jogador arrasta e segura no lado do **pulmão** que quiser.
-   - Toda mensagem (dica de cada região, batida, pulmão escolhido) **pausa o jogo por 2 s**, com uma barra de contagem, para dar tempo de ler.
-   - **3 fôlegos**, bolinhas de **O₂** para coletar, pontos, até **3 estrelas** e recorde salvo no aparelho. Ao chegar, as **hemácias** passam pelo capilar em volta do alvéolo.
-   - Ao bater, aparece o porquê ("Pólen! É ele que causa alergia"). Se o fôlego acaba, o jogo explica que é exatamente isso que o corpo faz com a sujeira.
-3. **Respiração guiada:** três ritmos prontos (**Calma 4·6**, **Equilíbrio 5·5**, **Quadrada 4·4·4·4**) ou ajuste livre de inspirar, segurar, expirar e pausa. Os pulmões e o peito do personagem enchem e esvaziam no ritmo, as partículas de ar entram e saem pelo caminho aprendido, e o anel (o mesmo do logo) marca a fase e a contagem. Tem som suave opcional, duração de 1 a 5 minutos, pausa e fim automático.
-   - **Desafio de ritmo:** o jogador **segura o botão** (ou a barra de espaço) enquanto inspira e **solta** enquanto expira. Cada ciclo recebe nota (*Perfeito*, *Bom*, *Quase*), acertos seguidos fazem **combo**, e o personagem **comemora** com os braços para cima. No fim: pontos, precisão média, estrelas e recorde.
-4. **Por que importa:** cards e gráficos com os dados oficiais, cada um com a fonte e o link.
-
-**Por que respiração lenta:** revisões de estudos associam a respiração lenta e controlada (≈6 ciclos por minuto) a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). Todos os ritmos prontos do app ficam em 6 respirações por minuto ou menos.
+A escolha pela respiração lenta se apoia em estudos de revisão que associam a respiração controlada, em torno de 6 ciclos por minuto, a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). Todos os ritmos prontos do app ficam nessa faixa.
 
 ---
 
 ## 4. Protótipo
 
-🎬 **[Vídeo de demonstração](docs/demo.mp4)**: o fluxo completo — criação do personagem, caminho do ar, jogo até o alvéolo, desafio de ritmo e painel de dados.
+[Vídeo de demonstração (2 min)](docs/demo.mp4)
 
-| Crie seu personagem | Outra combinação (corpo, idade, pele e cabelo) |
+| Criação do personagem | Outra combinação |
 |---|---|
-| ![Perfil](docs/prints/17-perfil.png) | ![Perfil 2](docs/prints/18-perfil-variacao.png) |
-| **Início** | **Etapa 1 – Nariz, faringe e laringe** |
+| ![Criação do personagem](docs/prints/17-perfil.png) | ![Outra combinação](docs/prints/18-perfil-variacao.png) |
+| **Início** | **Etapa 1: nariz, faringe e laringe** |
 | ![Início](docs/prints/01-inicio.png) | ![Etapa 1](docs/prints/02-caminho-etapa1.png) |
-| **Etapa 2 – Traqueia e brônquios** | **Etapa 3 – Pulmões e alvéolos** |
+| **Etapa 2: traqueia e brônquios** | **Etapa 3: pulmões e alvéolos** |
 | ![Etapa 2](docs/prints/03-caminho-etapa2.png) | ![Etapa 3](docs/prints/04-caminho-etapa3.png) |
-| **Jornada do ar – lá fora, mirando a narina** | **Jornada do ar – traqueia, com cílios e vírus** |
-| ![Jogo lá fora](docs/prints/10-jogo-fora.png) | ![Jogo na traqueia](docs/prints/11-jogo-traqueia.png) |
-| **Jornada do ar – epiglote** | **Jornada do ar – escolha do pulmão** |
-| ![Epiglote](docs/prints/12-jogo-epiglote.png) | ![Escolha](docs/prints/19-jogo-escolha.png) |
-| **Jornada do ar – chegada ao alvéolo** | **Respiração guiada** |
-| ![Vitória](docs/prints/13-jogo-vitoria.png) | ![Respirar](docs/prints/05-respirar-pronto.png) |
-| **Desafio de ritmo – acerto “Perfeito!”** | **Respiração guiada – soltando o ar** |
-| ![Desafio](docs/prints/14-desafio.png) | ![Expire](docs/prints/07-respirar-expire.png) |
+| **Jogo: entrada pela narina** | **Jogo: traqueia** |
+| ![Jogo, lado de fora](docs/prints/10-jogo-fora.png) | ![Jogo na traqueia](docs/prints/11-jogo-traqueia.png) |
+| **Jogo: escolha do pulmão** | **Jogo: chegada ao alvéolo** |
+| ![Escolha do pulmão](docs/prints/19-jogo-escolha.png) | ![Chegada ao alvéolo](docs/prints/13-jogo-vitoria.png) |
+| **Respiração guiada** | **Desafio de ritmo** |
+| ![Respiração guiada](docs/prints/06-respirar-inspire.png) | ![Desafio de ritmo](docs/prints/14-desafio.png) |
 
-<details>
-<summary><b>Painel de dados e versão para celular</b></summary>
-
-| Por que importa | Celular | Celular – jogo |
+| Painel de dados | Celular | Celular: jogo |
 |---|---|---|
-| ![Dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="260"> | <img src="docs/prints/16-celular-jogo.png" width="260"> |
-
-</details>
+| ![Painel de dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="260"> | <img src="docs/prints/16-celular-jogo.png" width="260"> |
 
 ---
 
 ## 5. Como executar
 
-### Online
+**Online:** https://enzorossi11.github.io/respira-comigo/
 
-O app é publicado automaticamente em **https://enzorossi11.github.io/respira-comigo/** a cada atualização da branch `main`.
-
-### No seu computador
-
-Pré-requisito: [Node.js](https://nodejs.org/) 20 ou mais recente.
+**No computador** (requer [Node.js](https://nodejs.org/) 20 ou mais recente):
 
 ```bash
 git clone https://github.com/enzorossi11/respira-comigo.git
@@ -178,18 +147,9 @@ npm install
 npm run dev
 ```
 
-Abra o endereço que aparecer no terminal (normalmente http://localhost:5173).
+Depois, é só abrir o endereço que aparece no terminal (normalmente http://localhost:5173). Para rodar os testes, use `npm test`.
 
-| Comando (dentro de `app/`) | O que faz |
-|---|---|
-| `npm run dev` | Abre o app em modo de desenvolvimento |
-| `npm test` | Roda os 39 testes automáticos |
-| `npm run build` | Gera a versão de produção em `app/dist/` |
-| `npm run preview` | Abre a versão de produção localmente |
-
-### Gerar os dados de novo (opcional)
-
-Os dados tratados já estão no repositório (`data/processed/indicadores.json`). Para baixar tudo de novo das fontes oficiais, com Python 3.10 ou mais recente:
+Os dados tratados já estão no repositório. Para baixá-los de novo das fontes oficiais (Python 3.10 ou mais recente):
 
 ```bash
 pip install -r data/requirements.txt
@@ -200,44 +160,28 @@ python3 data/scripts/gerar_json.py
 
 ---
 
-## 6. Tecnologias e decisões técnicas
+## 6. Tecnologias
 
-| Camada | Tecnologia | Uso no projeto |
+| Camada | Tecnologia | Uso |
 |---|---|---|
-| Interface | **React 19 + TypeScript + Vite** | Telas, navegação e controles de ritmo |
-| 3D | **Three.js** via **React Three Fiber** + **drei** | Personagem, vias aéreas, pulmões, diafragma e partículas de ar |
-| Corpo 3D | **MakeHuman** (assets CC0), com *morph targets* de sexo e idade; texturas em WebP | Pele, rosto, olhos, cabelo e roupa do personagem personalizável |
-| Órgãos 3D | **Z-Anatomy** (CC BY-SA 4.0) recortado no **Blender** (via `bpy`) e comprimido com **gltfpack** | Cavidade nasal, faringe, laringe, traqueia, brônquios, pulmões e diafragma |
-| Estado | **Zustand** | Tela atual, etapa, ritmo e sessão de respiração |
-| Gráficos | **Recharts** | Painel “Por que importa” |
-| Som | **Web Audio API** | Sinais suaves gerados na hora, sem arquivos de áudio |
-| Fontes | **Nunito + Inter** (Fontsource) | Servidas junto com o app, sem depender do Google |
-| Dados | **Python + pandas** | Download e tratamento da PeNSE e do SIH/SUS → JSON |
-| Jogo | **Three.js** (túnel com geometria própria, shader de recorte na bifurcação, instancing) | Jornada do ar |
-| Testes | **Vitest** | Lógica da respiração, regras do jogo, pontuação do desafio e integridade dos dados |
-| Entrega | **GitHub Actions + GitHub Pages** | Testa, compila e publica a cada push na `main` |
+| Interface | React + TypeScript + Vite | Telas, navegação e controles |
+| 3D | Three.js (React Three Fiber) | Personagem, órgãos, partículas de ar e jogo |
+| Modelos 3D | MakeHuman (corpo) e Z-Anatomy (órgãos), preparados no Blender | Personagem personalizável com os órgãos do sistema respiratório |
+| Gráficos | Recharts | Painel de dados |
+| Dados | Python + pandas | Download e tratamento da PeNSE e do SIH/SUS |
+| Testes | Vitest | Lógica da respiração, regras do jogo e pontuação |
+| Publicação | GitHub Actions + GitHub Pages | Testa e publica o site a cada atualização |
 
-**Decisões principais**
+**Justificativa das escolhas**
 
-- **Web, e não app nativo:** abre em qualquer navegador — computador da escola, Chromebook ou celular —, sem instalação.
-- **Dois modelos, um personagem:** o corpo vem do **MakeHuman** (pele com textura real, olhos, cabelo e roupa, todos CC0) e os órgãos vêm do **Z-Anatomy** (CC BY-SA 4.0). O corpo tem *morph targets* (formas embutidas) de sexo e idade, então a personalização muda o boneco ao vivo, sem baixar outro arquivo. Para os órgãos caberem em qualquer corpo, [`app/src/3d/ajuste.ts`](app/src/3d/ajuste.ts) mede, na pele do tronco, a fúrcula, a cintura e a largura e profundidade do peito, e leva os órgãos e o caminho do ar para dentro do corpo atual (o trecho do nariz é puxado até a narina). Essa conta tem testes. Os scripts que montam os dois arquivos ficam em [`data/modelo3d`](data/modelo3d).
-- **Lógica da respiração separada da interface:** [`app/src/lib/respiracao.ts`](app/src/lib/respiracao.ts) é uma função pura que, dado o tempo e o ritmo, diz a fase, a contagem e quanto os pulmões estão cheios. O anel, o personagem e as partículas leem dela, então tudo fica sincronizado, e ela é coberta por testes.
-- **Regras do jogo separadas do 3D:** [`app/src/jogo/simulacao.ts`](app/src/jogo/simulacao.ts) avança a partícula, aplica o controle e verifica colisões sem nada de 3D. A colisão é calculada no **referencial do próprio túnel** (distância percorrida + posição na seção), em 2D, o que a deixa simples e exata. O percurso é gerado com **semente fixa**, então todo mundo joga o mesmo caminho e os testes são reproduzíveis.
-- **Túnel de verdade:** a parede é uma malha própria com raio variável (nariz largo, laringe estreita, traqueia com anéis de cartilagem, bronquíolos finos) e textura de vasinhos desenhada na hora. Na bifurcação, um *shader* recorta a parte de um tubo que fica dentro do outro, formando o “Y” dos brônquios.
-- **Pontuação justa no desafio:** a parte de segurar e a de soltar valem o mesmo, para que “nunca apertar” ou “apertar sempre” não pareça bom; e há uma tolerância de 0,45 s no começo de cada fase para o tempo de reação.
-- **Jogo leve:** só os obstáculos perto da partícula são desenhados, e cílios e oxigênio usam *instancing* (um único desenho para centenas de objetos).
-- **Animação sem re-render:** o 3D lê o estado direto no `useFrame`, sem re-renderizar o React a cada quadro, o que mantém a animação fluida.
-- **Carregamento em partes:** a cena 3D e o painel de dados são carregados separadamente, para a primeira tela abrir rápido.
-- **Sem backend e sem cadastro:** os dados públicos viram um JSON estático no momento do build. As preferências (ritmo, duração, som) ficam só no navegador do aluno. Nenhum dado pessoal é coletado (LGPD).
-- **Conteúdo sensível filtrado:** por ser voltado a adolescentes, o app não lê nem exibe os indicadores da PeNSE sobre autolesão e ideação suicida.
-- **Acessibilidade:** navegação por teclado (setas trocam de etapa), rótulos para leitores de tela e contraste de texto seguindo o guia de marca.
+- **Aplicação web:** abre em qualquer computador da escola ou celular, sem instalação e sem cadastro.
+- **3D no navegador:** o Three.js permite mostrar o corpo por dentro e animar a respiração sem exigir nenhum programa extra do aluno.
+- **Modelos abertos:** o corpo vem do MakeHuman (licença CC0) e os órgãos do atlas Z-Anatomy (CC BY-SA 4.0). Assim o personagem é anatomicamente fiel sem precisar ser modelado do zero. Como cada aluno monta um corpo diferente, o app ajusta a posição e o tamanho dos órgãos ao tronco de cada personagem.
+- **Sem servidor e sem dados pessoais:** os dados públicos são preparados com antecedência e lidos pelo app como um arquivo estático. As preferências e o personagem ficam só no navegador, então nenhum dado do aluno é coletado (LGPD).
+- **Cuidado com o público:** por ser voltado a adolescentes, o app não exibe os indicadores da PeNSE sobre autolesão.
+- **Acessibilidade:** navegação por teclado, rótulos para leitores de tela e contraste de texto adequado.
 
-**Viabilidade no semestre**
-
-- Tudo roda no navegador, sem servidor, banco de dados ou login: não há infraestrutura para manter, e a publicação no GitHub Pages é gratuita e automática.
-- As ferramentas são gratuitas e abertas (React, Three.js, Python), e os modelos 3D vêm de projetos abertos (MakeHuman e Z-Anatomy), então o grupo não precisou modelar um corpo humano do zero.
-- Os dados são públicos e já tratados por scripts que podem ser rodados de novo, sem depender de pedido de acesso.
-- O escopo foi fechado num MVP pequeno (caminho do ar em 3 etapas + respiração guiada), entregue no Checkpoint 2. O jogo e a personalização vieram depois, como extras, sem colocar o MVP em risco.
+**Viabilidade no semestre:** a solução não depende de servidor, banco de dados ou serviços pagos, e a publicação é gratuita. As ferramentas e os modelos 3D são abertos, e as bases de dados são públicas. O escopo foi fechado num MVP pequeno (caminho do ar e respiração guiada), e o jogo e a personalização entraram como complementos.
 
 ---
 
@@ -249,59 +193,42 @@ Guia completo: [`docs/identidade-visual.md`](docs/identidade-visual.md)
 |---|---|---|
 | <img src="assets/logo/logo-horizontal.png" width="260"> | <img src="assets/logo/icone.png" width="90"> | <img src="assets/logo/logo-horizontal-negativo.png" width="260"> |
 
-**Conceito:** dois pulmões com um rosto simpático (o personagem) dentro de um **anel de respiração**. A metade verde do anel é a **inspiração**, a metade lilás é a **expiração**, e o ponto pêssego marca o **ritmo**. No app, esse mesmo anel guia a respiração.
+**Conceito:** dois pulmões com um rosto (o personagem) dentro de um anel de respiração. A metade verde do anel representa a inspiração, a metade lilás a expiração, e o ponto pêssego marca o ritmo. O mesmo anel guia a respiração dentro do app.
 
 <img src="assets/paleta.png" alt="Paleta de cores" width="720">
 
 | Nome | HEX | Uso |
 |---|---|---|
-| Inspira | `#2BB5A8` | Inspiração, pulmão direito |
-| Inspira escuro | `#137A71` | Botões e texto em verde (contraste acessível) |
-| Expira | `#7C6FE0` | Expiração, pulmão esquerdo |
-| Fôlego | `#FFB38A` | Pausas, marcador de ritmo, destaques |
+| Inspira | `#2BB5A8` | Inspiração |
+| Inspira escuro | `#137A71` | Botões e textos em verde |
+| Expira | `#7C6FE0` | Expiração |
+| Fôlego | `#FFB38A` | Pausas, marcador de ritmo e destaques |
 | Noite | `#1F2547` | Textos e títulos |
 | Névoa | `#F5F8FC` | Fundo da aplicação |
 
 <img src="assets/tipografia.png" alt="Tipografia" width="720">
 
-- **Títulos:** Nunito ExtraBold · **Textos:** Inter Regular/SemiBold (licença OFL)
+**Tipografia:** Nunito ExtraBold nos títulos e Inter (Regular e SemiBold) nos textos.
 
 ---
 
 ## 8. Pitch
 
-> O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos nossos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia — mas só um terço estuda numa escola com profissional de saúde mental. A respiração é a ferramenta de autorregulação mais simples que existe, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O **Respira Comigo** muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com o aluno, no ritmo que ele escolher.
->
-> **Diferencial:** une, em uma única experiência de poucos minutos, o **conteúdo de Ciências** e a **prática de bem-estar**. Roda no navegador, sem instalação e sem cadastro, e é baseado em dados públicos reais sobre a saúde dos estudantes brasileiros.
+O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia, mas só um terço estuda numa escola com profissional de saúde mental. A respiração é a forma mais simples de autorregulação, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O Respira Comigo muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com o aluno, no ritmo que ele escolher.
 
-Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`docs/pitch.md`](docs/pitch.md).
+**Diferencial:** os apps de respiração não ensinam anatomia, e os materiais de Ciências não ensinam a respirar. O Respira Comigo junta as duas coisas numa experiência de poucos minutos, com um personagem criado pelo próprio aluno e um jogo que reforça o conteúdo. Roda no navegador, sem instalação e sem cadastro, e se baseia em dados públicos reais sobre a saúde dos estudantes brasileiros.
+
+Pitch completo: [`docs/pitch.md`](docs/pitch.md)
 
 ---
 
-## 9. Cronograma e evolução
+## 9. Cronograma
 
-| Período | Entrega | Status |
-|---|---|---|
-| 19/10 a 23/10 | **Checkpoint 1** – problema, tecnologias, identidade visual e pitch inicial | ✅ |
-| 09/11 a 13/11 | **Checkpoint 2** – protótipo funcional, GitHub documentado e vídeo | ✅ |
-| 07/12 e 08/12 | **Apresentação final** – pitch de 5 min, projeto funcionando e repositório final | ⏳ |
-
-**Do Checkpoint 1 para o 2**
-
-- O MVP planejado (3 etapas + ritmo ajustável) está completo e navegável, com **dados reais** no lugar de dados mockados.
-- O personagem 3D é feito a partir de modelos abertos: corpo do MakeHuman e órgãos do Z-Anatomy (ver seção 6).
-- Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
-- Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
-
-**Depois do Checkpoint 2**
-
-- **Crie seu personagem:** corpo, idade, tom de pele e cabelo, com o boneco mudando ao vivo; salvo só no navegador; ícone discreto na tela inicial para refazer.
-- Personagem com corpo do **MakeHuman** (pele realista, olhos, cabelo e roupa) e órgãos reais do **Z-Anatomy** por dentro, encaixados no tronco de cada corpo. O tronco é “de vidro”: os pulmões enchem, o peito expande e o diafragma desce no ritmo da respiração.
-- Novo jogo **Jornada do ar**: começa vendo o personagem gigante de longe e a partícula entra pela narina dele. Toda mensagem pausa o jogo por 2 s para dar tempo de ler, e na bifurcação o jogador escolhe o pulmão.
-- Novo **Desafio de ritmo**, com pontos, combo, estrelas e recordes salvos no aparelho.
-- A cena ganhou céu em degradê, partículas de ar flutuando, luz de estúdio e um anel no chão que pulsa com a respiração.
-
-**Próximos passos (até a apresentação final):** incorporar os retornos do Professor Mentor, modo professor (projetar em sala), narração em áudio e testes com alunos.
+| Período | Entrega |
+|---|---|
+| 19/10 a 30/10 | **Checkpoint 1:** problema, solução, identidade visual e pitch inicial |
+| 09/11 a 13/11 | **Checkpoint 2:** protótipo funcional, repositório documentado e vídeo |
+| 07/12 e 08/12 | **Apresentação final:** pitch de 5 minutos e projeto funcionando |
 
 ---
 
@@ -310,32 +237,18 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 ```
 respira-comigo/
 ├── README.md
-├── .github/workflows/deploy.yml   ← testa, compila e publica no GitHub Pages
-├── app/                           ← aplicação (React + Three.js)
-│   ├── public/modelos/            ← corpo.glb (MakeHuman, CC0), orgaos.glb (Z-Anatomy, CC BY-SA 4.0) e texturas de pele
-│   └── src/
-│       ├── 3d/                    ← cena, personagem (carrega o modelo), anatomia e partículas de ar
-│       ├── jogo/                  ← Jornada do ar: percurso, obstáculos, regras (+ testes) e cena 3D
-│       ├── telas/                 ← Início, Caminho do ar, Respirar (livre e desafio), Por que importa
-│       ├── componentes/           ← anel de respiração
-│       ├── conteudo/etapas.ts     ← textos das 3 etapas
-│       ├── lib/respiracao.ts      ← lógica da respiração (+ testes)
-│       ├── lib/desafio.ts         ← pontuação do desafio de ritmo (+ testes)
-│       └── store.ts               ← estado do app
-├── data/
-│   ├── scripts/                   ← download e tratamento (PeNSE e SIH/SUS)
-│   ├── processed/                 ← JSON e CSVs usados pelo app
-│   ├── modelo3d/                  ← scripts dos modelos 3D (MakeHuman e Z-Anatomy) e licenças
-│   └── README.md                  ← de onde vem cada número
-├── assets/                        ← logo, paleta e tipografia
+├── app/                  aplicação web (React + Three.js)
+│   ├── public/modelos/   modelos 3D do personagem e dos órgãos
+│   └── src/              telas, cena 3D, jogo e lógica da respiração
+├── data/                 scripts e dados tratados (PeNSE e SIH/SUS)
+│   └── modelo3d/         preparação dos modelos 3D e licenças
+├── assets/               logo, paleta e tipografia
 └── docs/
-    ├── prints/                    ← capturas de tela do protótipo
-    ├── demo.mp4                   ← vídeo de demonstração (2 min)
-    ├── demo.gif                   ← prévia curta do vídeo, no topo do README
-    ├── pitch.md                   ← pitch inicial e roteiro do pitch final
+    ├── prints/           capturas de tela
+    ├── demo.mp4          vídeo de demonstração
+    ├── pitch.md
     ├── identidade-visual.md
-    ├── bases-de-dados.md
-    └── roteiro.md                 ← o que está pronto e próximos passos
+    └── bases-de-dados.md
 ```
 
 ---
@@ -358,9 +271,9 @@ respira-comigo/
 - WORLD HEALTH ORGANIZATION. **Depression and Other Common Mental Disorders: Global Health Estimates**. Genebra: WHO, 2017.
 - ZACCARO, A. et al. How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing. **Frontiers in Human Neuroscience**, v. 12, 2018.
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
-- MAKEHUMAN COMMUNITY. **MakeHuman** – malha base, texturas de pele, olhos, cabelo e roupa (assets de sistema, CC0 1.0). Disponível em: https://www.makehumancommunity.org/. Lista dos assets usados: `data/modelo3d/makehuman/LICENCAS.md`.
-- KERVYN, G.; ZIELINSKI, M. **Z-Anatomy** – atlas 3D de anatomia humana (derivado do BodyParts3D, DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. O modelo adaptado neste projeto (`app/public/modelos/corpo.glb`) é distribuído sob a mesma licença.
+- MAKEHUMAN COMMUNITY. **MakeHuman** (assets de sistema, licença CC0 1.0). Disponível em: https://www.makehumancommunity.org/.
+- KERVYN, G.; ZIELINSKI, M. **Z-Anatomy**: atlas 3D de anatomia humana, derivado do BodyParts3D (DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. Os órgãos adaptados neste projeto (`app/public/modelos/orgaos.glb`) seguem a mesma licença.
 
 ---
 
-<sub>O Respira Comigo é um projeto acadêmico de educação em saúde. Não substitui avaliação ou tratamento profissional. Se precisar conversar, procure a UBS ou o CAPS da sua região, ou ligue para o CVV (188).</sub>
+<sub>O Respira Comigo é um projeto acadêmico de educação em saúde e não substitui avaliação ou tratamento profissional. Se precisar conversar, procure a UBS ou o CAPS da sua região, ou ligue para o CVV (188).</sub>
