@@ -233,6 +233,13 @@ python3 data/scripts/gerar_json.py
 - **Conteúdo sensível filtrado:** por ser voltado a adolescentes, o app não lê nem exibe os indicadores da PeNSE sobre autolesão e ideação suicida.
 - **Acessibilidade:** navegação por teclado (setas trocam de etapa), rótulos para leitores de tela e contraste de texto seguindo o guia de marca.
 
+**Viabilidade no semestre**
+
+- Tudo roda no navegador, sem servidor, banco de dados ou login: não há infraestrutura para manter, e a publicação no GitHub Pages é gratuita e automática.
+- As ferramentas são gratuitas e abertas (React, Three.js, Python), e os modelos 3D vêm de projetos abertos (MakeHuman e Z-Anatomy), então o grupo não precisou modelar um corpo humano do zero.
+- Os dados são públicos e já tratados por scripts que podem ser rodados de novo, sem depender de pedido de acesso.
+- O escopo foi fechado num MVP pequeno (caminho do ar em 3 etapas + respiração guiada), entregue no Checkpoint 2. O jogo e a personalização vieram depois, como extras, sem colocar o MVP em risco.
+
 ---
 
 ## 7. Identidade visual
