@@ -353,8 +353,6 @@ respira-comigo/
 | Maria Eduarda Morais | 2026220032 |
 | Gleicy Crispim | 2026225830 |
 
-> Cada integrante faz commits pela própria conta, em branch própria (`feat/nome-da-tarefa`), com Pull Request para a `main`.
-
 ---
 
 ## 12. Referências

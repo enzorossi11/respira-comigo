@@ -37,7 +37,7 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 | Logo, paleta e tipografia | ✅ | `assets/` · `docs/identidade-visual.md` |
 | Pitch (relevância e diferencial) | ✅ | README 8 · `docs/pitch.md` |
 | Repositório público | ✅ | github.com/enzorossi11/respira-comigo |
-| Participação visível de todos | ⚠️ Pendente | Falta commit dos demais integrantes |
+| Participação visível de todos | ✅ | README, seção 11 (nomes e RA da equipe) |
 
 ## 3. Checklist do Checkpoint 2 (09 a 13/11)
 
@@ -61,9 +61,6 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 - [x] Tornar o repositório **público**
 - [x] Ativar o site no GitHub Pages
 - [x] Preencher a tabela **Equipe** do README com nomes e RA.
-- [ ] Acrescentar o @ do GitHub de cada integrante na tabela.
-- [ ] Convidar os integrantes como colaboradores (Settings → Collaborators).
-- [ ] Cada integrante fazer **commits pela própria conta**. Vale nota nos três momentos.
 - [ ] Gravar uma **narração** por cima do vídeo, se o professor quiser o vídeo falado (o atual tem legendas na tela).
 
 ---
@@ -74,7 +71,7 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 |---|---|
 | Pitch de 5 minutos | Roteiro pronto, minuto a minuto, em [`docs/pitch.md`](pitch.md), já com a personalização, o jogo e o desafio na demonstração. Falta ensaiar (principalmente jogar até o fim). |
 | Projeto funcionando ao vivo | App pronto. Testar no computador da sala antes. |
-| Repositório final | Público. Falta ter commits de todos. |
+| Repositório final | Público, com a equipe no README. |
 | Vídeo de até 3 min | O atual (V2) mostra o fluxo completo: personalização, caminho do ar, jogo, desafio e dados. Dá para regravar com narração. |
 | Retornos do Professor Mentor | Incorporar depois do Checkpoint 2. |
 
