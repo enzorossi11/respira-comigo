@@ -2,9 +2,7 @@
 
 Guia rápido para quem chega no repositório (professor, mentor ou integrante novo): o que já está pronto, onde ver cada coisa e quais são os próximos passos.
 
-**Situação atual:** **V2** · Checkpoint 1 ✅ · Checkpoint 2 ✅ (protótipo, dados reais, prints e vídeo) · Gamificação ✅ · Personagem personalizável ✅ · próximo marco: **Apresentação final (07 e 08/12)**
-
-Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem personalizável com corpo do MakeHuman). O que mudou em cada uma está no [CHANGELOG](../CHANGELOG.md).
+**Situação atual:** Checkpoint 1 ✅ · Checkpoint 2 ✅ (protótipo, dados reais, prints e vídeo) · Gamificação ✅ · Personagem personalizável ✅ · próximo marco: **Apresentação final (07 e 08/12)**
 
 ---
 
@@ -72,7 +70,7 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 | Pitch de 5 minutos | Roteiro pronto, minuto a minuto, em [`docs/pitch.md`](pitch.md), já com a personalização, o jogo e o desafio na demonstração. Falta ensaiar (principalmente jogar até o fim). |
 | Projeto funcionando ao vivo | App pronto. Testar no computador da sala antes. |
 | Repositório final | Público, com a equipe no README. |
-| Vídeo de até 3 min | O atual (V2) mostra o fluxo completo: personalização, caminho do ar, jogo, desafio e dados. Dá para regravar com narração. |
+| Vídeo de até 3 min | O atual mostra o fluxo completo: personalização, caminho do ar, jogo, desafio e dados. Dá para regravar com narração. |
 | Retornos do Professor Mentor | Incorporar depois do Checkpoint 2. |
 
 **Ideias para depois do mentor:** modo professor (para projetar em sala), narração em áudio das etapas, mais exercícios de respiração, testes com alunos.
@@ -90,8 +88,8 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 7. Adiciona dados reais, prints, vídeo e documentação do Checkpoint 2
 8. Atualiza roteiro: repositório público e site ativado
 9. Gamificação: jogo Jornada do ar, desafio de ritmo e personagem mais vivo
-10. Personagem trocado por modelo anatômico real (Z-Anatomy, CC BY-SA 4.0), no app e no jogo — **V1**
+10. Personagem trocado por modelo anatômico real (Z-Anatomy, CC BY-SA 4.0), no app e no jogo
 11. Rosto mais detalhado: olhos, sombras e tons de pele
 12. Jogo: pausa para ler as mensagens e escolha do pulmão com contagem
 13. Personagem personalizável com corpo do MakeHuman
-14. Documentação, vídeo e prints da V2 — **V2**
+14. Documentação, vídeo e prints atualizados
