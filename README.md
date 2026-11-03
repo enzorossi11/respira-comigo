@@ -289,7 +289,7 @@ Roteiro do pitch final de 5 minutos, plano B e perguntas prováveis da banca: [`
 **Do Checkpoint 1 para o 2**
 
 - O MVP planejado (3 etapas + ritmo ajustável) está completo e navegável, com **dados reais** no lugar de dados mockados.
-- No CP2 o personagem era modelado direto em código; depois ele foi trocado por um modelo anatômico real (ver abaixo e seção 6).
+- O personagem 3D é feito a partir de modelos abertos: corpo do MakeHuman e órgãos do Z-Anatomy (ver seção 6).
 - Os dados do SUS vêm do TabNet, consultado por script, no lugar da biblioteca PySUS, que exigiria o FTP do DATASUS.
 - Entraram também: duração da sessão, som opcional, fim automático, contador de sessões, versão para celular, testes e publicação automática.
 
