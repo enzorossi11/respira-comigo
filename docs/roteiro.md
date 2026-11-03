@@ -60,7 +60,8 @@ Versões: **V1** (personagem anatômico do Z-Anatomy) e **V2** (personagem perso
 
 - [x] Tornar o repositório **público**
 - [x] Ativar o site no GitHub Pages
-- [ ] Preencher a tabela **Equipe** do README com nomes e @ do GitHub.
+- [x] Preencher a tabela **Equipe** do README com nomes e RA.
+- [ ] Acrescentar o @ do GitHub de cada integrante na tabela.
 - [ ] Convidar os integrantes como colaboradores (Settings → Collaborators).
 - [ ] Cada integrante fazer **commits pela própria conta**. Vale nota nos três momentos.
 - [ ] Gravar uma **narração** por cima do vídeo, se o professor quiser o vídeo falado (o atual tem legendas na tela).

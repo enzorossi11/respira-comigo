@@ -45,6 +45,7 @@
 
 **Título:** Respira Comigo
 **Tema:** Sistema respiratório · Saúde e Bem-Estar (ODS 3)
+**Equipe:** Enzo Rossi, Mariane Paiva, Maria Eduarda Morais e Gleicy Crispim
 
 O **Respira Comigo** é uma aplicação web em que um **personagem 3D** mostra, de forma animada, o **caminho que o ar percorre** no corpo — do nariz até os alvéolos —, transforma esse caminho em um **jogo** (você guia uma molécula de oxigênio por dentro do corpo) e, em seguida, **conduz o usuário em uma respiração guiada**, com um **desafio de ritmo** que dá pontos a quem acompanha o personagem.
 
@@ -345,12 +346,12 @@ respira-comigo/
 
 ## 11. Equipe
 
-| Integrante | GitHub | Responsabilidade principal |
-|---|---|---|
-| Enzo Rossi | [@enzorossi11](https://github.com/enzorossi11) | Gestão do projeto, problema e dados |
-| _Nome_ | [@usuario](https://github.com/usuario) | _Front-end e 3D_ |
-| _Nome_ | [@usuario](https://github.com/usuario) | _Identidade visual e personagem_ |
-| _Nome_ | [@usuario](https://github.com/usuario) | _Dados (PeNSE / DATASUS)_ |
+| Integrante | RA |
+|---|---|
+| Enzo Rossi | 2025112797 |
+| Mariane Paiva | 2026200252 |
+| Maria Eduarda Morais | 2026220032 |
+| Gleicy Crispim | 2026225830 |
 
 > Cada integrante faz commits pela própria conta, em branch própria (`feat/nome-da-tarefa`), com Pull Request para a `main`.
 
