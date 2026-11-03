@@ -5,7 +5,7 @@
 <p align="center"><b>Aprenda o caminho do ar. Jogue. Respire no seu ritmo.</b></p>
 
 <p align="center">
-  <img alt="Checkpoint" src="https://img.shields.io/badge/etapa-Checkpoint%202%20·%20Prot%C3%B3tipo-7C6FE0">
+  <img alt="Status" src="https://img.shields.io/badge/status-prot%C3%B3tipo%20funcionando-7C6FE0">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
   <img alt="Versão" src="https://img.shields.io/badge/vers%C3%A3o-V2-1F2547">
   <img alt="Testes" src="https://img.shields.io/badge/testes-48%20passando-137A71">
@@ -19,7 +19,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/prints/18-perfil-variacao.png" alt="Tela de criação do personagem 3D" width="820">
+  <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="Demonstração: criação do personagem e começo do jogo" width="820"></a>
+  <br><sub>Prévia do vídeo. Clique para ver a demonstração completa (2 min).</sub>
 </p>
 
 ---
@@ -342,7 +343,8 @@ respira-comigo/
 ├── assets/                        ← logo, paleta e tipografia
 └── docs/
     ├── prints/                    ← capturas de tela do protótipo
-    ├── demo.mp4                   ← vídeo de demonstração
+    ├── demo.mp4                   ← vídeo de demonstração (2 min)
+    ├── demo.gif                   ← prévia curta do vídeo, no topo do README
     ├── pitch.md                   ← pitch inicial e roteiro do pitch final
     ├── identidade-visual.md
     ├── bases-de-dados.md
