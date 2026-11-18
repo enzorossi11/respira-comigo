@@ -87,8 +87,27 @@ describe('Simulacao', () => {
     expect(j.s).toBe(2)
   })
 
-  it('perde fôlego ao bater e termina quando acaba', () => {
+  it('no modo viagem, encostar num obstáculo não tem penalidade nenhuma', () => {
     const j = new Simulacao()
+    j.iniciar()
+    let maiorS = j.s
+    let voltou = false
+    let batidaNaTela = false
+    for (let i = 0; i < 40000 && j.status === 'jogando'; i++) {
+      const ev = j.passo(1 / 60)
+      if (ev.some((e) => e.tipo === 'batida' || e.tipo === 'perdeu')) batidaNaTela = true
+      if (j.s < maiorS - 1e-9) voltou = true
+      maiorS = Math.max(maiorS, j.s)
+    }
+    expect(j.status).toBe('venceu')
+    expect(j.batidas).toBeGreaterThan(0) // encostou, sim
+    expect(j.vidas).toBe(VIDAS) // mas não perdeu fôlego
+    expect(voltou).toBe(false) // nem foi empurrado para trás
+    expect(batidaNaTela).toBe(false) // nem recebeu aviso de "erro"
+  })
+
+  it('no modo clássico, perde fôlego ao bater e termina quando acaba', () => {
+    const j = new Simulacao(7, { semPenalidade: false })
     j.iniciar()
     // sem desviar, a partícula bate até perder o jogo ou chega ao fim
     for (let i = 0; i < 20000 && j.status === 'jogando'; i++) j.passo(1 / 60)

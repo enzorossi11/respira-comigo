@@ -2,7 +2,7 @@
   <img src="assets/logo/logo-horizontal.png" alt="Respira Comigo" width="440">
 </p>
 
-<p align="center"><b>Aprenda o caminho do ar. Jogue. Respire no seu ritmo.</b></p>
+<p align="center"><b>Aprenda o caminho do ar. Viaje com ele. Respire com calma.</b></p>
 
 <p align="center">
   <img alt="ODS 3" src="https://img.shields.io/badge/ODS%203-Sa%C3%BAde%20e%20Bem--Estar-2BB5A8">
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="Demonstração: criação do personagem e começo do jogo" width="820"></a>
+  <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="Demonstração: a criança monta o amigo, aprende o caminho do ar, faz a viagem e respira" width="820"></a>
 </p>
 
 ---
@@ -25,15 +25,16 @@
 1. [Sobre o projeto](#1-sobre-o-projeto)
 2. [Descrição do problema](#2-descrição-do-problema)
 3. [Solução](#3-solução)
-4. [Protótipo](#4-protótipo)
-5. [Como executar](#5-como-executar)
-6. [Tecnologias](#6-tecnologias)
-7. [Identidade visual](#7-identidade-visual)
-8. [Pitch](#8-pitch)
-9. [Cronograma](#9-cronograma)
-10. [Estrutura do repositório](#10-estrutura-do-repositório)
-11. [Equipe](#11-equipe)
-12. [Referências](#12-referências)
+4. [Design para crianças e autismo](#4-design-para-crianças-e-autismo)
+5. [Protótipo](#5-protótipo)
+6. [Como executar](#6-como-executar)
+7. [Tecnologias](#7-tecnologias)
+8. [Identidade visual](#8-identidade-visual)
+9. [Pitch](#9-pitch)
+10. [Cronograma](#10-cronograma)
+11. [Estrutura do repositório](#11-estrutura-do-repositório)
+12. [Equipe](#12-equipe)
+13. [Referências](#13-referências)
 
 ---
 
@@ -43,9 +44,11 @@
 **Tema:** Sistema respiratório · Saúde e Bem-Estar (ODS 3)
 **Equipe:** Enzo Rossi, Mariane Paiva, Maria Eduarda Morais e Gleicy Crispim
 
-O Respira Comigo é uma aplicação web em que um personagem 3D mostra o caminho que o ar percorre no corpo, do nariz até os alvéolos, e depois respira junto com o usuário, num ritmo escolhido por ele. O conteúdo também vira um jogo, em que o aluno guia uma molécula de oxigênio por dentro das vias aéreas.
+O Respira Comigo é uma aplicação web em que um personagem 3D mostra o caminho que o ar percorre no corpo, do nariz até os alvéolos, e depois respira junto com a criança, num ritmo calmo. O conteúdo também vira uma viagem interativa, em que a criança guia o ar por dentro do corpo com o dedo ou o mouse.
 
-**MVP:** caminho do ar em 3 etapas e respiração guiada com ritmo ajustável.
+O app foi pensado para ser usado por **crianças, inclusive crianças autistas**: telas previsíveis, poucas palavras, desenhos grandes, leitura em voz alta e nenhum tipo de pontuação, pressa ou erro.
+
+**MVP:** caminho do ar em 8 paradas e respiração guiada com balão visual.
 
 ---
 
@@ -56,6 +59,8 @@ O Respira Comigo é uma aplicação web em que um personagem 3D mostra o caminho
 Adolescentes brasileiros convivem com níveis altos de ansiedade, preocupação e irritabilidade, e têm pouco apoio para lidar com isso dentro da escola. Ao mesmo tempo, a respiração, uma das formas mais simples de autorregulação, costuma ser ensinada apenas como conteúdo de prova, com nomes de órgãos para decorar e sem relação com o bem-estar do próprio aluno.
 
 O aluno estuda o sistema respiratório, mas não aprende a usar a respiração a seu favor.
+
+A lacuna é maior para crianças autistas: os materiais sobre o corpo costumam ser cheios de texto e as telas, cheias de estímulos, e quase nada é pensado para quem precisa de apoio visual, previsibilidade e calma para aprender e para se regular.
 
 ### 2.2 Dados
 
@@ -73,13 +78,13 @@ Além disso, o Brasil tem a maior prevalência de transtornos de ansiedade do mu
 
 ### 2.3 Público e contexto
 
-- **Público principal:** estudantes de 11 a 17 anos (anos finais do Ensino Fundamental e Ensino Médio), fase em que o sistema respiratório é conteúdo escolar e em que a PeNSE mostra sinais de sofrimento emocional.
-- **Público secundário:** professores de Ciências e Biologia, que podem usar o app em aula, e orientadores ou psicólogos escolares, que podem usar a respiração guiada em momentos de acolhimento.
-- **Contexto de uso:** sala de aula, laboratório de informática, em casa ou no celular, antes de uma prova ou apresentação.
+- **Público principal:** crianças, com atenção especial a crianças autistas (TEA). Para esse público, aprender o próprio corpo e ter uma forma concreta de se acalmar costuma depender de apoio visual, rotina previsível e ausência de sobrecarga sensorial, e é isso que a interface prioriza.
+- **Público secundário:** pais, professores, terapeutas ocupacionais e acompanhantes terapêuticos, que usam o app junto com a criança. Para eles existe a área **Para adultos**, com os dados, orientações de uso e os ajustes finos da respiração.
+- **Contexto de uso:** sala de aula, sala de recursos, sessões de terapia ou em casa, no tablet, celular ou computador, sempre que a criança precisar de um momento de calma.
 
 ### 2.4 Delimitação
 
-O Respira Comigo não é tratamento e não substitui atendimento de saúde mental. A proposta é de educação em saúde e autocuidado: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. O rodapé de todas as telas indica onde buscar ajuda (UBS, CAPS e CVV 188).
+O Respira Comigo não é tratamento e não substitui atendimento de saúde ou terapia. A proposta é de educação em saúde e autocuidado: ensinar como a respiração funciona e oferecer uma prática simples de respiração lenta. A área Para adultos indica onde buscar ajuda (UBS, CAPS e CVV 188).
 
 ### 2.5 Bases de dados públicas
 
@@ -95,46 +100,59 @@ Mais detalhes sobre as bases e as tabelas usadas: [`docs/bases-de-dados.md`](doc
 
 ## 3. Solução
 
-A experiência leva de 5 a 8 minutos e tem cinco partes:
+A tela inicial tem três cartões grandes, sempre na mesma ordem. Eles funcionam como uma agenda visual: o que a criança já fez ganha um ✓.
 
-1. **Criação do personagem.** No primeiro acesso, o aluno escolhe corpo (feminino ou masculino), idade, tom de pele e cabelo, e o personagem muda na hora. A ideia é que o aluno se reconheça no personagem e veja o caminho do ar num corpo parecido com o dele. O biotipo não é uma opção, para não abrir espaço para comparação de corpo. As escolhas ficam salvas só no navegador.
-2. **Caminho do ar.** Em três etapas, a câmera se aproxima de cada parte do corpo, que aparece destacada e com nome:
-   - nariz, faringe e laringe;
-   - traqueia e brônquios;
-   - pulmões, alvéolos e diafragma.
-3. **Jornada do ar (jogo).** O aluno é uma molécula de oxigênio: entra pela narina do personagem e precisa chegar até um alvéolo. Cada trecho tem um obstáculo ligado ao conteúdo, como pelos no nariz, a epiglote na laringe, cílios e vírus na traqueia e bronquíolos cada vez mais finos. Ao bater, o jogo explica o que aconteceu, por exemplo: "Pólen! É ele que causa alergia".
-4. **Respiração guiada.** Três ritmos prontos (Calma 4·6, Equilíbrio 5·5 e Quadrada 4·4·4·4) ou ajuste livre. Os pulmões do personagem enchem e esvaziam no ritmo escolhido, e um anel marca cada fase. No modo **Desafio de ritmo**, o aluno segura um botão enquanto inspira e solta enquanto expira, e ganha pontos por acompanhar o ritmo.
-5. **Por que importa.** Painel com os dados oficiais que fundamentam o problema, cada um com a fonte.
+0. **Monte o seu amigo.** No primeiro acesso, a criança escolhe menina ou menino, criança, jovem ou adulto, cor da pele e cabelo, e o personagem muda na hora. Assim ela vê o caminho do ar num corpo parecido com o dela. As escolhas ficam salvas só no aparelho.
+1. **Aprender: o caminho do ar.** Oito paradas, uma parte do corpo por vez: nariz, garganta, laringe, traqueia, brônquios, pulmões, alvéolos e diafragma. Em cada uma a câmera se aproxima, só aquela parte fica acesa no personagem, e aparece uma frase curta, como "Os dois pulmões enchem de ar, como balões".
+2. **Jogar: a viagem do ar.** A criança é o ar: entra pelo nariz do personagem e viaja até o pulmão, guiando com o dedo ou o mouse. No caminho aparecem pelos, poeira, pólen e a epiglote, para ela ver como o corpo é por dentro, mas encostar neles não tem consequência nenhuma. Não há pontos, vidas nem derrota: toda viagem termina com "Você chegou!".
+3. **Respirar com o seu amigo.** Um balão cresce quando é hora de puxar o ar e diminui quando é hora de soltar, e os pulmões do personagem fazem o mesmo. A voz diz "Puxe o ar" e "Solte o ar" em cada fase. Bolinhas mostram quantas respirações faltam. Há três ritmos com desenho (Devagar, Igual e Quadrado), e no final a criança diz como está tocando numa carinha.
+4. **Para adultos.** Painel com os dados oficiais que fundamentam o problema, orientações de uso e os créditos.
 
 A escolha pela respiração lenta se apoia em estudos de revisão que associam a respiração controlada, em torno de 6 ciclos por minuto, a mais relaxamento e menos ansiedade (Zaccaro et al., 2018). Todos os ritmos prontos do app ficam nessa faixa.
 
 ---
 
-## 4. Protótipo
+## 4. Design para crianças e autismo
 
-[Vídeo de demonstração (2 min)](docs/demo.mp4)
+As decisões de interface seguem recomendações de acessibilidade cognitiva e de design para pessoas autistas, como as diretrizes de acessibilidade cognitiva do W3C (COGA) e os princípios do guia de design para autismo do governo britânico (Home Office Digital, 2016).
 
-| Criação do personagem | Outra combinação |
+| Princípio | Como aparece no app |
 |---|---|
-| ![Criação do personagem](docs/prints/17-perfil.png) | ![Outra combinação](docs/prints/18-perfil-variacao.png) |
-| **Início** | **Etapa 1: nariz, faringe e laringe** |
-| ![Início](docs/prints/01-inicio.png) | ![Etapa 1](docs/prints/02-caminho-etapa1.png) |
-| **Etapa 2: traqueia e brônquios** | **Etapa 3: pulmões e alvéolos** |
-| ![Etapa 2](docs/prints/03-caminho-etapa2.png) | ![Etapa 3](docs/prints/04-caminho-etapa3.png) |
-| **Jogo: entrada pela narina** | **Jogo: traqueia** |
-| ![Jogo, lado de fora](docs/prints/10-jogo-fora.png) | ![Jogo na traqueia](docs/prints/11-jogo-traqueia.png) |
-| **Jogo: escolha do pulmão** | **Jogo: chegada ao alvéolo** |
-| ![Escolha do pulmão](docs/prints/19-jogo-escolha.png) | ![Chegada ao alvéolo](docs/prints/13-jogo-vitoria.png) |
-| **Respiração guiada** | **Desafio de ritmo** |
-| ![Respiração guiada](docs/prints/06-respirar-inspire.png) | ![Desafio de ritmo](docs/prints/14-desafio.png) |
-
-| Painel de dados | Celular | Celular: jogo |
-|---|---|---|
-| ![Painel de dados](docs/prints/08-dados.png) | <img src="docs/prints/09-celular.png" width="260"> | <img src="docs/prints/16-celular-jogo.png" width="260"> |
+| **Previsibilidade** | O mesmo topo em todas as telas: botão da casa à esquerda, nome da área no meio, som à direita. A tela inicial é sempre a mesma, com os três cartões na mesma ordem. |
+| **Uma coisa por vez** | O caminho do ar mostra uma parte do corpo por vez, com uma frase. Os ajustes avançados ficam escondidos em "Ajustes para adultos". |
+| **Apoio visual** | Cada área tem uma cor e um desenho próprios, que se repetem no cartão, no topo e nos botões (verde-água para Aprender, laranja para Jogar, lilás para Respirar, amarelo para a casa). Ícones desenhados para o app, iguais em qualquer aparelho. |
+| **Pouco texto, linguagem literal** | Frases curtas e diretas ("O ar entra pelo nariz"), sem ironia nem expressões figuradas. |
+| **Leitura em voz alta** | Todo bloco de texto tem o botão **Ouvir**, que lê em português com a voz do próprio aparelho, um pouco mais devagar. Na respiração e na viagem, a voz guia junto, se o som estiver ligado. |
+| **Sem pressão** | Nada de pontuação, cronômetro, vidas ou derrota. O jogo é só a viagem, e encostar em obstáculos não tem efeito. Mensagens do jogo param a tela por 2 segundos para dar tempo de ler. |
+| **Conforto sensorial** | Nada pisca, nada treme, sem flash de "erro". Cores suaves, movimentos lentos e respeito à opção "reduzir movimento" do sistema. Som opcional, com um toque. |
+| **Alvos grandes** | Botões com no mínimo 64 px de altura e letra arredondada (Nunito) em tamanho grande, fáceis de tocar e de ler. |
+| **Expressar sentimentos** | No fim da respiração, a criança escolhe uma carinha (bem, mais ou menos, não muito bem) e recebe uma resposta acolhedora. Nada é registrado. |
 
 ---
 
-## 5. Como executar
+## 5. Protótipo
+
+[Vídeo de demonstração](docs/demo.mp4)
+
+| Monte o seu amigo | Início: os três cartões |
+|---|---|
+| ![Monte o seu amigo](docs/prints/01-perfil.png) | ![Início](docs/prints/02-inicio.png) |
+| **Aprender: uma parte por vez** | **Aprender: pulmões** |
+| ![Nariz](docs/prints/03-aprender-nariz.png) | ![Pulmões](docs/prints/04-aprender-pulmoes.png) |
+| **Fim do caminho do ar** | **Viagem do ar: começo** |
+| ![Muito bem](docs/prints/05-aprender-fim.png) | ![Viagem do ar](docs/prints/06-viagem-inicio.png) |
+| **Viagem do ar: lá fora** | **Respirar** |
+| ![Viagem](docs/prints/07-viagem.png) | ![Respirar](docs/prints/08-respirar.png) |
+| **Puxe o ar** | **Agenda: o que já foi feito** |
+| ![Respirando](docs/prints/09-respirando.png) | ![Agenda](docs/prints/10-inicio-agenda.png) |
+
+| Para adultos | Celular: início | Celular: aprender | Celular: respirar |
+|---|---|---|---|
+| ![Para adultos](docs/prints/11-para-adultos.png) | <img src="docs/prints/12-celular-inicio.png" width="200"> | <img src="docs/prints/13-celular-aprender.png" width="200"> | <img src="docs/prints/14-celular-respirar.png" width="200"> |
+
+---
+
+## 6. Como executar
 
 **Online:** https://enzorossi11.github.io/respira-comigo/
 
@@ -160,32 +178,34 @@ python3 data/scripts/gerar_json.py
 
 ---
 
-## 6. Tecnologias
+## 7. Tecnologias
 
 | Camada | Tecnologia | Uso |
 |---|---|---|
 | Interface | React + TypeScript + Vite | Telas, navegação e controles |
+| Voz | Web Speech API (voz do aparelho) | Botão Ouvir e voz guiando a respiração e a viagem |
 | 3D | Three.js (React Three Fiber) | Personagem, órgãos, partículas de ar e jogo |
 | Modelos 3D | MakeHuman (corpo) e Z-Anatomy (órgãos), preparados no Blender | Personagem personalizável com os órgãos do sistema respiratório |
 | Gráficos | Recharts | Painel de dados |
 | Dados | Python + pandas | Download e tratamento da PeNSE e do SIH/SUS |
-| Testes | Vitest | Lógica da respiração, regras do jogo e pontuação |
+| Testes | Vitest | Lógica da respiração, regras da viagem e conteúdo |
 | Publicação | GitHub Actions + GitHub Pages | Testa e publica o site a cada atualização |
 
 **Justificativa das escolhas**
 
 - **Aplicação web:** abre em qualquer computador da escola ou celular, sem instalação e sem cadastro.
-- **3D no navegador:** o Three.js permite mostrar o corpo por dentro e animar a respiração sem exigir nenhum programa extra do aluno.
-- **Modelos abertos:** o corpo vem do MakeHuman (licença CC0) e os órgãos do atlas Z-Anatomy (CC BY-SA 4.0). Assim o personagem é anatomicamente fiel sem precisar ser modelado do zero. Como cada aluno monta um corpo diferente, o app ajusta a posição e o tamanho dos órgãos ao tronco de cada personagem.
-- **Sem servidor e sem dados pessoais:** os dados públicos são preparados com antecedência e lidos pelo app como um arquivo estático. As preferências e o personagem ficam só no navegador, então nenhum dado do aluno é coletado (LGPD).
-- **Cuidado com o público:** por ser voltado a adolescentes, o app não exibe os indicadores da PeNSE sobre autolesão.
-- **Acessibilidade:** navegação por teclado, rótulos para leitores de tela e contraste de texto adequado.
+- **3D no navegador:** o Three.js permite mostrar o corpo por dentro e animar a respiração sem exigir nenhum programa extra.
+- **Modelos abertos:** o corpo vem do MakeHuman (licença CC0) e os órgãos do atlas Z-Anatomy (CC BY-SA 4.0). Assim o personagem é anatomicamente fiel sem precisar ser modelado do zero. Como cada criança monta um corpo diferente, o app ajusta a posição e o tamanho dos órgãos ao tronco de cada personagem.
+- **Sem servidor e sem dados pessoais:** os dados públicos são preparados com antecedência e lidos pelo app como um arquivo estático. As preferências e o personagem ficam só no navegador, então nenhum dado da criança é coletado (LGPD).
+- **Cuidado com o público:** por ser voltado a crianças, o app não exibe os indicadores da PeNSE sobre autolesão, e os dados ficam numa área separada, para adultos.
+- **Acessibilidade:** leitura em voz alta em todas as telas, navegação por teclado, rótulos para leitores de tela, contraste de texto adequado e respeito à opção de reduzir movimento.
+- **Voz sem internet e sem custo:** a leitura usa a voz já instalada no aparelho (Web Speech API), então funciona offline e não envia texto para nenhum serviço.
 
-**Viabilidade no semestre:** a solução não depende de servidor, banco de dados ou serviços pagos, e a publicação é gratuita. As ferramentas e os modelos 3D são abertos, e as bases de dados são públicas. O escopo foi fechado num MVP pequeno (caminho do ar e respiração guiada), e o jogo e a personalização entraram como complementos.
+**Viabilidade no semestre:** a solução não depende de servidor, banco de dados ou serviços pagos, e a publicação é gratuita. As ferramentas e os modelos 3D são abertos, e as bases de dados são públicas. O escopo foi fechado num MVP pequeno (caminho do ar e respiração guiada), e a viagem do ar e a personalização entraram como complementos.
 
 ---
 
-## 7. Identidade visual
+## 8. Identidade visual
 
 Guia completo: [`docs/identidade-visual.md`](docs/identidade-visual.md)
 
@@ -208,21 +228,30 @@ Guia completo: [`docs/identidade-visual.md`](docs/identidade-visual.md)
 
 <img src="assets/tipografia.png" alt="Tipografia" width="720">
 
-**Tipografia:** Nunito ExtraBold nos títulos e Inter (Regular e SemiBold) nos textos.
+**Tipografia:** Nunito em todo o app (letra arredondada, fácil de ler), em tamanho grande.
+
+**Cores por área.** Dentro do app, cada área tem uma cor fixa, para a criança se localizar pela cor:
+
+| Área | Cor | HEX |
+|---|---|---|
+| Aprender | Verde-água | `#2BB5A8` |
+| Jogar | Laranja | `#FF8A5B` |
+| Respirar | Lilás | `#8C7CF0` |
+| Casa (início) | Amarelo | `#FFC94A` |
 
 ---
 
-## 8. Pitch
+## 9. Pitch
 
-O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia, mas só um terço estuda numa escola com profissional de saúde mental. A respiração é a forma mais simples de autorregulação, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O Respira Comigo muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com o aluno, no ritmo que ele escolher.
+O Brasil é o país com maior prevalência de ansiedade do mundo, e metade dos estudantes de 13 a 17 anos diz se sentir muito preocupada com as coisas do dia a dia, mas só um terço estuda numa escola com profissional de saúde mental. A respiração é a forma mais simples de autorregulação, e mesmo assim a escola a ensina apenas como nomes de órgãos para decorar. O Respira Comigo muda isso: um personagem 3D mostra o caminho do ar do nariz aos alvéolos e, logo em seguida, respira junto com a criança. Tudo foi desenhado para que crianças autistas consigam usar sozinhas ou com um adulto: telas previsíveis, desenhos grandes, leitura em voz alta e nenhuma pontuação ou erro.
 
-**Diferencial:** os apps de respiração não ensinam anatomia, e os materiais de Ciências não ensinam a respirar. O Respira Comigo junta as duas coisas numa experiência de poucos minutos, com um personagem criado pelo próprio aluno e um jogo que reforça o conteúdo. Roda no navegador, sem instalação e sem cadastro, e se baseia em dados públicos reais sobre a saúde dos estudantes brasileiros.
+**Diferencial:** os apps de respiração não ensinam anatomia, e os materiais de Ciências não ensinam a respirar. O Respira Comigo junta as duas coisas numa experiência de poucos minutos, com um personagem criado pela própria criança e uma viagem interativa que reforça o conteúdo. Roda no navegador, sem instalação e sem cadastro, e se baseia em dados públicos reais sobre a saúde dos estudantes brasileiros.
 
 Pitch completo: [`docs/pitch.md`](docs/pitch.md)
 
 ---
 
-## 9. Cronograma
+## 10. Cronograma
 
 | Período | Entrega |
 |---|---|
@@ -232,7 +261,7 @@ Pitch completo: [`docs/pitch.md`](docs/pitch.md)
 
 ---
 
-## 10. Estrutura do repositório
+## 11. Estrutura do repositório
 
 ```
 respira-comigo/
@@ -253,7 +282,7 @@ respira-comigo/
 
 ---
 
-## 11. Equipe
+## 12. Equipe
 
 | Integrante | RA |
 |---|---|
@@ -264,13 +293,15 @@ respira-comigo/
 
 ---
 
-## 12. Referências
+## 13. Referências
 
 - IBGE. **Pesquisa Nacional de Saúde do Escolar – PeNSE 2019** e **PeNSE 2024**. Rio de Janeiro: IBGE.
 - Ministério da Saúde. **DATASUS – Sistema de Informações Hospitalares do SUS (SIH/SUS)**, TabNet.
 - WORLD HEALTH ORGANIZATION. **Depression and Other Common Mental Disorders: Global Health Estimates**. Genebra: WHO, 2017.
 - ZACCARO, A. et al. How breath-control can change your life: a systematic review on psycho-physiological correlates of slow breathing. **Frontiers in Human Neuroscience**, v. 12, 2018.
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
+- W3C. **Making Content Usable for People with Cognitive and Learning Disabilities** (COGA). W3C Working Group Note, 2021. Disponível em: https://www.w3.org/TR/coga-usable/.
+- HOME OFFICE DIGITAL (Reino Unido). **Dos and don'ts on designing for accessibility**: pôster sobre usuários no espectro autista, 2016. Disponível em: https://accessibility.blog.gov.uk/2016/09/02/dos-and-donts-on-designing-for-accessibility/.
 - MAKEHUMAN COMMUNITY. **MakeHuman** (assets de sistema, licença CC0 1.0). Disponível em: https://www.makehumancommunity.org/.
 - KERVYN, G.; ZIELINSKI, M. **Z-Anatomy**: atlas 3D de anatomia humana, derivado do BodyParts3D (DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. Os órgãos adaptados neste projeto (`app/public/modelos/orgaos.glb`) seguem a mesma licença.
 

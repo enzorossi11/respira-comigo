@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { normalizarPerfil, PERFIL_PADRAO, type Perfil } from './3d/perfil'
+import { PARADAS } from './conteudo/paradas'
+import { pararFala } from './lib/fala'
 import { ciclosNaSessao, duracaoCiclo, normalizarRitmo, PRESETS, type Ritmo } from './lib/respiracao'
 
 export type Tela = 'perfil' | 'inicio' | 'caminho' | 'jornada' | 'respirar' | 'dados'
-export type ModoRespirar = 'livre' | 'desafio'
 export type Reacao = 'feliz' | 'uau' | 'ops'
 
 const CHAVE = 'respira-comigo:prefs'
@@ -16,7 +17,8 @@ interface Prefs {
   sessoes: number
   recordeJornada: number
   estrelasJornada: number
-  recordeRitmo: number
+  /** já viu as 8 paradas do caminho do ar (marca na agenda da tela inicial) */
+  caminhoFeito: boolean
   /** personagem criado pelo usuário (null = ainda não criou) */
   perfil: Perfil | null
 }
@@ -29,7 +31,7 @@ const PADRAO: Prefs = {
   sessoes: 0,
   recordeJornada: 0,
   estrelasJornada: 0,
-  recordeRitmo: 0,
+  caminhoFeito: false,
   perfil: null,
 }
 
@@ -56,17 +58,20 @@ function salvar(p: Prefs) {
 interface Estado extends Prefs {
   tela: Tela
   etapa: number
+  /** parada atual do caminho do ar (0 a 7) */
+  parada: number
   /** sessão de respiração */
   rodando: boolean
   inicioMs: number
   acumulado: number
   concluida: boolean
-  modo: ModoRespirar
   /** última reação do personagem (o 3D usa o instante para animar) */
   reacao: { tipo: Reacao; em: number } | null
 
   irPara: (t: Tela) => void
   setEtapa: (i: number) => void
+  setParada: (i: number) => void
+  concluirCaminho: () => void
   setRitmo: (r: Ritmo, presetId?: string) => void
   setDuracao: (min: number) => void
   setSom: (v: boolean) => void
@@ -78,10 +83,8 @@ interface Estado extends Prefs {
   /** duração total da sessão, arredondada para ciclos inteiros */
   duracaoSessao: () => number
   concluir: () => void
-  setModo: (m: ModoRespirar) => void
   reagir: (tipo: Reacao) => void
   registrarJornada: (pontos: number, estrelas: number) => boolean
-  registrarRitmo: (pontos: number) => boolean
   /** perfil em edição na tela de personalização (ainda não salvo) */
   rascunho: Perfil
   setRascunho: (p: Partial<Perfil>) => void
@@ -93,8 +96,8 @@ const inicial = carregar()
 
 export const useApp = create<Estado>((set, get) => {
   const persistir = () => {
-    const { ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo, perfil } = get()
-    salvar({ ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, recordeRitmo, perfil })
+    const { ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, caminhoFeito, perfil } = get()
+    salvar({ ritmo, presetId, duracaoMin, som, sessoes, recordeJornada, estrelasJornada, caminhoFeito, perfil })
   }
 
   return {
@@ -102,20 +105,30 @@ export const useApp = create<Estado>((set, get) => {
     // primeiro acesso: começa criando o personagem
     tela: inicial.perfil ? 'inicio' : 'perfil',
     etapa: 0,
+    parada: 0,
     rascunho: inicial.perfil ?? PERFIL_PADRAO,
     rodando: false,
     inicioMs: 0,
     acumulado: 0,
     concluida: false,
-    modo: 'livre',
     reacao: null,
 
     irPara: (tela) => {
       if (tela !== 'respirar' && get().rodando) get().pausar()
+      pararFala()
       set({ tela })
       window.scrollTo?.({ top: 0 })
     },
     setEtapa: (i) => set({ etapa: Math.max(0, Math.min(2, i)) }),
+    setParada: (i) => {
+      const parada = Math.max(0, Math.min(PARADAS.length - 1, i))
+      pararFala()
+      set({ parada, etapa: PARADAS[parada].etapa })
+    },
+    concluirCaminho: () => {
+      set({ caminhoFeito: true })
+      persistir()
+    },
     setRitmo: (r, presetId = 'personalizado') => {
       set({ ritmo: normalizarRitmo(r), presetId, acumulado: 0, rodando: false, concluida: false })
       persistir()
@@ -154,7 +167,6 @@ export const useApp = create<Estado>((set, get) => {
       set({ rodando: false, concluida: true, acumulado: 0, sessoes: get().sessoes + 1 })
       persistir()
     },
-    setModo: (modo) => set({ modo, rodando: false, acumulado: 0, concluida: false }),
     reagir: (tipo) => set({ reacao: { tipo, em: performance.now() } }),
     registrarJornada: (pontos, estrelas) => {
       const recorde = pontos > get().recordeJornada
@@ -171,12 +183,6 @@ export const useApp = create<Estado>((set, get) => {
     editarPerfil: () => {
       set({ rascunho: get().perfil ?? PERFIL_PADRAO, tela: 'perfil' })
       window.scrollTo?.({ top: 0 })
-    },
-    registrarRitmo: (pontos) => {
-      const recorde = pontos > get().recordeRitmo
-      set({ recordeRitmo: Math.max(get().recordeRitmo, pontos) })
-      persistir()
-      return recorde
     },
   }
 })

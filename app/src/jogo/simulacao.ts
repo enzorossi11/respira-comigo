@@ -59,8 +59,16 @@ export class Simulacao {
   vel = VELOCIDADE
   /** maior passo de tempo aceito por quadro (maior só nos testes automáticos) */
   maxDt = 0.05
+  /**
+   * Modo viagem (padrão): o jogo é só a simulação do caminho do ar. Encostar
+   * num obstáculo não tem nenhuma consequência: não volta, não desacelera,
+   * não para e não perde fôlego. O modo clássico (com fôlegos) fica disponível
+   * para quem quiser um desafio.
+   */
+  readonly semPenalidade: boolean
 
-  constructor(semente = 7) {
+  constructor(semente = 7, { semPenalidade = true }: { semPenalidade?: boolean } = {}) {
+    this.semPenalidade = semPenalidade
     const p = gerarPercurso(semente)
     this.obstaculos = p.obstaculos
     this.oxigenios = p.oxigenios
@@ -180,8 +188,13 @@ export class Simulacao {
       for (const o of this.obstaculos) {
         if (Math.abs(o.s - this.s) > 1.5) continue
         if (colide(o, this.s, this.x, this.y, this.t)) {
-          this.vidas -= 1
           this.batidas += 1
+          if (this.semPenalidade) {
+            // só registra que encostou (sem evento para a tela, sem efeito no jogo)
+            this.invulneravelAte = this.t + INVULNERAVEL
+            break
+          }
+          this.vidas -= 1
           this.invulneravelAte = this.t + INVULNERAVEL
           this.s = Math.max(1, this.s - RECUO)
           this.vel = VELOCIDADE * 0.35

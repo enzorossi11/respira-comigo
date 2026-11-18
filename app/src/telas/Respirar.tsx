@@ -1,127 +1,63 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnelRespiracao } from '../componentes/AnelRespiracao'
-import { deveSegurar, Placar, type ResultadoCiclo } from '../lib/desafio'
-import {
-  duracaoCiclo,
-  faseNoTempo,
-  LIMITES,
-  PRESETS,
-  respiracoesPorMinuto,
-  type EstadoRespiracao,
-  type Fase,
-  type Ritmo,
-} from '../lib/respiracao'
-import { liberarAudio, tocarEfeito, tocarFase } from '../lib/som'
+import { Balao } from '../componentes/Balao'
+import { BotaoOuvir } from '../componentes/BotaoOuvir'
+import { Carinha, IconePausa, IconePlay, IconeRepetir, IlustraRitmo, type Sentimento } from '../componentes/Icones'
+import { falar, pararFala } from '../lib/fala'
+import { ciclosNaSessao, faseNoTempo, LIMITES, PRESETS, ROTULO_CRIANCA, type EstadoRespiracao, type Fase, type Ritmo } from '../lib/respiracao'
+import { liberarAudio, tocarFase } from '../lib/som'
 import { useApp } from '../store'
 
+/** Nome e desenho de cada ritmo, para criança. */
+const NOME_RITMO: Record<string, string> = { calma: 'Devagar', equilibrio: 'Igual', quadrada: 'Quadrado' }
+
 const CAMPOS: { chave: keyof Ritmo; rotulo: string }[] = [
-  { chave: 'inspirar', rotulo: 'Inspirar' },
+  { chave: 'inspirar', rotulo: 'Puxar o ar' },
   { chave: 'segurar', rotulo: 'Segurar' },
-  { chave: 'expirar', rotulo: 'Expirar' },
-  { chave: 'pausa', rotulo: 'Pausa' },
+  { chave: 'expirar', rotulo: 'Soltar o ar' },
+  { chave: 'pausa', rotulo: 'Descansar' },
 ]
-
 const DURACOES = [1, 2, 3, 5]
-const TEXTO_NOTA = { perfeito: 'Perfeito!', bom: 'Bom!', quase: 'Quase… siga o anel' } as const
 
-function formatar(seg: number) {
-  const s = Math.max(0, Math.round(seg))
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+const RESPOSTA: Record<Sentimento, string> = {
+  bem: 'Que bom! Você pode respirar assim sempre que quiser.',
+  meio: 'Tudo bem. Se quiser, respire mais uma vez comigo.',
+  mal: 'Tudo bem não estar bem. Chame um adulto de confiança, e respire comigo de novo.',
 }
+const NOME_SENTIMENTO: Record<Sentimento, string> = { bem: 'Bem', meio: 'Mais ou menos', mal: 'Não muito bem' }
 
-interface Final {
-  pontos: number
-  precisao: number
-  melhorCombo: number
-  estrelas: number
-  recorde: boolean
-}
+const FALA_INICIO =
+  'Sente-se com calma. Escolha um ritmo e toque em Começar. Quando o balão crescer, puxe o ar pelo nariz. Quando ele diminuir, solte o ar devagar.'
 
 export function Respirar() {
   const s = useApp()
   const [estado, setEstado] = useState<EstadoRespiracao | null>(null)
-  const [tempo, setTempo] = useState(0)
+  const [sentimento, setSentimento] = useState<Sentimento | null>(null)
   const ultimaFase = useRef<Fase | null>(null)
   const ativo = s.rodando || s.acumulado > 0
-  const total = s.duracaoSessao()
-  const desafio = s.modo === 'desafio'
+  const totalCiclos = ciclosNaSessao(s.duracaoMin * 60, s.ritmo)
 
-  // desafio de ritmo
-  const placar = useRef<Placar | null>(null)
-  const apertado = useRef(false)
-  const [botao, setBotao] = useState(false)
-  const [pontos, setPontos] = useState(0)
-  const [combo, setCombo] = useState(0)
-  const [ultimo, setUltimo] = useState<ResultadoCiclo | null>(null)
-  const [final, setFinal] = useState<Final | null>(null)
-
-  const apertar = (v: boolean) => {
-    apertado.current = v
-    setBotao(v)
-  }
-
-  // barra de espaço também funciona como botão (enquanto o desafio está rodando,
-  // ela não aciona outros botões, para não pausar sem querer)
-  useEffect(() => {
-    if (!desafio || !s.rodando) return
-    const down = (e: KeyboardEvent) => {
-      if (e.code !== 'Space') return
-      e.preventDefault()
-      if (!e.repeat) apertar(true)
-    }
-    const up = (e: KeyboardEvent) => {
-      if (e.code !== 'Space') return
-      e.preventDefault()
-      apertar(false)
-    }
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup', up)
-    return () => {
-      window.removeEventListener('keydown', down)
-      window.removeEventListener('keyup', up)
-    }
-  }, [desafio, s.rodando])
-
-  // relógio da sessão: atualiza o anel, toca o som e conta os pontos do desafio
+  // relógio da sessão: atualiza o balão e fala/toca cada fase nova
   useEffect(() => {
     let id = 0
-    let ultimoQuadro = performance.now()
-    const reagirAoCiclo = (r: ResultadoCiclo | null) => {
-      if (!r) return
-      const st = useApp.getState()
-      setUltimo(r)
-      setPontos(placar.current?.pontos ?? 0)
-      setCombo(r.combo)
-      st.reagir(r.nota === 'perfeito' ? (r.combo >= 3 ? 'uau' : 'feliz') : r.nota === 'bom' ? 'feliz' : 'ops')
-      if (st.som) tocarEfeito(r.nota === 'perfeito' ? 'combo' : r.nota === 'bom' ? 'acerto' : 'batida')
-    }
     const passo = () => {
       const st = useApp.getState()
-      const agora = performance.now()
-      const dt = Math.min(0.1, (agora - ultimoQuadro) / 1000)
-      ultimoQuadro = agora
       const t = st.tempo()
-      const dur = st.duracaoSessao()
-      if (st.rodando && t >= dur) {
-        if (st.modo === 'desafio' && placar.current) {
-          reagirAoCiclo(placar.current.fecharCiclo())
-          const p = placar.current
-          const recorde = st.registrarRitmo(p.pontos)
-          setFinal({ pontos: p.pontos, precisao: p.precisaoMedia, melhorCombo: p.melhorCombo, estrelas: p.estrelas(), recorde })
-          if (st.som) tocarEfeito('vitoria')
-        }
+      if (st.rodando && t >= st.duracaoSessao()) {
         st.concluir()
+        st.reagir('feliz')
+        if (st.som) falar('Pronto! Muito bem.')
         setEstado(null)
         ultimaFase.current = null
         return
       }
       const e = faseNoTempo(t, st.ritmo)
       setEstado(e)
-      setTempo(t)
-      if (st.rodando && st.modo === 'desafio' && placar.current) reagirAoCiclo(placar.current.registrar(t, apertado.current, dt))
       if (st.rodando && e.fase !== ultimaFase.current) {
         ultimaFase.current = e.fase
-        if (st.som && st.modo === 'livre') tocarFase(e.fase)
+        if (st.som) {
+          tocarFase(e.fase)
+          falar(ROTULO_CRIANCA[e.fase], { rapido: true })
+        }
       }
       if (st.rodando) id = requestAnimationFrame(passo)
     }
@@ -129,180 +65,148 @@ export function Respirar() {
     return () => cancelAnimationFrame(id)
   }, [s.rodando, s.ritmo])
 
+  useEffect(() => () => pararFala(), [])
+
   const comecar = () => {
     liberarAudio()
     ultimaFase.current = null
-    if (desafio && s.acumulado === 0) {
-      placar.current = new Placar(s.ritmo)
-      setPontos(0)
-      setCombo(0)
-      setUltimo(null)
-      setFinal(null)
-    }
+    setSentimento(null)
     s.iniciar()
-    // tira o foco do botão "Começar" (senão a barra de espaço o acionaria)
-    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  }
+  const parar = () => {
+    pararFala()
+    s.reiniciar()
   }
 
-  const esperado = estado && ativo ? (deveSegurar(estado.fase) ? 'segure' : 'solte') : null
-  const acertando = esperado ? (esperado === 'segure') === botao : true
+  // ------------------------------------------------------------- fim da sessão
+  if (s.concluida && !ativo) {
+    return (
+      <section className="painel" aria-labelledby="titulo-fim-respirar">
+        <div className="ola">
+          <h2 id="titulo-fim-respirar" className="titulo-grande">
+            Pronto! Como você está?
+          </h2>
+        </div>
+        <BotaoOuvir texto="Pronto! Como você está? Toque em uma carinha." />
+        <div className="sentimentos" role="radiogroup" aria-label="Como você está">
+          {(['bem', 'meio', 'mal'] as const).map((t) => (
+            <button key={t} role="radio" aria-checked={sentimento === t} className="opcao" onClick={() => setSentimento(t)}>
+              <Carinha tipo={t} tamanho={64} />
+              {NOME_SENTIMENTO[t]}
+            </button>
+          ))}
+        </div>
+        {sentimento && (
+          <>
+            <p className="resposta" role="status">
+              {RESPOSTA[sentimento]}
+            </p>
+            <BotaoOuvir texto={RESPOSTA[sentimento]} />
+          </>
+        )}
+        <button className="btn btn-primario btn-enorme btn-largo" onClick={comecar}>
+          <IconeRepetir tamanho={32} />
+          Respirar de novo
+        </button>
+      </section>
+    )
+  }
 
+  // ------------------------------------------------------------------ sessão
+  const cicloAtual = estado && ativo ? estado.ciclo : -1
   return (
     <section className="painel" aria-labelledby="titulo-respirar">
-      <p className="sobretitulo">Respiração guiada</p>
-      <h2 id="titulo-respirar">Respire comigo</h2>
+      <h2 id="titulo-respirar" className="sr-only">
+        Respire comigo
+      </h2>
 
-      <div className="modos" role="tablist" aria-label="Modo">
-        <button role="tab" aria-selected={!desafio} className={!desafio ? 'ativo' : ''} onClick={() => s.setModo('livre')} disabled={s.rodando}>
-          🌿 Livre
-        </button>
-        <button role="tab" aria-selected={desafio} className={desafio ? 'ativo' : ''} onClick={() => s.setModo('desafio')} disabled={s.rodando}>
-          🎯 Desafio de ritmo
-        </button>
+      <div className="balao-area">
+        <Balao estado={ativo ? estado : null} />
+        <div className="ciclos" aria-label={ativo ? `Respiração ${Math.min(cicloAtual + 1, totalCiclos)} de ${totalCiclos}` : `${totalCiclos} respirações`}>
+          {Array.from({ length: totalCiclos }, (_, i) => (
+            <span key={i} className={i < cicloAtual ? 'feito' : i === cicloAtual ? 'atual' : ''} />
+          ))}
+        </div>
       </div>
-      {desafio && !ativo && !final && (
-        <p className="lead pequeno">
-          <b>Segure o botão</b> (ou a barra de espaço) enquanto <b>inspira</b> e <b>solte</b> enquanto <b>expira</b>. Cada ciclo certinho
-          vale pontos, e acertos seguidos fazem combo!
-        </p>
+
+      {!ativo && (
+        <>
+          <p className="frase texto-suave" style={{ textAlign: 'center' }}>
+            Balão cresce: puxe o ar. Balão diminui: solte o ar.
+          </p>
+          <BotaoOuvir texto={FALA_INICIO} />
+        </>
       )}
 
-      <div className="respirar-topo">
-        <AnelRespiracao estado={ativo ? estado : null} ativo={ativo} />
-        <div className="respirar-info">
-          {final ? (
-            <div className="concluida desafio-final" role="status">
-              <div className="estrelas pequeno">
-                {[1, 2, 3].map((i) => (
-                  <span key={i} className={i <= final.estrelas ? 'on' : ''}>
-                    ★
-                  </span>
+      {s.rodando ? (
+        <div className="linha-botoes">
+          <button className="btn btn-secundario btn-enorme btn-largo" onClick={s.pausar}>
+            <IconePausa tamanho={30} />
+            Pausar
+          </button>
+        </div>
+      ) : (
+        <div className="linha-botoes">
+          <button className="btn btn-primario btn-enorme" onClick={comecar}>
+            <IconePlay tamanho={32} />
+            {s.acumulado > 0 ? 'Continuar' : 'Começar'}
+          </button>
+          {ativo && (
+            <button className="btn btn-secundario btn-enorme" onClick={parar}>
+              Parar
+            </button>
+          )}
+        </div>
+      )}
+
+      {!ativo && (
+        <>
+          <div className="escolha">
+            <span className="escolha-titulo">Ritmo</span>
+            <div className="ritmos" role="radiogroup" aria-label="Ritmo">
+              {PRESETS.map((p) => (
+                <button key={p.id} role="radio" aria-checked={s.presetId === p.id} className="opcao" onClick={() => s.setRitmo(p.ritmo, p.id)}>
+                  <IlustraRitmo id={p.id} tamanho={56} />
+                  {NOME_RITMO[p.id] ?? p.nome}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <details className="ajustes">
+            <summary>Ajustes para adultos</summary>
+            <div className="ajustes-corpo">
+              <p className="nota">
+                Ritmo atual: {PRESETS.find((p) => p.id === s.presetId)?.descricao ?? 'personalizado.'} Os tempos são em segundos.
+              </p>
+              <div className="sliders">
+                {CAMPOS.map(({ chave, rotulo }) => (
+                  <label key={chave} className="slider">
+                    <span>
+                      {rotulo}: {s.ritmo[chave]} s
+                    </span>
+                    <input
+                      type="range"
+                      min={LIMITES[chave].min}
+                      max={LIMITES[chave].max}
+                      step={1}
+                      value={s.ritmo[chave]}
+                      onChange={(ev) => s.setRitmo({ ...s.ritmo, [chave]: Number(ev.target.value) })}
+                    />
+                  </label>
                 ))}
               </div>
-              <strong>{final.pontos} pontos</strong>
-              {final.recorde && <span className="selo-recorde">Novo recorde!</span>}
-              <p>
-                Precisão média {Math.round(final.precisao * 100)}% · melhor combo ×{final.melhorCombo}
-              </p>
-            </div>
-          ) : s.concluida ? (
-            <div className="concluida" role="status">
-              <strong>Sessão concluída 🎉</strong>
-              <p>Como você está se sentindo agora? Repita sempre que precisar.</p>
-            </div>
-          ) : desafio && ativo ? (
-            <div className="placar-vivo">
-              <div className="placar-pontos">
-                <strong>{pontos}</strong> pts
-                {combo >= 2 && <span className="combo">combo ×{combo}</span>}
+              <div className="segmentado" role="radiogroup" aria-label="Duração da sessão">
+                {DURACOES.map((m) => (
+                  <button key={m} role="radio" aria-checked={s.duracaoMin === m} onClick={() => s.setDuracao(m)}>
+                    {m} min
+                  </button>
+                ))}
               </div>
-              {ultimo && (
-                <div key={ultimo.ciclo} className={`nota-ciclo ${ultimo.nota}`}>
-                  {TEXTO_NOTA[ultimo.nota]} {ultimo.nota !== 'quase' && `+${ultimo.pontos}`}
-                </div>
-              )}
             </div>
-          ) : (
-            <p className="lead pequeno">
-              {ativo
-                ? 'Acompanhe o anel e o peito do personagem. Se ficar desconfortável, pare e respire normalmente.'
-                : 'Sente-se confortável, solte os ombros e escolha um ritmo. Respire pelo nariz, se puder.'}
-            </p>
-          )}
-          <div className="progresso" aria-label="Progresso da sessão">
-            <div className="progresso-barra" style={{ width: `${ativo ? Math.min(100, (tempo / total) * 100) : 0}%` }} />
-          </div>
-          <p className="nota">
-            {ativo ? `${formatar(tempo)} de ${formatar(total)}` : `Sessão de ${formatar(total)}`} · {respiracoesPorMinuto(s.ritmo)}{' '}
-            respirações por minuto
-          </p>
-          <div className="acoes">
-            {s.rodando ? (
-              <button className="btn btn-secundario" onClick={s.pausar}>
-                Pausar
-              </button>
-            ) : (
-              <button className="btn btn-primario" onClick={comecar}>
-                {s.acumulado > 0 ? 'Continuar' : s.concluida ? (desafio ? 'Jogar de novo' : 'Respirar de novo') : 'Começar'}
-              </button>
-            )}
-            {ativo && (
-              <button className="btn btn-secundario" onClick={s.reiniciar}>
-                Encerrar
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {desafio && s.rodando && (
-        <button
-          className={`botao-ritmo ${botao ? 'apertado' : ''} ${acertando ? 'certo' : 'errado'}`}
-          onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId)
-            apertar(true)
-          }}
-          onPointerUp={() => apertar(false)}
-          onPointerCancel={() => apertar(false)}
-          onContextMenu={(e) => e.preventDefault()}
-          aria-pressed={botao}
-        >
-          <span className="botao-ritmo-acao">{esperado === 'segure' ? 'Segure e inspire' : 'Solte e expire'}</span>
-          <span className="botao-ritmo-dica">{botao ? 'segurando…' : 'toque e segure'}</span>
-        </button>
+          </details>
+        </>
       )}
-
-      <fieldset className="grupo" disabled={s.rodando}>
-        <legend>Ritmo</legend>
-        <div className="presets">
-          {PRESETS.map((p) => (
-            <button
-              key={p.id}
-              className={`preset ${s.presetId === p.id ? 'ativo' : ''}`}
-              aria-pressed={s.presetId === p.id}
-              onClick={() => s.setRitmo(p.ritmo, p.id)}
-            >
-              <strong>{p.nome}</strong>
-              <span>{[p.ritmo.inspirar, p.ritmo.segurar, p.ritmo.expirar, p.ritmo.pausa].filter((x) => x > 0).join('·')}</span>
-            </button>
-          ))}
-        </div>
-        <p className="nota">{PRESETS.find((p) => p.id === s.presetId)?.descricao ?? 'Ritmo personalizado.'}</p>
-
-        <div className="sliders">
-          {CAMPOS.map(({ chave, rotulo }) => (
-            <label key={chave} className={`slider slider-${chave}`}>
-              <span>
-                {rotulo} <b>{s.ritmo[chave]} s</b>
-              </span>
-              <input
-                type="range"
-                min={LIMITES[chave].min}
-                max={LIMITES[chave].max}
-                step={1}
-                value={s.ritmo[chave]}
-                onChange={(ev) => s.setRitmo({ ...s.ritmo, [chave]: Number(ev.target.value) })}
-              />
-            </label>
-          ))}
-        </div>
-        <p className="nota">Ciclo de {duracaoCiclo(s.ritmo)} segundos.</p>
-      </fieldset>
-
-      <fieldset className="grupo linha" disabled={s.rodando}>
-        <legend>Duração</legend>
-        <div className="segmentado" role="radiogroup" aria-label="Duração da sessão">
-          {DURACOES.map((m) => (
-            <button key={m} role="radio" aria-checked={s.duracaoMin === m} className={s.duracaoMin === m ? 'ativo' : ''} onClick={() => s.setDuracao(m)}>
-              {m} min
-            </button>
-          ))}
-        </div>
-        <label className="switch">
-          <input type="checkbox" checked={s.som} onChange={(ev) => s.setSom(ev.target.checked)} />
-          <span>Som</span>
-        </label>
-      </fieldset>
     </section>
   )
 }

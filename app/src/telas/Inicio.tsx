@@ -1,70 +1,78 @@
-import { useApp } from '../store'
+import type { ReactNode } from 'react'
+import { BotaoOuvir } from '../componentes/BotaoOuvir'
+import { IconeAmigo, IconeCheck, IlustraAprender, IlustraJogar, IlustraRespirar } from '../componentes/Icones'
+import { useApp, type Tela } from '../store'
 
-const PASSOS = [
-  { n: '1', titulo: 'Aprender', texto: 'Siga o caminho do ar, do nariz até os alvéolos, em 3 etapas.' },
-  { n: '2', titulo: 'Jogar', texto: 'Vire uma molécula de oxigênio e chegue até o alvéolo desviando de poeira e vírus.' },
-  { n: '3', titulo: 'Praticar', texto: 'Respire junto com o personagem e tente acertar o ritmo para ganhar pontos.' },
-  { n: '4', titulo: 'Entender', texto: 'Veja, com dados do IBGE e do SUS, por que isso importa.' },
+interface Cartao {
+  tela: Tela
+  area: 'aprender' | 'jogar' | 'respirar'
+  titulo: string
+  sub: string
+  ilustra: ReactNode
+}
+
+const CARTOES: Cartao[] = [
+  { tela: 'caminho', area: 'aprender', titulo: 'Aprender', sub: 'O caminho do ar', ilustra: <IlustraAprender tamanho={84} /> },
+  { tela: 'jornada', area: 'jogar', titulo: 'Jogar', sub: 'Leve o ar até o pulmão', ilustra: <IlustraJogar tamanho={84} /> },
+  { tela: 'respirar', area: 'respirar', titulo: 'Respirar', sub: 'Respire com o seu amigo', ilustra: <IlustraRespirar tamanho={84} /> },
 ]
 
+const FALA =
+  'Oi! Vamos respirar juntos? Primeiro, aprenda o caminho do ar. Depois, jogue. No fim, respire com o seu amigo. Toque em um cartão para começar.'
+
+/**
+ * Tela inicial: três cartões grandes, sempre na mesma ordem (1, 2, 3).
+ * Funciona como uma agenda visual: o que já foi feito ganha um ✓.
+ */
 export function Inicio() {
   const irPara = useApp((s) => s.irPara)
-  const sessoes = useApp((s) => s.sessoes)
-  const recordeJornada = useApp((s) => s.recordeJornada)
-  const estrelas = useApp((s) => s.estrelasJornada)
-  const recordeRitmo = useApp((s) => s.recordeRitmo)
+  const editarPerfil = useApp((s) => s.editarPerfil)
+  const feito: Record<Cartao['tela'], boolean> = {
+    caminho: useApp((s) => s.caminhoFeito),
+    jornada: useApp((s) => s.recordeJornada > 0),
+    respirar: useApp((s) => s.sessoes > 0),
+    inicio: false,
+    perfil: false,
+    dados: false,
+  }
 
   return (
     <section className="painel" aria-labelledby="titulo-inicio">
-      <p className="sobretitulo">Sistema respiratório · Saúde e bem-estar</p>
-      <h1 id="titulo-inicio">
-        Aprenda o caminho do ar. <span className="verde">Respire no seu ritmo.</span>
-      </h1>
-      <p className="lead">
-        Oi! Eu vou te mostrar por onde o ar passa quando você respira, e depois a gente respira junto por uns minutinhos.
-      </p>
+      <div className="ola">
+        <h2 id="titulo-inicio" className="titulo-grande">
+          Oi! Vamos respirar juntos?
+        </h2>
+        <p className="frase texto-suave">Escolha um cartão.</p>
+      </div>
 
-      <ol className="passos">
-        {PASSOS.map((p) => (
-          <li key={p.n}>
-            <span className="passo-n">{p.n}</span>
-            <div>
-              <strong>{p.titulo}</strong>
-              <p>{p.texto}</p>
-            </div>
+      <ol className="agenda" aria-label="O que fazer">
+        {CARTOES.map((c, i) => (
+          <li key={c.tela} data-area={c.area}>
+            <button className="cartao-area" onClick={() => irPara(c.tela)}>
+              {c.ilustra}
+              <span>
+                <strong>{c.titulo}</strong>
+                <span className="sub">{c.sub}</span>
+              </span>
+              <span className={`cartao-num ${feito[c.tela] ? 'feito' : ''}`} aria-label={feito[c.tela] ? 'feito' : `passo ${i + 1}`}>
+                {feito[c.tela] ? <IconeCheck tamanho={30} /> : i + 1}
+              </span>
+            </button>
           </li>
         ))}
       </ol>
 
-      <div className="acoes">
-        <button className="btn btn-primario" onClick={() => irPara('caminho')}>
-          Começar pelo caminho do ar
+      <BotaoOuvir texto={FALA} />
+
+      <div className="rodape-inicio">
+        <button className="btn btn-secundario" onClick={editarPerfil}>
+          <IconeAmigo tamanho={28} />
+          Mudar meu amigo
         </button>
-        <button className="btn btn-secundario" onClick={() => irPara('jornada')}>
-          🎮 Jogar a Jornada do ar
+        <button className="link-adultos" onClick={() => irPara('dados')}>
+          Para adultos
         </button>
       </div>
-
-      {(sessoes > 0 || recordeJornada > 0 || recordeRitmo > 0) && (
-        <div className="conquistas" aria-label="Seu progresso neste aparelho">
-          {recordeJornada > 0 && (
-            <span>
-              🏆 Jornada: <b>{recordeJornada}</b> pts {'★'.repeat(estrelas)}
-            </span>
-          )}
-          {recordeRitmo > 0 && (
-            <span>
-              🎯 Ritmo: <b>{recordeRitmo}</b> pts
-            </span>
-          )}
-          {sessoes > 0 && (
-            <span>
-              🫁 <b>{sessoes}</b> {sessoes === 1 ? 'sessão' : 'sessões'} de respiração
-            </span>
-          )}
-        </div>
-      )}
-      <p className="nota dica">Dica: arraste o personagem para girá-lo.</p>
     </section>
   )
 }

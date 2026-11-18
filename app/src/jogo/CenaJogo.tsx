@@ -523,7 +523,7 @@ function Jogador({ sim }: { sim: SimRef }) {
     g.rotation.z = clock.elapsedTime * 2.5
     g.rotation.y = clock.elapsedTime * 1.3
     // pisca enquanto está protegido depois de uma batida; na vitória, "entra no sangue"
-    g.visible = j.status !== 'venceu' && (!j.invulneravel || Math.floor(clock.elapsedTime * 12) % 2 === 0)
+    g.visible = j.status !== 'venceu' && (j.semPenalidade || !j.invulneravel || Math.floor(clock.elapsedTime * 12) % 2 === 0)
     if (luz.current) luz.current.position.copy(tmp)
   })
   return (

@@ -2,7 +2,8 @@ import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import { DoubleSide, Group, Mesh, MeshStandardMaterial, Vector3, type Texture } from 'three'
-import { ETAPAS, ROTULO_PARTE, type Parte } from '../conteudo/etapas'
+import { type Parte } from '../conteudo/etapas'
+import { PARADAS } from '../conteudo/paradas'
 import { useApp } from '../store'
 import { BASE_Y, ESCALA, PONTOS_ZA, paraCena } from './anatomia'
 import { COR } from './cores'
@@ -49,14 +50,15 @@ const PECAS_CORPO: ParteCorpo[] = [
 
 function useDestaques(): Set<Parte> | null {
   const tela = useApp((s) => s.tela)
-  const etapa = useApp((s) => s.etapa)
-  return useMemo(() => (tela === 'caminho' ? new Set(ETAPAS[etapa].partes) : null), [tela, etapa])
+  const parada = useApp((s) => s.parada)
+  // uma parte por vez: só a da parada atual fica acesa
+  return useMemo(() => (tela === 'caminho' ? new Set([PARADAS[parada].parte]) : null), [tela, parada])
 }
 
 function Rotulo({ parte, posicao }: { parte: Parte; posicao: Vector3 }) {
   return (
     <Html position={posicao} center distanceFactor={2.6} zIndexRange={[10, 0]} pointerEvents="none">
-      <span className="rotulo3d">{ROTULO_PARTE[parte]}</span>
+      <span className="rotulo3d">{PARADAS.find((p) => p.parte === parte)?.nome}</span>
     </Html>
   )
 }

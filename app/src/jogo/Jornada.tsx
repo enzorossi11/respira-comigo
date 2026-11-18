@@ -1,12 +1,15 @@
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useCallback, useEffect, useRef, useState, type MutableRefObject, type PointerEvent } from 'react'
+import { BotaoOuvir } from '../componentes/BotaoOuvir'
+import { IconeRepetir, IlustraDedo, IlustraOxigenio, IlustraParte, IlustraRespirar } from '../componentes/Icones'
+import { falar } from '../lib/fala'
 import { liberarAudio, tocarEfeito } from '../lib/som'
 import { MODO_TESTE } from '../lib/teste'
 import { useApp } from '../store'
 import { CenaJogo } from './CenaJogo'
-import { colide, MARCOS } from './obstaculos'
+import { colide } from './obstaculos'
 import { FASES, LADO_POR_SINAL, raioEm, S_ESCOLHA, type Lado } from './percurso'
-import { Simulacao, VIDAS, type Evento, type Pausa, type Status } from './simulacao'
+import { Simulacao, type Evento, type Pausa, type Status } from './simulacao'
 
 /**
  * Nome mostrado para cada lado da bifurcação. Usa o lado da TELA (direita = "Pulmão
@@ -16,22 +19,13 @@ const NOME_LADO: Record<Lado, string> = {
   [LADO_POR_SINAL.positivo]: 'Pulmão direito',
   [LADO_POR_SINAL.negativo]: 'Pulmão esquerdo',
 } as Record<Lado, string>
-const MSG_BATIDA = {
-  pelo: 'Ai! Um pelo do nariz segurou você.',
-  poeira: 'Poeira! O muco prende a sujeira.',
-  polen: 'Pólen! É ele que causa alergia.',
-  virus: 'Um vírus! Desvie da próxima vez.',
-  epiglote: 'A epiglote fechou a passagem!',
-} as const
+
+const FALA_REGRAS = 'Viagem do ar. Você é o ar. Mexa o dedo para guiar o ar pelo corpo, do nariz até o pulmão. Toque em Começar.'
 
 interface Hud {
   status: Status
-  pontos: number
-  o2: number
-  vidas: number
   progresso: number
   fase: string
-  lado: Lado | null
   pausa: Pick<Pausa, 'tipo' | 'dur' | 'id'> | null
   /** lado que a partícula escolheria agora (durante a escolha do pulmão) */
   ladoAgora: Lado
@@ -40,12 +34,8 @@ interface Hud {
 function lerHud(j: Simulacao): Hud {
   return {
     status: j.status,
-    pontos: j.pontos,
-    o2: j.coletados.size,
-    vidas: j.vidas,
     progresso: j.progresso,
     fase: j.fase,
-    lado: j.lado,
     pausa: j.pausa && { tipo: j.pausa.tipo, dur: j.pausa.dur, id: j.pausa.id },
     ladoAgora: j.ladoPelaPosicao,
   }
@@ -96,31 +86,14 @@ function useTeclas() {
   return dir
 }
 
-function Estrelas({ n }: { n: number }) {
-  return (
-    <div className="estrelas" aria-label={`${n} de 3 estrelas`}>
-      {[1, 2, 3].map((i) => (
-        <span key={i} className={i <= n ? 'on' : ''}>
-          ★
-        </span>
-      ))}
-    </div>
-  )
-}
-
 export function Jornada() {
   const sim = useRef(new Simulacao())
   const tremor = useRef(0)
   const area = useRef<HTMLDivElement>(null)
   const [hud, setHud] = useState<Hud>(() => lerHud(sim.current))
-  const [aviso, setAviso] = useState<{ texto: string; tipo: 'bom' | 'ruim' | 'info'; id: number } | null>(null)
-  const [flash, setFlash] = useState(0)
-  const [recorde, setRecorde] = useState(false)
+  const [aviso, setAviso] = useState<{ texto: string; id: number } | null>(null)
   const [partida, setPartida] = useState(0)
-  const som = useApp((s) => s.som)
-  const setSom = useApp((s) => s.setSom)
   const registrar = useApp((s) => s.registrarJornada)
-  const melhor = useApp((s) => s.recordeJornada)
   const irPara = useApp((s) => s.irPara)
 
   // gancho só para testes automáticos (prints e vídeo): /?teste
@@ -131,7 +104,11 @@ export function Jornada() {
     }
   }, [])
 
-  const avisar = useCallback((texto: string, tipo: 'bom' | 'ruim' | 'info') => setAviso({ texto, tipo, id: performance.now() }), [])
+  /** Mostra a mensagem (o jogo para por 2 s) e, com o som ligado, a voz lê. */
+  const avisar = useCallback((texto: string) => {
+    setAviso({ texto, id: performance.now() })
+    if (useApp.getState().som) falar(texto, { rapido: true })
+  }, [])
 
   // HUD atualiza ~10 vezes por segundo (o 3D roda a 60)
   useEffect(() => {
@@ -143,6 +120,7 @@ export function Jornada() {
   const escolhendo = hud.status === 'jogando' && hud.pausa?.tipo === 'escolha'
   useEffect(() => {
     if (!escolhendo) return
+    if (useApp.getState().som) falar('Escolha um pulmão.', { rapido: true })
     const id = setInterval(() => setHud(lerHud(sim.current)), 50)
     return () => clearInterval(id)
   }, [escolhendo])
@@ -153,24 +131,23 @@ export function Jornada() {
       for (const e of ev) {
         if (e.tipo === 'oxigenio') {
           if (tocar) tocarEfeito('oxigenio')
-        } else if (e.tipo === 'batida') {
-          tremor.current = 1
-          setFlash(performance.now())
-          avisar(MSG_BATIDA[e.obstaculo], 'ruim')
-          if (tocar) tocarEfeito('batida')
         } else if (e.tipo === 'fase') {
           const f = FASES.find((x) => x.id === e.id)
-          if (f) avisar(`${f.nome}: ${f.dica}`, 'info')
+          if (f) avisar(`${f.nome}. ${f.dica}`)
           if (tocar) tocarEfeito('fase')
         } else if (e.tipo === 'lado') {
-          avisar(`${NOME_LADO[e.lado]}! Siga até um alvéolo.`, 'bom')
+          avisar(`${NOME_LADO[e.lado]}!`)
           if (tocar) tocarEfeito('fase')
         } else if (e.tipo === 'escolha') {
           if (tocar) tocarEfeito('fase')
         } else if (e.tipo === 'venceu') {
           const j = sim.current
-          setRecorde(registrar(j.pontos, j.estrelas()))
-          if (tocar) tocarEfeito('vitoria')
+          registrar(j.pontos, j.estrelas())
+          useApp.getState().reagir('uau')
+          if (tocar) {
+            tocarEfeito('vitoria')
+            setTimeout(() => falar('Você chegou! O ar chegou ao pulmão e foi para o sangue.'), 700)
+          }
         }
       }
       setHud(lerHud(sim.current))
@@ -187,9 +164,8 @@ export function Jornada() {
       setPartida((p) => p + 1)
     }
     sim.current.iniciar()
-    setRecorde(false)
     setHud(lerHud(sim.current))
-    avisar(`${FASES[0].nome}: ${FASES[0].dica}`, 'info')
+    avisar(`${FASES[0].nome}. ${FASES[0].dica}`)
     area.current?.focus()
   }
 
@@ -202,71 +178,51 @@ export function Jornada() {
     sim.current.mirar(nx * 1.25, ny * 1.25)
   }
 
-  const j = sim.current
-  const total = j.oxigenios.length
+  const jogando = hud.status === 'jogando'
+  const terminou = hud.status !== 'pronto' && !jogando
 
   return (
-    <section className="jornada" aria-label="Jogo Jornada do ar">
+    <section className="jornada" aria-label="Jogo do ar">
       <div
         ref={area}
         className="jornada-area"
         tabIndex={0}
         onPointerMove={mover}
         onPointerDown={mover}
-        aria-label="Área do jogo. Use o mouse, o dedo ou as setas para guiar a partícula de ar."
+        aria-label="Área do jogo. Use o dedo, o mouse ou as setas para guiar o ar."
       >
         <Canvas key={`partida-${partida}`} camera={{ fov: 70, near: 0.1, far: 400 }} dpr={[1, 1.75]} gl={{ antialias: !MODO_TESTE, preserveDrawingBuffer: true }}>
           <CenaJogo sim={sim} tremor={tremor} />
           <Motor sim={sim} onEventos={onEventos} />
         </Canvas>
 
-        <div className="jornada-flash" key={`flash-${flash}`} data-ativo={flash > 0} />
-
-        {/* HUD */}
-        <div className="hud-topo">
-          <div className="hud-fase">
-            <span className="hud-rotulo">Fase</span>
-            <strong>{FASES.find((f) => f.id === hud.fase)?.nome}</strong>
-            {hud.lado && <span className="hud-lado">{NOME_LADO[hud.lado]}</span>}
-          </div>
-          <div className="hud-dir">
-            <div className="hud-vidas" aria-label={`${hud.vidas} de ${VIDAS} fôlegos`}>
-              {Array.from({ length: VIDAS }, (_, i) => (
-                <span key={i} className={i < hud.vidas ? 'cheio' : ''} />
-              ))}
+        {/* topo: onde o ar está agora */}
+        {jogando && (
+          <div className="hud-topo">
+            <div className="hud-caixa">
+              <span className="ponto-fase" />
+              {FASES.find((f) => f.id === hud.fase)?.nome}
             </div>
-            <div className="hud-pontos">
-              <span className="hud-o2">
-                <span className="hud-rotulo">O₂</span> {hud.o2}/{total}
-                <span className="hud-sep">·</span>
-              </span>
-              <strong>{hud.pontos}</strong> pts
+          </div>
+        )}
+
+        {jogando && (
+          <div className="hud-mapa" aria-label={`Caminho: ${Math.round(hud.progresso * 100)}%`}>
+            <div className="hud-trilha">
+              <div className="hud-preenche" style={{ width: `${hud.progresso * 100}%` }} />
+              <span className="hud-eu" style={{ left: `${hud.progresso * 100}%` }} />
             </div>
-            <button className="hud-som" onClick={() => setSom(!som)} aria-pressed={som} aria-label={som ? 'Desligar som' : 'Ligar som'}>
-              {som ? '🔊' : '🔈'}
-            </button>
+            <div className="hud-legenda">
+              <span>Nariz</span>
+              <span>Pulmão</span>
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="hud-mapa" aria-label={`Progresso: ${Math.round(hud.progresso * 100)}%`}>
-          <div className="hud-trilha">
-            <div className="hud-preenche" style={{ width: `${hud.progresso * 100}%` }} />
-            {MARCOS.slice(1).map((m) => (
-              <span key={m.id} className="hud-marco" style={{ left: `${m.fracao * 100}%` }} title={m.nome} />
-            ))}
-            <span className="hud-eu" style={{ left: `${hud.progresso * 100}%` }} />
-          </div>
-          <div className="hud-legenda">
-            <span>Nariz</span>
-            <span>Traqueia</span>
-            <span>Alvéolo</span>
-          </div>
-        </div>
-
-        {/* mensagem com o jogo pausado: dá tempo de ler */}
-        {aviso && hud.status === 'jogando' && hud.pausa?.tipo === 'aviso' && (
+        {/* mensagem com o jogo pausado: dá tempo de ler (e a voz lê junto) */}
+        {aviso && jogando && hud.pausa?.tipo === 'aviso' && (
           <div key={hud.pausa.id} className="hud-pausa">
-            <div className={`hud-aviso ${aviso.tipo}`} role="status">
+            <div className="hud-aviso" role="status">
               {aviso.texto}
               <div className="hud-contagem" aria-hidden="true">
                 <span style={{ animationDuration: `${hud.pausa.dur}s` }} />
@@ -275,7 +231,7 @@ export function Jornada() {
           </div>
         )}
 
-        {/* escolha do pulmão: arraste e segure de um lado até a contagem acabar */}
+        {/* escolha do pulmão: leve o dedo para um lado e espere */}
         {escolhendo && hud.pausa && (
           <div key={hud.pausa.id} className="hud-escolha">
             {(['negativo', 'positivo'] as const).map((sinal) => {
@@ -283,13 +239,12 @@ export function Jornada() {
               return (
                 <div key={sinal} className={`zona-escolha ${sinal === 'negativo' ? 'esq' : 'dir'}`} data-ativa={hud.ladoAgora === lado}>
                   <strong>{NOME_LADO[lado]}</strong>
-                  <span>{hud.ladoAgora === lado ? 'Segure aqui' : 'Arraste para cá'}</span>
                 </div>
               )
             })}
-            <div className="hud-aviso info escolha-titulo" role="status">
+            <div className="hud-aviso" role="status">
               Escolha um pulmão
-              <small>Arraste o dedo (ou o mouse) para um lado e segure até a contagem acabar.</small>
+              <small>Leve o dedo para um lado.</small>
               <div className="hud-contagem" aria-hidden="true">
                 <span style={{ animationDuration: `${hud.pausa.dur}s` }} />
               </div>
@@ -297,72 +252,51 @@ export function Jornada() {
           </div>
         )}
 
-        {/* telas de início e fim */}
+        {/* antes de começar */}
         {hud.status === 'pronto' && (
           <div className="jornada-cartao">
-            <p className="sobretitulo">Jogo</p>
-            <h2>Jornada do ar</h2>
-            <p>
-              Você é uma molécula de <b>oxigênio</b>. Entre pelo nariz e chegue até um <b>alvéolo</b>, onde o oxigênio passa para o
-              sangue.
-            </p>
-            <ul className="jornada-regras">
+            <h2>Viagem do ar</h2>
+            <ul className="regras">
               <li>
-                <b>Guie</b> com o mouse, o dedo ou as setas do teclado
+                <IlustraOxigenio tamanho={52} />
+                Você é o ar
               </li>
               <li>
-                <b>Pegue</b> as bolinhas de O₂ brilhantes
+                <IlustraDedo tamanho={52} />
+                Mexa o dedo para guiar
               </li>
               <li>
-                <b>Desvie</b> de pelos, poeira, pólen, vírus e da epiglote
-              </li>
-              <li>
-                Você tem <b>3 fôlegos</b>
+                <IlustraParte parte="pulmoes" tamanho={52} />
+                Vá do nariz até o pulmão
               </li>
             </ul>
-            <div className="acoes centro">
-              <button className="btn btn-primario grande" onClick={comecar}>
-                Começar a jornada
-              </button>
-            </div>
-            {melhor > 0 && <p className="nota">Seu recorde: {melhor} pontos</p>}
+            <BotaoOuvir texto={FALA_REGRAS} />
+            <button className="btn btn-primario btn-enorme btn-largo" onClick={comecar}>
+              Começar
+            </button>
           </div>
         )}
 
-        {hud.status === 'venceu' && (
-          <div className="jornada-cartao vitoria">
-            <p className="sobretitulo">Você chegou ao alvéolo!</p>
-            <Estrelas n={j.estrelas()} />
-            <h2>{hud.pontos} pontos</h2>
-            {recorde && <p className="selo-recorde">Novo recorde!</p>}
-            <p>
-              Você levou o oxigênio até o fim do caminho. Aqui ele atravessa a parede finíssima do alvéolo e entra no sangue, enquanto o
-              gás carbônico faz o caminho contrário para ser expirado.
-            </p>
-            <p className="nota">
-              O₂ coletado: {hud.o2} de {total} · Fôlegos restantes: {hud.vidas}
-            </p>
-            <div className="acoes centro">
-              <button className="btn btn-primario" onClick={comecar}>
-                Jogar de novo
+        {/* chegada: toda viagem termina aqui */}
+        {terminou && (
+          <div className="jornada-cartao">
+            <span className="ilustra-chegada">
+              <IlustraParte parte="alveolos" tamanho={120} />
+            </span>
+            <h2>Você chegou!</h2>
+            <p className="frase">O ar chegou ao pulmão e foi para o sangue.</p>
+            <BotaoOuvir texto="Você chegou! O ar chegou ao pulmão e foi para o sangue." />
+            <div className="cartao-botoes">
+              <button className="btn btn-primario btn-enorme btn-largo" onClick={comecar}>
+                <IconeRepetir tamanho={32} />
+                Viajar de novo
               </button>
-              <button className="btn btn-secundario" onClick={() => irPara('respirar')}>
-                Agora, respire comigo
-              </button>
-            </div>
-          </div>
-        )}
-
-        {hud.status === 'perdeu' && (
-          <div className="jornada-cartao derrota">
-            <p className="sobretitulo">Acabou o fôlego</p>
-            <h2>A partícula ficou presa</h2>
-            <p>Boa notícia: é exatamente isso que o corpo faz com a sujeira! Pelos, muco e cílios seguram o que não deve chegar ao pulmão.</p>
-            <p className="nota">Você chegou a {Math.round(hud.progresso * 100)}% do caminho, com {hud.pontos} pontos.</p>
-            <div className="acoes centro">
-              <button className="btn btn-primario" onClick={comecar}>
-                Tentar de novo
-              </button>
+              <div data-area="respirar">
+                <button className="btn btn-primario btn-largo" onClick={() => irPara('respirar')}>
+                  <IlustraRespirar tamanho={44} />
+                  Respirar
+                </button>
+              </div>
             </div>
           </div>
         )}

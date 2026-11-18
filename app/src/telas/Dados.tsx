@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import base from '../../../data/processed/indicadores.json'
 import { formatarValor, paraLinhas, type BaseIndicadores, type Grafico } from '../dados/tipos'
+import { BotaoOuvir } from '../componentes/BotaoOuvir'
 import { useApp } from '../store'
 
 const DADOS = base as BaseIndicadores
@@ -69,11 +70,14 @@ export function Dados() {
   const irPara = useApp((s) => s.irPara)
   return (
     <section className="painel painel-largo" aria-labelledby="titulo-dados">
-      <p className="sobretitulo">Por que isso importa</p>
-      <h2 id="titulo-dados">O que os dados dizem</h2>
-      <p className="lead">
-        Números oficiais sobre a saúde de crianças e adolescentes no Brasil. Cada valor tem a fonte logo abaixo.
-      </p>
+      <div className="adultos-topo">
+        <p className="sobretitulo">Para pais, professores e terapeutas</p>
+        <h2 id="titulo-dados" className="titulo-grande">
+          Por que isso importa
+        </h2>
+        <p className="texto-suave">Números oficiais sobre a saúde de crianças e adolescentes no Brasil. Cada valor tem a fonte logo abaixo.</p>
+        <BotaoOuvir texto="Por que isso importa. Números oficiais sobre a saúde de crianças e adolescentes no Brasil." />
+      </div>
 
       <div className="cards">
         {DADOS.indicadores.map((i) => (
@@ -96,12 +100,31 @@ export function Dados() {
         ))}
       </div>
 
-      <div className="acoes">
-        <button className="btn btn-primario" onClick={() => irPara('respirar')}>
-          Praticar a respiração agora
+      <p className="nota">Dados atualizados em {new Date(DADOS.gerado_em + 'T12:00:00').toLocaleDateString('pt-BR')}.</p>
+
+      <div className="aviso-adultos">
+        <p>
+          <b>Como usar com a criança.</b> A ordem sugerida é Aprender, Jogar e Respirar, mas cada parte funciona sozinha. Todas as
+          telas têm o botão Ouvir, que lê o texto em voz alta. O som pode ser desligado no botão do canto superior direito. No jogo
+          ninguém perde: bater só empurra o ar um pouco para trás. Os tempos da respiração podem ser ajustados em "Ajustes para
+          adultos", na tela Respirar.
+        </p>
+        <p>
+          O Respira Comigo é um projeto educativo e não substitui atendimento profissional. Se precisar conversar, procure a UBS ou
+          o CAPS da sua região, ou ligue <b>188</b> (CVV, 24 horas, gratuito).
+        </p>
+        <p className="nota">
+          Corpo 3D feito com o <a href="https://www.makehumancommunity.org/" target="_blank" rel="noreferrer">MakeHuman</a> (CC0). Órgãos adaptados do{' '}
+          <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" target="_blank" rel="noreferrer">Z-Anatomy</a> (Gauthier Kervyn e Marcin Zielinski, a partir do BodyParts3D), licença{' '}
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.
+        </p>
+      </div>
+
+      <div data-area="respirar">
+        <button className="btn btn-primario" onClick={() => irPara('inicio')}>
+          Voltar para a criança
         </button>
       </div>
-      <p className="nota">Dados atualizados em {new Date(DADOS.gerado_em + 'T12:00:00').toLocaleDateString('pt-BR')}.</p>
     </section>
   )
 }

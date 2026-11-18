@@ -1,58 +1,87 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
 import icone from './componentes/icone.svg'
+import { IconeAmigo, IconeCasa, IconeSemSom, IconeSom, IlustraAprender, IlustraJogar, IlustraRespirar } from './componentes/Icones'
+import { pararFala } from './lib/fala'
 import { useApp, type Tela } from './store'
 import { Caminho } from './telas/Caminho'
 import { Inicio } from './telas/Inicio'
-import { IconeRefazer, Perfil } from './telas/Perfil'
+import { Perfil } from './telas/Perfil'
 import { Respirar } from './telas/Respirar'
 
-// a cena 3D e o painel de dados são carregados à parte, para o app abrir mais rápido
+// a cena 3D, o jogo e a área dos adultos são carregados à parte, para o app abrir mais rápido
 const Cena = lazy(() => import('./3d/Cena').then((m) => ({ default: m.Cena })))
 const Dados = lazy(() => import('./telas/Dados').then((m) => ({ default: m.Dados })))
 const Jornada = lazy(() => import('./jogo/Jornada').then((m) => ({ default: m.Jornada })))
 
-const MENU: { tela: Tela; rotulo: string }[] = [
-  { tela: 'inicio', rotulo: 'Início' },
-  { tela: 'caminho', rotulo: 'Caminho do ar' },
-  { tela: 'jornada', rotulo: '🎮 Jogar' },
-  { tela: 'respirar', rotulo: 'Respirar' },
-  { tela: 'dados', rotulo: 'Por que importa' },
-]
+export type Area = 'casa' | 'aprender' | 'jogar' | 'respirar'
+
+/** Cada tela tem uma área (cor) e um título fixo no topo. */
+const TOPO: Record<Tela, { area: Area; titulo: string; icone?: ReactNode }> = {
+  perfil: { area: 'casa', titulo: 'Meu amigo', icone: <span className="topo-icone-amigo"><IconeAmigo tamanho={30} /></span> },
+  inicio: { area: 'casa', titulo: 'Respira Comigo' },
+  caminho: { area: 'aprender', titulo: 'Aprender', icone: <IlustraAprender tamanho={52} /> },
+  jornada: { area: 'jogar', titulo: 'Jogar', icone: <IlustraJogar tamanho={52} /> },
+  respirar: { area: 'respirar', titulo: 'Respirar', icone: <IlustraRespirar tamanho={52} /> },
+  dados: { area: 'casa', titulo: 'Para adultos' },
+}
 
 export default function App() {
   const tela = useApp((s) => s.tela)
   const irPara = useApp((s) => s.irPara)
-  const editarPerfil = useApp((s) => s.editarPerfil)
+  const som = useApp((s) => s.som)
+  const setSom = useApp((s) => s.setSom)
   const com3d = tela !== 'dados' && tela !== 'jornada'
+  const topo = TOPO[tela]
+  const naCasa = tela === 'inicio'
 
   return (
-    <div className="app">
+    <div className="app" data-area={topo.area}>
       <header className="topo">
-        <button className="marca" onClick={() => irPara('inicio')} aria-label="Respira Comigo, voltar ao início">
-          <img src={icone} alt="" width={36} height={36} />
-          <span>
-            Respira <b>Comigo</b>
-          </span>
+        <button
+          className="btn-redondo btn-casa"
+          onClick={() => irPara('inicio')}
+          aria-label="Voltar para o começo"
+          aria-current={naCasa ? 'page' : undefined}
+          title="Começo"
+        >
+          <IconeCasa tamanho={32} />
         </button>
-        <nav className="menu" aria-label="Seções">
-          {MENU.map((m) => (
-            <button key={m.tela} className={tela === m.tela ? 'ativo' : ''} aria-current={tela === m.tela ? 'page' : undefined} onClick={() => irPara(m.tela)}>
-              {m.rotulo}
-            </button>
-          ))}
-        </nav>
+
+        <div className="topo-titulo">
+          {naCasa ? (
+            <>
+              <img src={icone} alt="" width={48} height={48} />
+              <h1 className="marca-nome">
+                Respira <b>Comigo</b>
+              </h1>
+            </>
+          ) : (
+            <div className="topo-pilula">
+              {topo.icone}
+              <h1>{topo.titulo}</h1>
+            </div>
+          )}
+        </div>
+
+        <button
+          className="btn-redondo"
+          onClick={() => {
+            if (som) pararFala()
+            setSom(!som)
+          }}
+          aria-pressed={som}
+          aria-label={som ? 'Desligar o som' : 'Ligar o som'}
+          title={som ? 'Som ligado' : 'Som desligado'}
+        >
+          {som ? <IconeSom tamanho={30} /> : <IconeSemSom tamanho={30} />}
+        </button>
       </header>
 
       <main className={`conteudo ${com3d ? 'com-3d' : 'sem-3d'} tela-${tela}`}>
         <div className="palco" hidden={!com3d}>
-          <Suspense fallback={<div className="palco-carregando">Carregando personagem…</div>}>
+          <Suspense fallback={<div className="palco-carregando">Chamando o seu amigo…</div>}>
             <Cena />
           </Suspense>
-          {tela === 'inicio' && (
-            <button className="btn-refazer" onClick={editarPerfil} aria-label="Personalizar personagem" title="Personalizar personagem">
-              <IconeRefazer />
-            </button>
-          )}
         </div>
         <div className="lado">
           {tela === 'perfil' && <Perfil />}
@@ -60,39 +89,17 @@ export default function App() {
           {tela === 'caminho' && <Caminho />}
           {tela === 'respirar' && <Respirar />}
           {tela === 'jornada' && (
-            <Suspense fallback={<p className="painel">Carregando o jogo…</p>}>
+            <Suspense fallback={<p className="palco-carregando">Preparando o jogo…</p>}>
               <Jornada />
             </Suspense>
           )}
           {tela === 'dados' && (
-            <Suspense fallback={<p className="painel">Carregando dados…</p>}>
+            <Suspense fallback={<p className="palco-carregando">Carregando…</p>}>
               <Dados />
             </Suspense>
           )}
         </div>
       </main>
-
-      <footer className="rodape">
-        <p>
-          O Respira Comigo é um projeto educativo e não substitui atendimento profissional. Se precisar conversar, procure a UBS ou o
-          CAPS da sua região, ou ligue <b>188</b> (CVV, 24 horas, gratuito).
-        </p>
-        <p className="credito">
-          Corpo 3D feito com o{' '}
-          <a href="https://www.makehumancommunity.org/" target="_blank" rel="noreferrer">
-            MakeHuman
-          </a>{' '}
-          (CC0). Órgãos adaptados do{' '}
-          <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" target="_blank" rel="noreferrer">
-            Z-Anatomy
-          </a>{' '}
-          (Gauthier Kervyn e Marcin Zielinski, a partir do BodyParts3D), licença{' '}
-          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noreferrer">
-            CC BY-SA 4.0
-          </a>
-          .
-        </p>
-      </footer>
     </div>
   )
 }

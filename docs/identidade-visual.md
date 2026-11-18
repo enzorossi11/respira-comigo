@@ -84,8 +84,19 @@ Ambas estão no Google Fonts (licença OFL, uso livre):
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
 ```
 
+## Interface para crianças
+
+No app, a identidade foi adaptada para crianças, inclusive crianças autistas:
+
+- **Uma cor por área**, sempre a mesma: Aprender em verde-água `#2BB5A8`, Jogar em laranja `#FF8A5B`, Respirar em lilás `#8C7CF0` e a casa (início) em amarelo `#FFC94A`. Cada cor tem uma versão escura para sombras e textos e uma clara para fundos.
+- **Fundo creme** `#FFF9F0` e texto em `#2A2F55`, com contraste alto e sem branco puro ofuscante.
+- **Nunito em tudo**, inclusive nos textos, a partir de 19 px. A letra arredondada fica mais amigável e fácil de ler do que a Inter nesse público.
+- **Ícones próprios em SVG**, com traço grosso e cantos redondos, para ficarem iguais em qualquer aparelho (emojis mudam de um sistema para outro).
+- **Botões grandes** (64 px ou mais) com uma "base" mais escura embaixo, que afunda ao tocar, para o toque ser fácil de ver e de sentir.
+- **Nada pisca ou treme.** Animações curtas e lentas, desligadas quando o sistema pede menos movimento.
+
 ## Tom de voz
 
-- Fala direto com o aluno, no “você”, com frases curtas.
+- Fala direto com a criança, no “você”, com frases curtas e literais (sem ironia nem expressões figuradas).
 - Convida, não manda: “Vamos respirar juntos?” em vez de “Respire agora”.
 - Nunca promete curar nada. Usa “pode ajudar a se acalmar”.

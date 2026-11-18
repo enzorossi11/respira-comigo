@@ -64,11 +64,12 @@ export const LIMITES = {
   pausa: { min: 0, max: 7 },
 } as const
 
-export const ROTULO_FASE: Record<Fase, string> = {
-  inspirar: 'Inspire',
+/** O que aparece no balão (e o que a voz fala) em cada fase, em linguagem de criança. */
+export const ROTULO_CRIANCA: Record<Fase, string> = {
+  inspirar: 'Puxe o ar',
   segurar: 'Segure',
   expirar: 'Solte o ar',
-  pausa: 'Pausa',
+  pausa: 'Descanse',
 }
 
 export function duracaoCiclo(r: Ritmo): number {
