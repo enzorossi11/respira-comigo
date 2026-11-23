@@ -1,10 +1,10 @@
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import { Color, InstancedMesh, Object3D } from 'three'
-import { ETAPAS } from '../conteudo/etapas'
+import { PARADAS } from '../conteudo/paradas'
 import { useApp } from '../store'
-import { caminhoCompleto, ESCALA } from './anatomia'
-import { ALTURA_BASE, useCorpo, usePerfilAtual } from './Corpo'
+import { caminhoDoAr, fracoesDosPontos, medidas, TRECHO_PARTE } from './forma'
+import { usePerfilAtual } from './reacao'
 import { COR } from './cores'
 import { lerPulso } from './enchimento'
 
@@ -20,11 +20,12 @@ const INICIO_ESPALHAR = 0.86
  */
 export function ParticulasAr() {
   const ref = useRef<InstancedMesh>(null)
-  const corpo = useCorpo(usePerfilAtual())
+  const perfil = usePerfilAtual()
   const curvas = useMemo(() => {
-    const k = (ESCALA * ALTURA_BASE) / corpo.altura
-    return [caminhoCompleto(-1, corpo.mapa, k), caminhoCompleto(1, corpo.mapa, k)]
-  }, [corpo])
+    const md = medidas(perfil)
+    return [caminhoDoAr(md, -1), caminhoDoAr(md, 1)]
+  }, [perfil])
+  const fracoes = useMemo(() => fracoesDosPontos(curvas[1]), [curvas])
   const sementes = useMemo(
     () =>
       Array.from({ length: N }, (_, i) => ({
@@ -41,14 +42,14 @@ export function ParticulasAr() {
   const cIn = useMemo(() => new Color(COR.inspira), [])
   const cOut = useMemo(() => new Color(COR.expira), [])
   const cOn = useMemo(() => new Color('#3FE0D0'), [])
-  const cOff = useMemo(() => new Color('#B9C2D6'), [])
 
   useFrame(({ clock }) => {
     const malha = ref.current
     if (!malha) return
-    const { tela, etapa } = useApp.getState()
+    const { tela, parada } = useApp.getState()
     const pulso = lerPulso(clock.elapsedTime)
-    const trecho = tela === 'caminho' ? ETAPAS[etapa].trecho : null
+    const idx = tela === 'caminho' ? TRECHO_PARTE[PARADAS[parada].parte] : null
+    const trecho = tela === 'caminho' ? (idx ? [fracoes[idx[0]], fracoes[idx[1]]] : [2, 2]) : null
     const pausado = tela === 'respirar' && !pulso.guiado
 
     sementes.forEach((s, i) => {
@@ -59,8 +60,9 @@ export function ParticulasAr() {
       } else {
         u = (clock.elapsedTime * 0.09 + s.k) % 1
       }
-      // fora do caminho do ar, o trecho do nariz fica escondido (passaria rente à pele)
-      const visivel = u > (trecho ? 0.015 : 0.2)
+      // no caminho do ar só aparecem as bolinhas do trecho da parte atual (menos coisa na tela);
+      // fora dele, o trecho do nariz fica escondido (passaria rente à pele)
+      const visivel = trecho ? u >= trecho[0] && u <= trecho[1] : u > 0.2
       u = Math.min(1, Math.max(0, u))
       const p = curvas[s.lado].getPointAt(u)
       // ao chegar no pulmão, o ar se espalha
@@ -70,12 +72,8 @@ export function ParticulasAr() {
       tmp.updateMatrix()
       malha.setMatrixAt(i, tmp.matrix)
 
-      if (trecho) {
-        const dentro = u >= trecho[0] && u <= trecho[1]
-        cor.copy(dentro ? cOn : cOff)
-      } else {
-        cor.copy(pulso.fase === 'expirar' ? cOut : cIn)
-      }
+      // no caminho, as bolinhas do trecho brilham em verde-água; fora dele, seguem a fase da respiração
+      cor.copy(trecho ? cOn : pulso.fase === 'expirar' ? cOut : cIn)
       malha.setColorAt(i, cor)
     })
     malha.instanceMatrix.needsUpdate = true

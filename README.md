@@ -103,7 +103,7 @@ Mais detalhes sobre as bases e as tabelas usadas: [`docs/bases-de-dados.md`](doc
 A tela inicial tem três cartões grandes, sempre na mesma ordem. Eles funcionam como uma agenda visual: o que a criança já fez ganha um ✓.
 
 0. **Monte o seu amigo.** No primeiro acesso, a criança escolhe menina ou menino, criança, jovem ou adulto, cor da pele e cabelo, e o personagem muda na hora. Assim ela vê o caminho do ar num corpo parecido com o dela. As escolhas ficam salvas só no aparelho.
-1. **Aprender: o caminho do ar.** Oito paradas, uma parte do corpo por vez: nariz, garganta, laringe, traqueia, brônquios, pulmões, alvéolos e diafragma. Em cada uma a câmera se aproxima, só aquela parte fica acesa no personagem, e aparece uma frase curta, como "Os dois pulmões enchem de ar, como balões".
+1. **Aprender: o caminho do ar.** Oito paradas, uma parte do corpo por vez: nariz, garganta, laringe, traqueia, brônquios, pulmões, alvéolos e diafragma. Em cada uma a câmera se aproxima, só aquela parte fica colorida e com contorno (o resto do corpo fica cinza-claro), e aparece uma frase curta, como "Os dois pulmões enchem de ar, como balões".
 2. **Jogar: a viagem do ar.** A criança é o ar: entra pelo nariz do personagem e viaja até o pulmão, guiando com o dedo ou o mouse. No caminho aparecem pelos, poeira, pólen e a epiglote, para ela ver como o corpo é por dentro, mas encostar neles não tem consequência nenhuma. Não há pontos, vidas nem derrota: toda viagem termina com "Você chegou!".
 3. **Respirar com o seu amigo.** Um balão cresce quando é hora de puxar o ar e diminui quando é hora de soltar, e os pulmões do personagem fazem o mesmo. A voz diz "Puxe o ar" e "Solte o ar" em cada fase. Bolinhas mostram quantas respirações faltam. Há três ritmos com desenho (Devagar, Igual e Quadrado), e no final a criança diz como está tocando numa carinha.
 4. **Para adultos.** Painel com os dados oficiais que fundamentam o problema, orientações de uso e os créditos.
@@ -124,6 +124,7 @@ As decisões de interface seguem recomendações de acessibilidade cognitiva e d
 | **Pouco texto, linguagem literal** | Frases curtas e diretas ("O ar entra pelo nariz"), sem ironia nem expressões figuradas. |
 | **Leitura em voz alta** | Todo bloco de texto tem o botão **Ouvir**, que lê em português com a voz do próprio aparelho, um pouco mais devagar. Na respiração e na viagem, a voz guia junto, se o som estiver ligado. |
 | **Sem pressão** | Nada de pontuação, cronômetro, vidas ou derrota. O jogo é só a viagem, e encostar em obstáculos não tem efeito. Mensagens do jogo param a tela por 2 segundos para dar tempo de ler. |
+| **Corpo sem realismo** | O personagem é um desenho animado, e os órgãos são formas simples (balões, tubos, galhos), sem pele, sangue ou detalhe anatômico que possa assustar. Por dentro, o jogo mostra um túnel rosa e liso. |
 | **Conforto sensorial** | Nada pisca, nada treme, sem flash de "erro". Cores suaves, movimentos lentos e respeito à opção "reduzir movimento" do sistema. Som opcional, com um toque. |
 | **Alvos grandes** | Botões com no mínimo 64 px de altura e letra arredondada (Nunito) em tamanho grande, fáceis de tocar e de ler. |
 | **Expressar sentimentos** | No fim da respiração, a criança escolhe uma carinha (bem, mais ou menos, não muito bem) e recebe uma resposta acolhedora. Nada é registrado. |
@@ -185,7 +186,7 @@ python3 data/scripts/gerar_json.py
 | Interface | React + TypeScript + Vite | Telas, navegação e controles |
 | Voz | Web Speech API (voz do aparelho) | Botão Ouvir e voz guiando a respiração e a viagem |
 | 3D | Three.js (React Three Fiber) | Personagem, órgãos, partículas de ar e jogo |
-| Modelos 3D | MakeHuman (corpo) e Z-Anatomy (órgãos), preparados no Blender | Personagem personalizável com os órgãos do sistema respiratório |
+| Personagem 3D | Formas simples feitas em código, com sombreado de desenho (toon) e contorno | Personagem personalizável com os órgãos do sistema respiratório simplificados |
 | Gráficos | Recharts | Painel de dados |
 | Dados | Python + pandas | Download e tratamento da PeNSE e do SIH/SUS |
 | Testes | Vitest | Lógica da respiração, regras da viagem e conteúdo |
@@ -195,13 +196,13 @@ python3 data/scripts/gerar_json.py
 
 - **Aplicação web:** abre em qualquer computador da escola ou celular, sem instalação e sem cadastro.
 - **3D no navegador:** o Three.js permite mostrar o corpo por dentro e animar a respiração sem exigir nenhum programa extra.
-- **Modelos abertos:** o corpo vem do MakeHuman (licença CC0) e os órgãos do atlas Z-Anatomy (CC BY-SA 4.0). Assim o personagem é anatomicamente fiel sem precisar ser modelado do zero. Como cada criança monta um corpo diferente, o app ajusta a posição e o tamanho dos órgãos ao tronco de cada personagem.
+- **Personagem de desenho, feito em código:** em vez de um corpo humano realista, o amigo é um personagem de desenho animado (cabeça redonda, olhos grandes, roupa colorida), com os órgãos simplificados: pulmões como dois balões, traqueia como um tubo com anéis, brônquios como galhos. Isso evita imagens que possam assustar ou incomodar crianças, deixa o app leve (sem arquivos 3D para baixar) e permite mudar idade, pele e cabelo na hora.
 - **Sem servidor e sem dados pessoais:** os dados públicos são preparados com antecedência e lidos pelo app como um arquivo estático. As preferências e o personagem ficam só no navegador, então nenhum dado da criança é coletado (LGPD).
 - **Cuidado com o público:** por ser voltado a crianças, o app não exibe os indicadores da PeNSE sobre autolesão, e os dados ficam numa área separada, para adultos.
 - **Acessibilidade:** leitura em voz alta em todas as telas, navegação por teclado, rótulos para leitores de tela, contraste de texto adequado e respeito à opção de reduzir movimento.
 - **Voz sem internet e sem custo:** a leitura usa a voz já instalada no aparelho (Web Speech API), então funciona offline e não envia texto para nenhum serviço.
 
-**Viabilidade no semestre:** a solução não depende de servidor, banco de dados ou serviços pagos, e a publicação é gratuita. As ferramentas e os modelos 3D são abertos, e as bases de dados são públicas. O escopo foi fechado num MVP pequeno (caminho do ar e respiração guiada), e a viagem do ar e a personalização entraram como complementos.
+**Viabilidade no semestre:** a solução não depende de servidor, banco de dados ou serviços pagos, e a publicação é gratuita. As ferramentas são abertas, o personagem é feito em código e as bases de dados são públicas. O escopo foi fechado num MVP pequeno (caminho do ar e respiração guiada), e a viagem do ar e a personalização entraram como complementos.
 
 ---
 
@@ -267,10 +268,8 @@ Pitch completo: [`docs/pitch.md`](docs/pitch.md)
 respira-comigo/
 ├── README.md
 ├── app/                  aplicação web (React + Three.js)
-│   ├── public/modelos/   modelos 3D do personagem e dos órgãos
 │   └── src/              telas, cena 3D, jogo e lógica da respiração
 ├── data/                 scripts e dados tratados (PeNSE e SIH/SUS)
-│   └── modelo3d/         preparação dos modelos 3D e licenças
 ├── assets/               logo, paleta e tipografia
 └── docs/
     ├── prints/           capturas de tela
@@ -302,8 +301,6 @@ respira-comigo/
 - ONU Brasil. **Objetivo de Desenvolvimento Sustentável 3 – Saúde e Bem-Estar**.
 - W3C. **Making Content Usable for People with Cognitive and Learning Disabilities** (COGA). W3C Working Group Note, 2021. Disponível em: https://www.w3.org/TR/coga-usable/.
 - HOME OFFICE DIGITAL (Reino Unido). **Dos and don'ts on designing for accessibility**: pôster sobre usuários no espectro autista, 2016. Disponível em: https://accessibility.blog.gov.uk/2016/09/02/dos-and-donts-on-designing-for-accessibility/.
-- MAKEHUMAN COMMUNITY. **MakeHuman** (assets de sistema, licença CC0 1.0). Disponível em: https://www.makehumancommunity.org/.
-- KERVYN, G.; ZIELINSKI, M. **Z-Anatomy**: atlas 3D de anatomia humana, derivado do BodyParts3D (DBCLS). Licença CC BY-SA 4.0. Disponível em: https://github.com/Z-Anatomy/Models-of-human-anatomy. Os órgãos adaptados neste projeto (`app/public/modelos/orgaos.glb`) seguem a mesma licença.
 
 ---
 

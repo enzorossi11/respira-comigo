@@ -1,6 +1,6 @@
 import { Sparkles } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Suspense, useEffect, useMemo, useRef, type MutableRefObject } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import {
   Color,
   DirectionalLight,
@@ -11,6 +11,7 @@ import {
   Matrix4,
   Mesh,
   MeshStandardMaterial,
+  MeshToonMaterial,
   Object3D,
   PerspectiveCamera,
   PointLight,
@@ -21,8 +22,11 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
-import { aplicarTom, materialPele, useCorpo, type ParteCorpo } from '../3d/Corpo'
-import { CORES_CABELO, PERFIL_PADRAO } from '../3d/perfil'
+import { RAIO_CABECA } from '../3d/forma'
+import { toon } from '../3d/materiais'
+import { PERFIL_PADRAO, TONS } from '../3d/perfil'
+import { ROUPA } from '../3d/cores'
+import { CabecaAmigo } from '../3d/Personagem'
 import { useApp } from '../store'
 import { anel, geometriaTunel } from './tunel'
 
@@ -45,8 +49,8 @@ export function jaVisivel(sObjeto: number, sJogador: number): boolean {
 
 const CEU = new Color('#cfeaf6')
 const CIMA = new Vector3(0, 1, 0)
-const COR_NARIZ = '#c97a6a'
-const DENTRO = new Color('#5a1e2c')
+const COR_NARIZ = '#b45e74'
+const DENTRO = new Color('#8a3a52')
 
 /* ------------------------------------------------------------------ túnel */
 
@@ -59,8 +63,8 @@ function useMaterialParede(recorte?: { a: Vector3; b: Vector3; ra: number; rb: n
       roughness: 0.62,
       metalness: 0,
       side: DoubleSide,
-      emissive: new Color('#3a0d18'),
-      emissiveIntensity: 0.35,
+      emissive: new Color('#5c2236'),
+      emissiveIntensity: 0.25,
     })
     if (recorte) {
       m.onBeforeCompile = (sh) => {
@@ -103,15 +107,17 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
 /* --------------------------------------------------------------- lá fora */
 
 /**
- * O personagem do app (modelo anatômico), em tamanho gigante, visto de fora.
- * O modelo é posicionado para que a narina direita fique exatamente na entrada
- * do túnel; um shader abre o buraco da narina (descarta a pele dentro do túnel).
+ * A cabeça do amigo (o mesmo personagem de desenho do app), em tamanho gigante,
+ * vista de fora. Ela é girada e posicionada para a narina ficar exatamente na
+ * entrada do túnel; um shader abre o buraco da narina.
  */
-/** Escala do gigante: 1 m do modelo = K unidades do jogo (a narina fica do tamanho do túnel) */
-const K = 480
-const PECAS_GIGANTE: ParteCorpo[] = ['PeleCabeca', 'PeleTronco', 'PeleMembros', 'Olhos', 'Sobrancelhas', 'Cilios', 'Cabelo', 'CabeloLongo', 'Top', 'Bermuda']
+/** Ponto da narina e direção para onde ela "olha", no espaço da cabeça (centro = 0) */
+const NARINA_CABECA = new Vector3(0, -0.13, RAIO_CABECA + 0.015)
+const SAIDA_NARINA = new Vector3(0, -0.55, 0.84).normalize()
+/** Raio do buraco da narina no espaço da cabeça (menor que o nariz, que tem 0,085) */
+const RAIO_FURO = 0.045
 
-function abrirNarina(m: MeshStandardMaterial, furo: { a: Vector3; b: Vector3; r: number }) {
+function abrirNarina(m: MeshStandardMaterial | MeshToonMaterial, furo: { a: Vector3; b: Vector3; r: number }) {
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uA = { value: furo.a }
     sh.uniforms.uB = { value: furo.b }
@@ -136,47 +142,27 @@ function abrirNarina(m: MeshStandardMaterial, furo: { a: Vector3; b: Vector3; r:
 function PersonagemGigante({ sim }: { sim: SimRef }) {
   const raiz = useRef<Group>(null)
   const perfil = useApp((s) => s.perfil) ?? PERFIL_PADRAO
-  const corpo = useCorpo(perfil)
   const q = useMemo(() => quadroEm(CAMINHOS.direito, S.narina), [])
   const R = raioEm(S.narina)
   const P = q.ponto
 
-  const clones = useMemo(() => {
-    // o buraco da narina: um cilindro ao longo do túnel, a partir de um pouco antes da entrada
-    const furo = { a: P.clone().addScaledVector(q.tangente, -2), b: P.clone().addScaledVector(q.tangente, 40), r: R * 0.98 }
-    const orig = (p: ParteCorpo) => corpo.malhas[p].material as MeshStandardMaterial
-    const pele = abrirNarina(materialPele(orig('PeleCabeca')), furo)
-    aplicarTom([pele], orig('PeleCabeca').map, perfil.pele)
-    const [cr, cg, cb] = (CORES_CABELO[perfil.corCabelo] ?? CORES_CABELO[1]).fator
-    const out = {} as Record<ParteCorpo, Mesh>
-    for (const p of PECAS_GIGANTE) {
-      const c = corpo.malhas[p].clone()
-      c.frustumCulled = false
-      c.morphTargetInfluences = corpo.pesos.slice()
-      if (p.startsWith('Pele')) c.material = pele
-      else if (p === 'Cabelo' || p === 'CabeloLongo' || p === 'Sobrancelhas') {
-        const m = orig(p).clone()
-        if (p === 'Sobrancelhas') m.color.setRGB(Math.min(1, cr), Math.min(1, cg), Math.min(1, cb))
-        else m.color.setRGB(cr, cg, cb)
-        if (p !== 'Sobrancelhas') {
-          m.alphaToCoverage = true
-          m.alphaTest = 0.2
-        }
-        c.material = m
-      }
-      out[p] = c
-    }
-    out.Top.visible = perfil.corpo === 'feminino'
-    out.Cabelo.visible = perfil.cabelo === 'curto'
-    out.CabeloLongo.visible = perfil.cabelo === 'longo'
-    return out
-  }, [corpo, perfil, P, q, R])
+  // a cabeça gira para a narina apontar para fora do túnel, e cresce até o buraco caber o túnel
+  const { escala, giro, origem } = useMemo(() => {
+    const escala = (R * 0.98) / RAIO_FURO
+    const giro = new Quaternion().setFromUnitVectors(SAIDA_NARINA, q.tangente.clone().negate())
+    const origem = P.clone().sub(NARINA_CABECA.clone().applyQuaternion(giro).multiplyScalar(escala))
+    return { escala, giro, origem }
+  }, [P, q, R])
+
+  const furo = useMemo(() => ({ a: P.clone().addScaledVector(q.tangente, -2), b: P.clone().addScaledVector(q.tangente, 40), r: R * 0.98 }), [P, q, R])
+  const prepararPele = useCallback((m: MeshToonMaterial) => abrirNarina(m, furo), [furo])
+  const materialPescoco = useMemo(() => toon((TONS[perfil.pele] ?? TONS[2]).amostra), [perfil.pele])
+  const materialCamiseta = useMemo(() => toon(ROUPA[perfil.corpo]), [perfil.corpo])
 
   const alvoAnel = useRef<Mesh>(null)
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
-    // o gigante só existe do lado de fora: por dentro, o pescoço e o corpo dele
-    // cruzariam o túnel e tampariam a tela
+    // a cabeça só existe do lado de fora: por dentro, ela tamparia a tela
     if (raiz.current) raiz.current.visible = sim.current.s < S.narina + 7
     if (alvoAnel.current) {
       const k = (t * 0.8) % 1
@@ -186,16 +172,20 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
   })
 
   const virado = (alvo: Vector3, de: Vector3) => new Quaternion().setFromUnitVectors(new Vector3(0, 0, 1), alvo.clone().sub(de).normalize())
-  const origem = P.clone().sub(corpo.narinaDir.clone().multiplyScalar(K))
 
   return (
     <group ref={raiz}>
-      <group position={origem} scale={K}>
-        {PECAS_GIGANTE.map((p) => (
-          <primitive key={p} object={clones[p]} />
-        ))}
+      <group position={origem} quaternion={giro} scale={escala}>
+        <CabecaAmigo perfil={perfil} prepararPele={prepararPele} semContorno />
+        {/* pescoço e ombros: escondem o túnel, que desce por dentro do corpo */}
+        <mesh position={[0, -0.85, -0.05]} material={materialPescoco}>
+          <cylinderGeometry args={[0.27, 0.3, 0.7, 32]} />
+        </mesh>
+        <mesh position={[0, -1.75, -0.05]} scale={[1, 1, 0.75]} material={materialCamiseta}>
+          <capsuleGeometry args={[0.75, 0.6, 12, 32]} />
+        </mesh>
       </group>
-      {/* fundo escuro da narina (o túnel começa logo atrás) */}
+      {/* fundo da narina (o túnel começa logo atrás) */}
       <mesh position={P.clone().addScaledVector(q.tangente, 1.2)} quaternion={virado(P.clone().add(q.tangente), P)}>
         <torusGeometry args={[R * 1.0, 0.35, 14, 48]} />
         <meshStandardMaterial color={COR_NARIZ} roughness={0.6} />

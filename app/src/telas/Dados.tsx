@@ -114,9 +114,8 @@ export function Dados() {
           o CAPS da sua região, ou ligue <b>188</b> (CVV, 24 horas, gratuito).
         </p>
         <p className="nota">
-          Corpo 3D feito com o <a href="https://www.makehumancommunity.org/" target="_blank" rel="noreferrer">MakeHuman</a> (CC0). Órgãos adaptados do{' '}
-          <a href="https://github.com/Z-Anatomy/Models-of-human-anatomy" target="_blank" rel="noreferrer">Z-Anatomy</a> (Gauthier Kervyn e Marcin Zielinski, a partir do BodyParts3D), licença{' '}
-          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pt-br" target="_blank" rel="noreferrer">CC BY-SA 4.0</a>.
+          O personagem e os órgãos são desenhos simplificados, feitos em código para este projeto, sem textura realista, pensados
+          para crianças.
         </p>
       </div>
 

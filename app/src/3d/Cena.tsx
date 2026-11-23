@@ -2,11 +2,13 @@ import { ContactShadows, Environment, Lightformer, PresentationControls, Sparkle
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Suspense, useMemo, useRef } from 'react'
 import { BackSide, CanvasTexture, Color, Mesh, MeshBasicMaterial, SRGBColorSpace, Vector3 } from 'three'
-import { ETAPAS } from '../conteudo/etapas'
+import { PARADAS } from '../conteudo/paradas'
 import { MODO_TESTE } from '../lib/teste'
 import { useApp, type Tela } from '../store'
 import { COR } from './cores'
 import { lerPulso } from './enchimento'
+import { cameraDaParte, medidas } from './forma'
+import { PERFIL_PADRAO } from './perfil'
 import { ParticulasAr } from './ParticulasAr'
 import { Personagem } from './Personagem'
 
@@ -15,11 +17,11 @@ const DESLOCAMENTO_Y = -0.55
 const CHAO = -3.02
 
 const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, number]; alvo: [number, number, number] }> = {
-  inicio: { posicao: [1.9, 0.75, 8.9], alvo: [0, -0.05, 0] },
-  perfil: { posicao: [0.9, 0.7, 8.6], alvo: [0, 0.0, 0] },
-  jornada: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
-  respirar: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
-  dados: { posicao: [0, 1.45, 4.3], alvo: [0, 1.12, 0] },
+  inicio: { posicao: [1.6, 0.5, 8.4], alvo: [0, -0.3, 0] },
+  perfil: { posicao: [0.8, 0.5, 8.0], alvo: [0, -0.25, 0] },
+  jornada: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
+  respirar: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
+  dados: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
 }
 
 function CameraGuiada() {
@@ -29,11 +31,16 @@ function CameraGuiada() {
   const alvoDestino = useRef(new Vector3())
 
   useFrame(({ clock }, dt) => {
-    const { tela, etapa } = useApp.getState()
-    const cfg = tela === 'caminho' ? ETAPAS[etapa].camera : CAMERA_TELA[tela]
+    const { tela, parada, perfil } = useApp.getState()
+    let cfg = CAMERA_TELA[tela as Exclude<Tela, 'caminho'>]
+    if (tela === 'caminho') {
+      // cada parada tem a sua câmera, perto da parte do corpo que está sendo mostrada
+      const c = cameraDaParte(medidas(perfil ?? PERFIL_PADRAO), PARADAS[parada].parte)
+      cfg = { posicao: c.posicao.toArray(), alvo: c.alvo.toArray() }
+    }
     const t = clock.elapsedTime
     // leve "respiração" da câmera para a cena não ficar parada
-    const deriva = tela === 'caminho' ? 0.04 : 0.12
+    const deriva = tela === 'caminho' ? 0.03 : 0.12
     posDestino.current.set(
       cfg.posicao[0] + Math.sin(t * 0.21) * deriva,
       cfg.posicao[1] + DESLOCAMENTO_Y + Math.sin(t * 0.17) * deriva * 0.5,

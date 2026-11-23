@@ -1,281 +1,567 @@
-import { Html } from '@react-three/drei'
+/**
+ * O "amigo": personagem de desenho animado que respira junto com a criança.
+ *
+ * Tudo é feito com formas simples (esferas, cápsulas, tubos), sombreado em
+ * poucos tons e com contorno, no mesmo estilo dos ícones do app. O tronco é de
+ * "vidro" para mostrar os órgãos, que também são simplificados: pulmões como
+ * dois balões, traqueia como um tubo com anéis, brônquios como galhos.
+ *
+ * No caminho do ar, só a parte da parada atual fica colorida, com contorno
+ * escuro e uma pulsação lenta; o resto fica cinza-claro e transparente.
+ */
+import { Html, Line, Outlines } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
-import { DoubleSide, Group, Mesh, MeshStandardMaterial, Vector3, type Texture } from 'three'
+import { useEffect, useMemo, useRef, type ReactNode } from 'react'
+import {
+  CapsuleGeometry,
+  CatmullRomCurve3,
+  BackSide,
+  Color,
+  DoubleSide,
+  Group,
+  LatheGeometry,
+  Mesh,
+  MeshToonMaterial,
+  SphereGeometry,
+  TorusGeometry,
+  TubeGeometry,
+  Vector2,
+  Vector3,
+} from 'three'
 import { type Parte } from '../conteudo/etapas'
 import { PARADAS } from '../conteudo/paradas'
 import { useApp } from '../store'
-import { BASE_Y, ESCALA, PONTOS_ZA, paraCena } from './anatomia'
-import { COR } from './cores'
-import {
-  ALTURA_BASE,
-  alturaPulo,
-  aplicarTom,
-  balancoOps,
-  materialPele,
-  materialVidro,
-  useCorpo,
-  useOrgaos,
-  usePerfilAtual,
-  type Orgao,
-  type ParteCorpo,
-} from './Corpo'
+import { NOITE, ROUPA } from './cores'
 import { lerPulso } from './enchimento'
-import { CORES_CABELO, TONS } from './perfil'
+import { CHAO_Y, RAIO_CABECA, centroDaParte, medidas, pontosDoAr, posicaoRotulo, type Medidas } from './forma'
+import { toon, vidro } from './materiais'
+import { CORES_CABELO, TONS, type Perfil } from './perfil'
+import { alturaPulo, balancoOps, usePerfilAtual } from './reacao'
 
-/** Cor de cada órgão, e qual parte do conteúdo ele representa (para destacar). */
-const ORGAOS: { peca: Orgao; parte: Parte; cor: string }[] = [
-  { peca: 'CavidadeNasal', parte: 'nariz', cor: '#f4a3ad' },
-  { peca: 'Faringe', parte: 'faringe', cor: '#f08f9c' },
-  { peca: 'Laringe', parte: 'laringe', cor: '#d8ecf7' },
-  { peca: 'Traqueia', parte: 'traqueia', cor: '#d8ecf7' },
-  { peca: 'Bronquios', parte: 'bronquios', cor: '#c3e1f2' },
-  { peca: 'PulmaoDireito', parte: 'pulmoes', cor: '#f2909b' },
-  { peca: 'PulmaoEsquerdo', parte: 'pulmoes', cor: '#f2909b' },
-  { peca: 'Diafragma', parte: 'diafragma', cor: '#c9606d' },
-]
+const CINZA = new Color('#DCD8EA')
+const BERMUDA = '#3D4A8F'
+const SAPATO = '#FF8A5B'
+const BOCHECHA = '#FF9EAA'
 
-const PECAS_CORPO: ParteCorpo[] = [
-  'PeleCabeca',
-  'PeleTronco',
-  'PeleMembros',
-  'Olhos',
-  'Sobrancelhas',
-  'Cilios',
-  'Cabelo',
-  'CabeloLongo',
-  'Top',
-  'Bermuda',
-]
-
-function useDestaques(): Set<Parte> | null {
-  const tela = useApp((s) => s.tela)
-  const parada = useApp((s) => s.parada)
-  // uma parte por vez: só a da parada atual fica acesa
-  return useMemo(() => (tela === 'caminho' ? new Set([PARADAS[parada].parte]) : null), [tela, parada])
+/** Cor de cada parte do caminho do ar (cores claras, de desenho). */
+const COR_PARTE: Record<Parte, string> = {
+  nariz: '#F7A6B2',
+  faringe: '#F49AA8',
+  laringe: '#8FD3F0',
+  traqueia: '#8FD3F0',
+  bronquios: '#6FC0E8',
+  pulmoes: '#FF8FA3',
+  alveolos: '#FF8FA3',
+  diafragma: '#F2A65A',
 }
 
-function Rotulo({ parte, posicao }: { parte: Parte; posicao: Vector3 }) {
+const R = RAIO_CABECA
+/** z da superfície da cabeça num ponto (x, y) do rosto */
+const naFace = (x: number, y: number, alem = 0) => Math.sqrt(Math.max(0, R * R - x * x - y * y)) + alem
+
+/* ------------------------------------------------------------------ cabeça */
+
+interface PropsCabeca {
+  perfil: Perfil
+  /** cabeça transparente (para ver o nariz e a garganta por dentro) */
+  transparente?: boolean
+  /** ajusta os materiais da pele (o jogo usa para abrir o buraco da narina) */
+  prepararPele?: (m: MeshToonMaterial) => void
+  /** sem o contorno de desenho */
+  semContorno?: boolean
+}
+
+/** Cabeça redonda com olhos grandes, bochechas e sorriso. Centro em (0, 0, 0). */
+export function CabecaAmigo({ perfil, transparente = false, prepararPele, semContorno = false }: PropsCabeca) {
+  const tom = (TONS[perfil.pele] ?? TONS[2]).amostra
+  const corCabelo = (CORES_CABELO[perfil.corCabelo] ?? CORES_CABELO[1]).amostra
+  const m = useMemo(() => {
+    const pele = transparente ? vidro(tom, 0.2) : toon(tom)
+    const nariz = transparente ? vidro(tom, 0.35) : toon(new Color(tom).multiplyScalar(0.93))
+    prepararPele?.(pele)
+    prepararPele?.(nariz)
+    const cabelo = toon(corCabelo, { side: DoubleSide })
+    if (transparente) Object.assign(cabelo, { transparent: true, opacity: 0.22, depthWrite: false })
+    return {
+      pele,
+      nariz,
+      cabelo,
+      olho: toon(NOITE),
+      brilho: toon('#ffffff'),
+      bochecha: Object.assign(toon(BOCHECHA), { transparent: true, opacity: 0.75 }),
+      boca: toon('#7A3B52'),
+    }
+  }, [tom, corCabelo, transparente, prepararPele])
+
+  const longo = perfil.cabelo === 'longo'
+  const menina = perfil.corpo === 'feminino'
+  const contorno = !transparente && !semContorno
+
   return (
-    <Html position={posicao} center distanceFactor={2.6} zIndexRange={[10, 0]} pointerEvents="none">
-      <span className="rotulo3d">{PARADAS.find((p) => p.parte === parte)?.nome}</span>
-    </Html>
+    <group>
+      {/* cabeça e orelhas */}
+      <mesh material={m.pele}>
+        <sphereGeometry args={[R, 48, 36]} />
+        {contorno && <Outlines thickness={4.5} color={NOITE} />}
+      </mesh>
+      {[-1, 1].map((s) => (
+        <mesh key={s} material={m.pele} position={[s * R * 0.96, -0.03, -0.02]} scale={[0.5, 1, 0.8]}>
+          <sphereGeometry args={[0.13, 20, 16]} />
+          {contorno && <Outlines thickness={4} color={NOITE} />}
+        </mesh>
+      ))}
+
+      {/* olhos grandes com brilho */}
+      {[-1, 1].map((s) => {
+        const x = s * 0.2
+        const y = 0.05
+        const z = naFace(x, y, -0.03)
+        return (
+          <group key={s} position={[x, y, z]}>
+            <mesh material={m.olho} scale={[1, 1.3, 0.55]}>
+              <sphereGeometry args={[0.075, 20, 16]} />
+            </mesh>
+            <mesh material={m.brilho} position={[0.022, 0.04, 0.035]}>
+              <sphereGeometry args={[0.024, 12, 10]} />
+            </mesh>
+            {menina &&
+              [0, 1].map((k) => (
+                <mesh key={k} material={m.olho} position={[s * (0.06 + k * 0.025), 0.085 - k * 0.025, 0]} rotation={[0, 0, s * (-0.7 - k * 0.5)]}>
+                  <capsuleGeometry args={[0.009, 0.04, 4, 6]} />
+                </mesh>
+              ))}
+            {/* sobrancelha */}
+            <mesh material={m.cabelo} position={[0, 0.15, 0.0]} rotation={[0, 0, s * 0.12 + Math.PI / 2]}>
+              <capsuleGeometry args={[0.016, 0.09, 4, 8]} />
+            </mesh>
+          </group>
+        )
+      })}
+
+      {/* bochechas */}
+      {[-1, 1].map((s) => (
+        <mesh key={s} material={m.bochecha} position={[s * 0.33, -0.12, naFace(s * 0.33, -0.12, -0.04)]} scale={[1, 0.62, 0.3]}>
+          <sphereGeometry args={[0.075, 16, 12]} />
+        </mesh>
+      ))}
+
+      {/* nariz e sorriso */}
+      <mesh material={m.nariz} position={[0, -0.08, naFace(0, -0.08, -0.035)]}>
+        <sphereGeometry args={[0.085, 20, 16]} />
+      </mesh>
+      <mesh material={m.boca} position={[0, -0.22, naFace(0, -0.22, -0.015)]} rotation={[0.25, 0, Math.PI]}>
+        <torusGeometry args={[0.09, 0.022, 8, 24, Math.PI]} />
+      </mesh>
+
+      {/* cabelo: uma "touca" inclinada para trás, e mechas se for comprido */}
+      <mesh material={m.cabelo} rotation={[-0.5, 0, 0]}>
+        <sphereGeometry args={[R * 1.07, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.56]} />
+        {contorno && <Outlines thickness={4} color={NOITE} />}
+      </mesh>
+      {longo && (
+        <>
+          <mesh material={m.cabelo} position={[0, -0.42, -0.28]} scale={[1, 1, 0.55]}>
+            <capsuleGeometry args={[R * 0.9, 0.55, 8, 24]} />
+            {contorno && <Outlines thickness={4} color={NOITE} />}
+          </mesh>
+          {[-1, 1].map((s) => (
+            <mesh key={s} material={m.cabelo} position={[s * 0.56, -0.42, 0.06]}>
+              <capsuleGeometry args={[0.13, 0.5, 6, 12]} />
+              {contorno && <Outlines thickness={4} color={NOITE} />}
+            </mesh>
+          ))}
+        </>
+      )}
+    </group>
   )
 }
 
-/** Saquinhos de ar ampliados (só na etapa dos alvéolos). */
-function AlveolosAmpliados({ posicao }: { posicao: Vector3 }) {
-  const ref = useRef<Group>(null)
-  const bolhas = useMemo(() => {
-    const out: [number, number, number][] = []
-    for (let i = 0; i < 14; i++) {
-      const a = (i / 14) * Math.PI * 2
-      const r = 0.05 + (i % 3) * 0.025
-      out.push([Math.cos(a) * r, Math.sin(a * 1.3) * r * 0.9, Math.sin(a) * r * 0.6])
+/* -------------------------------------------------------------- órgãos */
+
+function tubo(pontos: Vector3[], raio: number | ((u: number) => number), segmentos = 48): TubeGeometry {
+  const curva = new CatmullRomCurve3(pontos, false, 'centripetal')
+  const g = new TubeGeometry(curva, segmentos, typeof raio === 'number' ? raio : 1, 16, false)
+  if (typeof raio === 'function') {
+    // afina o tubo ao longo do comprimento: reposiciona cada anel em volta da curva
+    const pos = g.attributes.position
+    const v = new Vector3()
+    for (let i = 0; i <= segmentos; i++) {
+      const u = i / segmentos
+      const centro = curva.getPointAt(u)
+      for (let j = 0; j <= 16; j++) {
+        const k = i * 17 + j
+        v.fromBufferAttribute(pos, k).sub(centro).multiplyScalar(raio(u)).add(centro)
+        pos.setXYZ(k, v.x, v.y, v.z)
+      }
     }
+    g.computeVertexNormals()
+  }
+  return g
+}
+
+/** Pulmão em forma de balão (mais largo embaixo, arredondado em cima). */
+function geometriaPulmao(altura: number, largura: number): LatheGeometry {
+  const perfil = [
+    [0, -1],
+    [0.55, -0.97],
+    [0.85, -0.82],
+    [1, -0.5],
+    [0.98, -0.1],
+    [0.86, 0.35],
+    [0.62, 0.75],
+    [0.32, 0.96],
+    [0, 1],
+  ].map(([r, y]) => new Vector2(r * largura, y * altura))
+  return new LatheGeometry(perfil, 40)
+}
+
+interface Peca {
+  parte: Parte
+  geometria: () => import('three').BufferGeometry
+  posicao?: [number, number, number]
+  rotacao?: [number, number, number]
+  escala?: [number, number, number]
+  /** sem contorno (peças pequenas, como os anéis da traqueia) */
+  semContorno?: boolean
+  /** referência para animar (pulmões e diafragma respiram) */
+  nome?: 'pulmaoE' | 'pulmaoD' | 'diafragma'
+}
+
+function pecasDosOrgaos(md: Medidas): Peca[] {
+  const ar = pontosDoAr(md, 1)
+  const arE = pontosDoAr(md, -1)
+  const lp = md.largura * 0.42
+  const pecas: Peca[] = [
+    // nariz por dentro e garganta (dentro da cabeça)
+    { parte: 'nariz', geometria: () => tubo(ar.slice(0, 4), (u) => 0.05 - u * 0.012) },
+    { parte: 'faringe', geometria: () => tubo(ar.slice(3, 6), 0.058) },
+    // laringe: um tubo mais largo, com a "tampinha" (epiglote) em cima
+    { parte: 'laringe', geometria: () => tubo(ar.slice(5, 7), 0.075, 12) },
+    {
+      parte: 'laringe',
+      geometria: () => new SphereGeometry(0.06, 16, 12),
+      posicao: [0, ar[5].y + 0.03, ar[5].z + 0.05],
+      escala: [1, 0.35, 0.8],
+      rotacao: [0.5, 0, 0],
+    },
+    // traqueia com anéis
+    { parte: 'traqueia', geometria: () => tubo(ar.slice(6, 9), 0.056, 24) },
+  ]
+  const yIni = ar[6].y - 0.04
+  const yFim = ar[8].y + 0.02
+  for (let y = yIni; y > yFim; y -= 0.075) {
+    pecas.push({
+      parte: 'traqueia',
+      geometria: () => new TorusGeometry(0.06, 0.013, 8, 24),
+      posicao: [0, y, ar[6].z],
+      rotacao: [Math.PI / 2, 0, 0],
+      semContorno: true,
+    })
+  }
+  // brônquios: um galho para cada pulmão, com ramos menores lá dentro
+  for (const [pts, s] of [
+    [ar, 1],
+    [arE, -1],
+  ] as const) {
+    pecas.push({ parte: 'bronquios', geometria: () => tubo([pts[8], pts[9], pts[10], pts[11]], (u) => 0.045 - u * 0.015, 32) })
+    const meio = pts[10]
+    for (const [dx, dy] of [
+      [0.16, 0.12],
+      [0.2, -0.2],
+      [0.06, -0.3],
+    ]) {
+      const fim = new Vector3(s * (Math.abs(meio.x) + dx), md.pulmaoY + dy * (md.pulmaoAltura / 0.38), meio.z)
+      const mid = meio.clone().lerp(fim, 0.5).add(new Vector3(0, 0.03, 0))
+      pecas.push({ parte: 'bronquios', geometria: () => tubo([meio, mid, fim], (u) => 0.026 - u * 0.012, 16), semContorno: true })
+    }
+  }
+  // pulmões (balões) e diafragma (cúpula)
+  for (const s of [-1, 1] as const) {
+    pecas.push({
+      parte: 'pulmoes',
+      geometria: () => geometriaPulmao(md.pulmaoAltura, lp * 0.55),
+      posicao: [s * lp * 1.08, md.pulmaoY, 0.05],
+      rotacao: [0, 0, s * -0.06],
+      escala: [1, 1, 0.85],
+      nome: s === 1 ? 'pulmaoD' : 'pulmaoE',
+    })
+  }
+  pecas.push({
+    parte: 'diafragma',
+    geometria: () => new SphereGeometry(md.largura * 0.85, 40, 14, 0, Math.PI * 2, 0, 1.05),
+    posicao: [0, md.pulmaoY - md.pulmaoAltura - 0.3, 0.05],
+    escala: [1, 0.8, 0.62],
+    nome: 'diafragma',
+  })
+  return pecas
+}
+
+/* A espessura dos contornos (Outlines) é em pixels de tela. */
+
+/** Material de uma parte, com o estado de destaque aplicado. */
+function aplicarEstado(mat: MeshToonMaterial, cor: Color, estado: 'normal' | 'aceso' | 'apagado') {
+  if (estado === 'apagado') {
+    mat.color.copy(CINZA)
+    mat.transparent = true
+    mat.opacity = 0.3
+    mat.depthWrite = false
+    mat.emissive.set('#000000')
+  } else {
+    mat.color.copy(cor)
+    mat.transparent = false
+    mat.opacity = 1
+    mat.depthWrite = true
+    mat.emissive.copy(cor)
+    mat.emissiveIntensity = estado === 'aceso' ? 0.25 : 0
+  }
+  mat.needsUpdate = true
+}
+
+function Orgaos({ md, destaque }: { md: Medidas; destaque: Parte | null }) {
+  const pecas = useMemo(() => pecasDosOrgaos(md), [md])
+  const geos = useMemo(() => pecas.map((p) => p.geometria()), [pecas])
+  useEffect(() => () => geos.forEach((g) => g.dispose()), [geos])
+
+  // um material por parte (todas as peças da mesma parte acendem juntas)
+  const mats = useMemo(() => {
+    const out = {} as Record<Parte, MeshToonMaterial>
+    for (const p of Object.keys(COR_PARTE) as Parte[]) out[p] = toon(COR_PARTE[p], p === 'diafragma' ? { side: DoubleSide } : {})
     return out
   }, [])
+  const cores = useMemo(() => {
+    const out = {} as Record<Parte, Color>
+    for (const p of Object.keys(COR_PARTE) as Parte[]) out[p] = new Color(COR_PARTE[p])
+    return out
+  }, [])
+
+  // nos alvéolos, o pulmão é que acende (os alvéolos ficam dentro dele)
+  const acesa: Parte | null = destaque === 'alveolos' ? 'pulmoes' : destaque
+  useEffect(() => {
+    for (const p of Object.keys(mats) as Parte[]) {
+      aplicarEstado(mats[p], cores[p], !acesa ? 'normal' : p === acesa ? 'aceso' : 'apagado')
+    }
+  }, [acesa, mats, cores])
+
+  const refs = useRef<Record<string, Mesh | null>>({})
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime
+    const { enchimento: e } = lerPulso(t)
+    for (const n of ['pulmaoE', 'pulmaoD'] as const) refs.current[n]?.scale.set(1 + 0.08 * e, 1 + 0.06 * e, 0.85 * (1 + 0.08 * e))
+    const d = refs.current.diafragma
+    if (d) d.position.y = md.pulmaoY - md.pulmaoAltura - 0.3 - 0.05 * e
+    // a parte acesa "respira" devagar: brilho e tamanho sobem e descem (1 vez a cada 2,5 s, sem piscar)
+    if (acesa) {
+      const onda = 0.5 + 0.5 * Math.sin(t * 2.5)
+      mats[acesa].emissiveIntensity = 0.15 + 0.3 * onda
+    }
+  })
+
+  const contorno = (p: Peca) => !p.semContorno && (!acesa || p.parte === acesa)
+  return (
+    <group>
+      {pecas.map((p, i) => (
+        <mesh
+          key={i}
+          ref={(el) => {
+            if (p.nome) refs.current[p.nome] = el
+          }}
+          geometry={geos[i]}
+          material={mats[p.parte]}
+          position={p.posicao}
+          rotation={p.rotacao}
+          scale={p.escala}
+          renderOrder={acesa && p.parte !== acesa ? 1 : 3}
+        >
+          {contorno(p) && <Outlines thickness={p.parte === acesa ? 7 : 3} color={NOITE} />}
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
+/* ------------------------------------------------------------- corpo */
+
+function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas; caminho: boolean; children?: ReactNode }) {
+  const tom = (TONS[perfil.pele] ?? TONS[2]).amostra
+  const roupa = ROUPA[perfil.corpo]
+  const m = useMemo(
+    () => ({
+      pele: toon(tom),
+      roupa: toon(roupa),
+      // a camiseta é de "vidro" clarinho, para os órgãos aparecerem com a cor deles
+      vidroTronco: vidro(new Color(roupa).lerp(new Color('#ffffff'), 0.45), 0.3),
+      vidroPescoco: vidro(tom, 0.4),
+      bermuda: toon(BERMUDA),
+      sapato: toon(SAPATO),
+    }),
+    [tom, roupa],
+  )
+  useEffect(() => {
+    // no caminho do ar o tronco fica bem mais transparente, para os órgãos aparecerem
+    m.vidroTronco.opacity = caminho ? 0.14 : 0.3
+    m.vidroPescoco.opacity = caminho ? 0.14 : 0.4
+  }, [caminho, m])
+
+  const tronco = useMemo(() => {
+    const raio = md.largura
+    return new CapsuleGeometry(raio, Math.max(0.05, md.tronco - raio * 2), 12, 32)
+  }, [md])
+  useEffect(() => () => tronco.dispose(), [tronco])
+  const troncoRef = useRef<Mesh>(null)
   useFrame(({ clock }) => {
     const { enchimento: e } = lerPulso(clock.elapsedTime)
-    ref.current?.scale.setScalar(0.85 + 0.25 * e)
+    troncoRef.current?.scale.set(1 + 0.03 * e, 1, 0.72 * (1 + 0.05 * e))
   })
+
+  const yTronco = (md.troncoBase + md.troncoTopo) / 2
+  const ombroY = md.troncoTopo - 0.32
+  const comprBraco = ombroY - (md.quadril + 0.05)
+  const comprPerna = md.quadril - (CHAO_Y + 0.2)
+
   return (
-    <group position={posicao}>
-      <mesh position={[-0.2, 0.08, -0.08]} rotation={[0, 0, 1.2]}>
-        <cylinderGeometry args={[0.009, 0.009, 0.3, 8]} />
-        <meshStandardMaterial color={COR.noite} transparent opacity={0.5} />
-      </mesh>
-      <group ref={ref}>
-        {bolhas.map((p, i) => (
-          <mesh key={i} position={p}>
-            <sphereGeometry args={[0.04, 18, 18]} />
-            <meshStandardMaterial
-              color={i % 2 ? COR.inspira : COR.expira}
-              emissive={COR.destaque}
-              emissiveIntensity={0.15}
-              roughness={0.4}
-            />
+    <group>
+      {/* pernas, bermuda e sapatos */}
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * md.largura * 0.42, 0, 0]}>
+          <mesh material={m.pele} position={[0, CHAO_Y + 0.2 + comprPerna / 2, 0]}>
+            <capsuleGeometry args={[md.membro, comprPerna, 8, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
           </mesh>
-        ))}
-      </group>
-      <mesh>
-        <sphereGeometry args={[0.17, 24, 24]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.08} />
+          <mesh material={m.bermuda} position={[0, md.quadril - 0.28, 0]}>
+            <capsuleGeometry args={[md.membro * 1.35, 0.2, 8, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+          <mesh material={m.sapato} position={[0, CHAO_Y + 0.12, 0.08]} rotation={[Math.PI / 2, 0, 0]}>
+            <capsuleGeometry args={[md.membro * 0.95, 0.2, 8, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* braços (com manguinha) e mãos */}
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * md.largura * 0.98, ombroY, 0]} rotation={[0, 0, s * 0.12]}>
+          <mesh material={m.pele} position={[0, -comprBraco / 2, 0]}>
+            <capsuleGeometry args={[md.membro * 0.82, comprBraco - 0.2, 8, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+          <mesh material={m.roupa} position={[0, -0.12, 0]}>
+            <capsuleGeometry args={[md.membro * 1.08, 0.18, 8, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+          <mesh material={m.pele} position={[0, -comprBraco + 0.02, 0]}>
+            <sphereGeometry args={[md.membro * 1.05, 20, 16]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* órgãos ficam entre o corpo e o vidro do tronco */}
+      {children}
+
+      {/* tronco (camiseta de "vidro") e pescoço */}
+      <mesh ref={troncoRef} geometry={tronco} material={m.vidroTronco} position={[0, yTronco, 0]} renderOrder={5} />
+      <mesh material={m.vidroPescoco} position={[0, md.troncoTopo + 0.12, 0.02]} renderOrder={5}>
+        <cylinderGeometry args={[0.17, 0.19, 0.42, 24, 1, true]} />
       </mesh>
     </group>
   )
 }
 
-export function Personagem() {
-  const destaques = useDestaques()
-  const perfil = usePerfilAtual()
-  const corpo = useCorpo(perfil)
-  const orgaos = useOrgaos(corpo.mapa)
-  const raiz = useRef<Group>(null)
-  const refs = useRef<Partial<Record<Orgao, Mesh | null>>>({})
+/* ---------------------------------------------------------- alvéolos */
 
-  /** corpos de qualquer altura aparecem do mesmo tamanho na tela */
-  const escala = (ESCALA * ALTURA_BASE) / corpo.altura
-
-  // no caminho do ar a cabeça também fica "de vidro", para ver o nariz e a faringe por dentro
-  const cabecaVidro = !!destaques
-  const tom = TONS[perfil.pele] ?? TONS[2]
-
-  const mats = useMemo(() => {
-    const orig = (p: ParteCorpo) => corpo.malhas[p].material as MeshStandardMaterial
-    const cabelo = (p: ParteCorpo) => {
-      const m = orig(p).clone()
-      // cabelo é feito de "cartões" com transparência: com antialias, o alphaToCoverage suaviza a borda
-      m.alphaToCoverage = true
-      m.alphaTest = 0.2
-      return m
-    }
-    const top = orig('Top').clone()
-    top.transparent = true
-    top.opacity = 0.45
-    top.depthWrite = false
-    return {
-      texturaMedia: orig('PeleCabeca').map as Texture | null,
-      pele: materialPele(orig('PeleCabeca')),
-      vidroTronco: materialVidro(TONS[2].amostra, 0.24),
-      vidroCabeca: materialVidro(TONS[2].amostra, 0.24),
-      olhos: orig('Olhos').clone(),
-      sobrancelhas: orig('Sobrancelhas').clone(),
-      cilios: orig('Cilios').clone(),
-      cabelo: cabelo('Cabelo'),
-      cabeloLongo: cabelo('CabeloLongo'),
-      top,
-      bermuda: orig('Bermuda'),
-      orgaos: Object.fromEntries(
-        ORGAOS.map((o) => [o.peca, new MeshStandardMaterial({ color: o.cor, roughness: 0.5, transparent: true, side: DoubleSide })]),
-      ) as Record<Orgao, MeshStandardMaterial>,
-    }
-  }, [corpo.malhas])
-
-  // cópias das malhas do MakeHuman (dividem a geometria; cada uma com o seu material)
-  const clones = useMemo(() => {
-    const out = {} as Record<ParteCorpo, Mesh>
-    for (const p of PECAS_CORPO) {
-      const c = corpo.malhas[p].clone()
-      c.frustumCulled = false // os morphs mudam o tamanho, a caixa original não vale mais
-      out[p] = c
+/** Saquinhos de ar ampliados (só na parada dos alvéolos), como um "zoom" ao lado do pulmão. */
+function AlveolosAmpliados({ posicao, origem }: { posicao: Vector3; origem: Vector3 }) {
+  const ref = useRef<Group>(null)
+  const bolhas = useMemo(() => {
+    const out: [number, number, number][] = []
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2
+      const r = 0.07 + (i % 3) * 0.03
+      out.push([Math.cos(a) * r, Math.sin(a * 1.3) * r * 0.9, Math.sin(a) * r * 0.5])
     }
     return out
-  }, [corpo.malhas])
-
-  // personalização: forma do corpo, roupa, cabelo, tom de pele
-  useEffect(() => {
-    for (const p of PECAS_CORPO) clones[p].morphTargetInfluences = corpo.pesos.slice()
-    clones.Top.visible = perfil.corpo === 'feminino'
-    clones.Cabelo.visible = perfil.cabelo === 'curto'
-    clones.CabeloLongo.visible = perfil.cabelo === 'longo'
-    const [r, g, b] = (CORES_CABELO[perfil.corCabelo] ?? CORES_CABELO[1]).fator
-    mats.cabelo.color.setRGB(r, g, b)
-    mats.cabeloLongo.color.setRGB(r, g, b)
-    mats.sobrancelhas.color.setRGB(Math.min(1, r), Math.min(1, g), Math.min(1, b))
-    aplicarTom([mats.pele], mats.texturaMedia, perfil.pele)
-    mats.vidroTronco.color.set(tom.amostra)
-    mats.vidroCabeca.color.set(tom.amostra)
-  }, [clones, corpo.pesos, perfil, mats, tom])
-
-  // materiais de cada peça (a cabeça vira vidro no caminho do ar)
-  useEffect(() => {
-    const m: Record<ParteCorpo, MeshStandardMaterial> = {
-      PeleCabeca: cabecaVidro ? mats.vidroCabeca : mats.pele,
-      PeleTronco: mats.vidroTronco,
-      PeleMembros: mats.pele,
-      Olhos: mats.olhos,
-      Sobrancelhas: mats.sobrancelhas,
-      Cilios: mats.cilios,
-      Cabelo: mats.cabelo,
-      CabeloLongo: mats.cabeloLongo,
-      Top: mats.top,
-      Bermuda: mats.bermuda,
-    }
-    for (const p of PECAS_CORPO) clones[p].material = m[p]
-    clones.PeleTronco.renderOrder = 5
-    clones.Top.renderOrder = 6
-    clones.PeleCabeca.renderOrder = cabecaVidro ? 6 : 0
-    mats.top.opacity = cabecaVidro ? 0.25 : 0.45
-    // cabelo e olhos somem um pouco quando a cabeça fica transparente
-    for (const k of [mats.cabelo, mats.cabeloLongo, mats.olhos, mats.sobrancelhas, mats.cilios]) {
-      k.opacity = cabecaVidro ? 0.15 : 1
-      k.transparent = cabecaVidro || k === mats.sobrancelhas || k === mats.cilios
-      k.depthWrite = !cabecaVidro
-      k.needsUpdate = true
-    }
-  }, [clones, mats, cabecaVidro])
-
-  // destaque de cada órgão conforme a etapa do caminho do ar
-  useEffect(() => {
-    for (const o of ORGAOS) {
-      const mat = mats.orgaos[o.peca]
-      const destacado = !!destaques?.has(o.parte)
-      const esmaecido = !!destaques && !destacado
-      mat.emissive.set(destacado ? COR.destaque : '#000000')
-      mat.emissiveIntensity = destacado ? 0.4 : 0
-      // o diafragma fica meio transparente para não tampar a base dos pulmões
-      const base = o.peca === 'Diafragma' && !destacado ? 0.6 : 1
-      mat.opacity = esmaecido ? 0.25 : base
-      mat.depthWrite = !esmaecido && base === 1
-      mat.needsUpdate = true
-    }
-  }, [destaques, mats])
-
+  }, [])
+  const mats = useMemo(() => [toon(COR_PARTE.alveolos), toon('#FFB3C1')], [])
   useFrame(({ clock }) => {
     const { enchimento: e } = lerPulso(clock.elapsedTime)
-    const r = refs.current
-    // pulmões enchem em volta do próprio centro
-    for (const p of ['PulmaoDireito', 'PulmaoEsquerdo'] as const) {
-      r[p]?.scale.set(1 + 0.07 * e, 1 + 0.06 * e, 1 + 0.09 * e)
-    }
-    // o diafragma desce quando o ar entra
-    const diaf = r.Diafragma
-    if (diaf) diaf.position.y = orgaos.Diafragma.centro.y - 0.022 * e
-    if (raiz.current) {
-      raiz.current.position.y = -0.55 + alturaPulo()
-      raiz.current.rotation.z = balancoOps()
-    }
+    ref.current?.scale.setScalar(0.85 + 0.25 * e)
+  })
+  return (
+    <>
+      <Line points={[origem, posicao]} color={NOITE} lineWidth={3} dashed dashSize={0.05} gapSize={0.04} />
+      <group position={posicao}>
+        <mesh>
+          <sphereGeometry args={[0.24, 32, 24]} />
+          {/* fundo da lupa: só a parte de trás da esfera, para não cobrir os saquinhos */}
+          <meshBasicMaterial color="#ffffff" side={BackSide} />
+          <Outlines thickness={3.5} color={NOITE} />
+        </mesh>
+        <group ref={ref}>
+          {bolhas.map((p, i) => (
+            <mesh key={i} position={p} material={mats[i % 2]}>
+              <sphereGeometry args={[0.05, 18, 14]} />
+              <Outlines thickness={2} color={NOITE} />
+            </mesh>
+          ))}
+        </group>
+      </group>
+    </>
+  )
+}
+
+/* ----------------------------------------------------------- rótulo */
+
+function Rotulo({ parte, posicao, alvo }: { parte: Parte; posicao: Vector3; alvo: Vector3 }) {
+  return (
+    <>
+      <Line points={[alvo, posicao]} color={NOITE} lineWidth={3} />
+      <mesh position={alvo}>
+        <sphereGeometry args={[0.03, 12, 10]} />
+        <meshBasicMaterial color={NOITE} />
+      </mesh>
+      <Html position={posicao} center distanceFactor={2.6} zIndexRange={[10, 0]} pointerEvents="none">
+        <span className="rotulo3d">{PARADAS.find((p) => p.parte === parte)?.nome}</span>
+      </Html>
+    </>
+  )
+}
+
+/* ---------------------------------------------------------- personagem */
+
+function useDestaque(): Parte | null {
+  const tela = useApp((s) => s.tela)
+  const parada = useApp((s) => s.parada)
+  return tela === 'caminho' ? PARADAS[parada].parte : null
+}
+
+export function Personagem() {
+  const perfil = usePerfilAtual()
+  const destaque = useDestaque()
+  const md = useMemo(() => medidas(perfil), [perfil])
+  const raiz = useRef<Group>(null)
+  const caminho = destaque !== null
+
+  useFrame(() => {
+    if (!raiz.current) return
+    raiz.current.position.y = -0.55 + alturaPulo()
+    raiz.current.rotation.z = balancoOps()
   })
 
-  // posições (em unidades do personagem) para rótulos e alvéolos
-  const local = (p: Vector3) => new Vector3(p.x * escala, BASE_Y + p.y * escala, p.z * escala)
-  const naCena = (p: Vector3, dx: number, dy: number, dz: number) => paraCena(p, corpo.mapa, escala).add(new Vector3(dx, dy, dz))
-  const pulmaoE = local(orgaos.PulmaoEsquerdo.centro)
-  const posRotulo: Record<Parte, Vector3> = {
-    nariz: naCena(PONTOS_ZA.cavidadeNasal, 0.3, 0.12, 0.15),
-    faringe: naCena(PONTOS_ZA.faringe, -0.34, 0, 0),
-    laringe: naCena(PONTOS_ZA.laringe, 0.3, -0.04, 0.1),
-    traqueia: naCena(PONTOS_ZA.meioTraqueia, 0.3, 0, 0.1),
-    bronquios: naCena(PONTOS_ZA.carina, -0.4, -0.06, 0.1),
-    pulmoes: pulmaoE.clone().add(new Vector3(0.38, 0.12, 0.1)),
-    alveolos: pulmaoE.clone().add(new Vector3(0.55, -0.2, 0.3)),
-    diafragma: local(orgaos.Diafragma.centro).add(new Vector3(0, -0.14, 0.38)),
-  }
+  const alvo = destaque ? centroDaParte(md, destaque) : null
+  const rotulo = destaque ? posicaoRotulo(md, destaque) : null
 
   return (
     <group ref={raiz} position={[0, -0.55, 0]}>
-      <group position={[0, BASE_Y, 0]} scale={escala}>
-        {PECAS_CORPO.map((p) => (
-          <primitive key={p} object={clones[p]} />
-        ))}
-        {ORGAOS.map(({ peca }) => (
-          <mesh
-            key={peca}
-            ref={(el) => {
-              refs.current[peca] = el
-            }}
-            geometry={orgaos[peca].geometria}
-            position={orgaos[peca].centro}
-            material={mats.orgaos[peca]}
-            // nariz e faringe ficam dentro da cabeça: só aparecem quando ela está "de vidro"
-            visible={cabecaVidro || (peca !== 'CavidadeNasal' && peca !== 'Faringe')}
-          />
-        ))}
+      <Corpo perfil={perfil} md={md} caminho={caminho}>
+        <Orgaos md={md} destaque={destaque} />
+      </Corpo>
+      <group position={md.cabeca}>
+        <CabecaAmigo perfil={perfil} transparente={caminho} />
       </group>
 
-      {destaques?.has('alveolos') && <AlveolosAmpliados posicao={posRotulo.alveolos.clone().add(new Vector3(-0.15, 0.15, 0))} />}
-      {destaques && [...destaques].map((p) => <Rotulo key={p} parte={p} posicao={posRotulo[p]} />)}
+      {destaque === 'alveolos' && alvo && rotulo && <AlveolosAmpliados posicao={rotulo.clone().add(new Vector3(0, -0.45, 0))} origem={alvo} />}
+      {destaque && alvo && rotulo && <Rotulo parte={destaque} posicao={rotulo} alvo={alvo} />}
     </group>
   )
 }
