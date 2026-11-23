@@ -2,16 +2,45 @@
  * Planta do personagem de desenho (o "amigo") e do caminho do ar dentro dele.
  *
  * Tudo em unidades da cena, no espaço do personagem: pés em y = CHAO_Y, olhando
- * para +z, lado direito da tela = +x. A cabeça é grande e redonda, no estilo
- * dos desenhos infantis; os órgãos são versões simplificadas (balões, tubos,
- * galhos), sem textura nem detalhe anatômico.
+ * para +z, lado direito da tela = +x. As proporções são de uma pessoa (cabeça
+ * cerca de 1/4,5 da altura num jovem), com o estilo simples de desenho; os
+ * órgãos são versões simplificadas (balões, tubos, galhos), sem textura nem
+ * detalhe anatômico.
  */
 import { CatmullRomCurve3, Vector3 } from 'three'
 import type { Parte } from '../conteudo/etapas'
 import type { Perfil } from './perfil'
 
 export const CHAO_Y = -2.47
-export const RAIO_CABECA = 0.6
+export const RAIO_CABECA = 0.48
+
+/* --------------------------------------------------------------- rosto */
+
+/** Queixo: uma segunda esfera, mais baixa e à frente, que afina o rosto embaixo. */
+export const QUEIXO = { centro: new Vector3(0, -0.3 * RAIO_CABECA, 0.12 * RAIO_CABECA), raio: 0.8 * RAIO_CABECA }
+
+/** z da superfície do rosto num ponto (x, y), com a cabeça centrada em 0. */
+export function superficieRosto(x: number, y: number): number {
+  const R = RAIO_CABECA
+  const cabeca = Math.sqrt(Math.max(0, R * R - x * x - y * y))
+  const dy = y - QUEIXO.centro.y
+  const q = QUEIXO.raio
+  const queixo = q * q - x * x - dy * dy > 0 ? QUEIXO.centro.z + Math.sqrt(q * q - x * x - dy * dy) : 0
+  return Math.max(cabeca, queixo)
+}
+
+/** Nariz (no espaço da cabeça): uma bolinha pequena no meio do rosto. */
+export const NARIZ = (() => {
+  const y = -0.2 * RAIO_CABECA
+  const raio = 0.065
+  return { centro: new Vector3(0, y, superficieRosto(0, y) - 0.012), raio }
+})()
+
+/** Narina: embaixo do nariz, "olhando" para baixo e para a frente. */
+export const NARINA = NARIZ.centro.clone().add(new Vector3(0, -0.045, 0.035))
+export const SAIDA_NARINA = new Vector3(0, -0.6, 0.8).normalize()
+
+/* ------------------------------------------------------------ proporções */
 
 export type Faixa = 'crianca' | 'jovem' | 'adulto'
 
@@ -23,16 +52,16 @@ export function faixaDaIdade(idade: number): Faixa {
 }
 
 const PROPORCOES: Record<Faixa, { perna: number; tronco: number; largura: number; membro: number }> = {
-  crianca: { perna: 1.3, tronco: 1.25, largura: 0.54, membro: 0.15 },
-  jovem: { perna: 1.55, tronco: 1.4, largura: 0.6, membro: 0.16 },
-  adulto: { perna: 1.75, tronco: 1.5, largura: 0.66, membro: 0.17 },
+  crianca: { perna: 1.45, tronco: 1.15, largura: 0.46, membro: 0.105 },
+  jovem: { perna: 1.8, tronco: 1.35, largura: 0.52, membro: 0.115 },
+  adulto: { perna: 2.0, tronco: 1.5, largura: 0.58, membro: 0.125 },
 }
 
 export interface Medidas {
   faixa: Faixa
   perna: number
   tronco: number
-  /** meia-largura do tronco (eixo x) */
+  /** meia-largura dos ombros (eixo x) */
   largura: number
   /** raio de braços e pernas */
   membro: number
@@ -52,9 +81,9 @@ export function medidas(perfil: Pick<Perfil, 'idade'>): Medidas {
   const quadril = CHAO_Y + p.perna
   const troncoBase = quadril + 0.02
   const troncoTopo = troncoBase + p.tronco
-  const cabeca = new Vector3(0, troncoTopo + 0.22 + RAIO_CABECA * 0.92, 0)
-  const pulmaoAltura = p.tronco * 0.27
-  const pulmaoY = troncoTopo - 0.12 - pulmaoAltura
+  const cabeca = new Vector3(0, troncoTopo + 0.2 + RAIO_CABECA * 0.95, 0)
+  const pulmaoAltura = p.tronco * 0.25
+  const pulmaoY = troncoTopo - 0.16 - pulmaoAltura
   return {
     faixa,
     ...p,
@@ -64,33 +93,34 @@ export function medidas(perfil: Pick<Perfil, 'idade'>): Medidas {
     cabeca,
     pulmaoY,
     pulmaoAltura,
-    carinaY: pulmaoY + pulmaoAltura * 0.55,
+    carinaY: pulmaoY + pulmaoAltura * 0.6,
   }
 }
 
 /* ----------------------------------------------------------- caminho do ar */
 
-const Z_ORGAOS = 0.05
+const Z_ORGAOS = 0.03
 
 /** Pontos do caminho do ar, da narina até o fundo de um pulmão (s = lado na tela). */
 export function pontosDoAr(m: Medidas, s: 1 | -1): Vector3[] {
   const c = m.cabeca
   const R = RAIO_CABECA
-  const laringeTopo = m.troncoTopo + 0.3
+  const laringeTopo = m.troncoTopo + 0.14
+  const narina = c.clone().add(NARINA)
   return [
-    new Vector3(0, c.y - 0.16, R + 0.02), // 0 narina
-    new Vector3(0, c.y - 0.08, R * 0.7), // 1 dentro do nariz
-    new Vector3(0, c.y - 0.04, R * 0.38), // 2 fundo do nariz
-    new Vector3(0, c.y - 0.12, 0.06), // 3 nasofaringe
-    new Vector3(0, c.y - 0.42, 0.04), // 4 faringe
+    narina, // 0 narina
+    new Vector3(0, c.y - 0.14 * R, 0.72 * R), // 1 dentro do nariz
+    new Vector3(0, c.y - 0.06 * R, 0.4 * R), // 2 fundo do nariz
+    new Vector3(0, c.y - 0.24 * R, 0.08), // 3 nasofaringe
+    new Vector3(0, c.y - 0.8 * R, 0.04), // 4 faringe
     new Vector3(0, laringeTopo, Z_ORGAOS), // 5 laringe (topo)
-    new Vector3(0, laringeTopo - 0.16, Z_ORGAOS), // 6 laringe (base) = início da traqueia
-    new Vector3(0, (laringeTopo - 0.16 + m.carinaY) / 2, Z_ORGAOS), // 7 meio da traqueia
+    new Vector3(0, m.troncoTopo + 0.01, Z_ORGAOS), // 6 laringe (base) = início da traqueia
+    new Vector3(0, (m.troncoTopo + m.carinaY) / 2, Z_ORGAOS), // 7 meio da traqueia
     new Vector3(0, m.carinaY + 0.05, Z_ORGAOS), // 8 fim da traqueia
-    new Vector3(s * 0.05, m.carinaY - 0.03, Z_ORGAOS), // 9 carina
-    new Vector3(s * 0.15, m.carinaY - 0.12, Z_ORGAOS), // 10 brônquio
-    new Vector3(s * 0.24, m.pulmaoY, Z_ORGAOS), // 11 dentro do pulmão
-    new Vector3(s * 0.27, m.pulmaoY - m.pulmaoAltura * 0.55, Z_ORGAOS), // 12 fundo do pulmão
+    new Vector3(s * 0.04, m.carinaY - 0.03, Z_ORGAOS), // 9 carina
+    new Vector3(s * 0.13, m.carinaY - 0.1, Z_ORGAOS), // 10 brônquio
+    new Vector3(s * 0.21, m.pulmaoY, Z_ORGAOS), // 11 dentro do pulmão
+    new Vector3(s * 0.23, m.pulmaoY - m.pulmaoAltura * 0.55, Z_ORGAOS), // 12 fundo do pulmão
   ]
 }
 
@@ -118,24 +148,28 @@ export const TRECHO_PARTE: Record<Parte, [number, number] | null> = {
   diafragma: null,
 }
 
+/** Lado (x) de cada pulmão: meia-distância entre os centros. */
+export const ladoPulmao = (m: Medidas) => m.largura * 0.46
+
 /** Centro de cada parte, para rótulos e câmera. */
 export function centroDaParte(m: Medidas, parte: Parte): Vector3 {
   const c = m.cabeca
+  const R = RAIO_CABECA
   switch (parte) {
     case 'nariz':
-      return new Vector3(0, c.y - 0.08, RAIO_CABECA * 0.65)
+      return new Vector3(0, c.y - 0.14 * R, 0.62 * R)
     case 'faringe':
-      return new Vector3(0, c.y - 0.3, 0.05)
+      return new Vector3(0, c.y - 0.52 * R, 0.06)
     case 'laringe':
-      return new Vector3(0, m.troncoTopo + 0.22, Z_ORGAOS)
+      return new Vector3(0, m.troncoTopo + 0.08, Z_ORGAOS)
     case 'traqueia':
-      return new Vector3(0, (m.troncoTopo + 0.14 + m.carinaY) / 2, Z_ORGAOS)
+      return new Vector3(0, (m.troncoTopo + m.carinaY) / 2, Z_ORGAOS)
     case 'bronquios':
-      return new Vector3(0, m.carinaY - 0.12, Z_ORGAOS)
+      return new Vector3(0, m.carinaY - 0.1, Z_ORGAOS)
     case 'pulmoes':
       return new Vector3(0, m.pulmaoY, Z_ORGAOS)
     case 'alveolos':
-      return new Vector3(0.24, m.pulmaoY - 0.1, Z_ORGAOS)
+      return new Vector3(ladoPulmao(m), m.pulmaoY - 0.08, Z_ORGAOS)
     case 'diafragma':
       return new Vector3(0, m.pulmaoY - m.pulmaoAltura - 0.05, Z_ORGAOS)
   }
@@ -148,14 +182,14 @@ export function centroDaParte(m: Medidas, parte: Parte): Vector3 {
 export function posicaoRotulo(m: Medidas, parte: Parte): Vector3 {
   const c = centroDaParte(m, parte)
   const fora: Record<Parte, [number, number, number]> = {
-    nariz: [0.62, 0.1, 0.1],
-    faringe: [-0.75, 0.0, 0.1],
-    laringe: [0.55, 0.05, 0.2],
-    traqueia: [0.55, 0.0, 0.3],
-    bronquios: [-0.62, -0.05, 0.3],
-    pulmoes: [0.0, m.pulmaoAltura + 0.25, 0.45],
-    alveolos: [0.62, 0.3, 0.4],
-    diafragma: [0.0, -0.28, 0.5],
+    nariz: [0.5, 0.08, 0.1],
+    faringe: [-0.6, 0.0, 0.1],
+    laringe: [0.45, 0.04, 0.2],
+    traqueia: [0.48, 0.0, 0.3],
+    bronquios: [-0.55, -0.05, 0.3],
+    pulmoes: [0.0, m.pulmaoAltura + 0.22, 0.4],
+    alveolos: [0.55, 0.26, 0.35],
+    diafragma: [0.0, -0.25, 0.45],
   }
   const [dx, dy, dz] = fora[parte]
   return c.add(new Vector3(dx, dy, dz))
@@ -169,16 +203,16 @@ export function posicaoRotulo(m: Medidas, parte: Parte): Vector3 {
 export function cameraDaParte(m: Medidas, parte: Parte): { posicao: Vector3; alvo: Vector3 } {
   const alvo = centroDaParte(m, parte)
   const desvio: Record<Parte, [number, number, number]> = {
-    nariz: [1.25, 0.3, 1.75],
-    faringe: [1.75, 0.15, 1.35],
-    laringe: [1.0, 0.25, 2.0],
-    traqueia: [0.75, 0.25, 2.5],
-    bronquios: [0.2, 0.2, 2.45],
-    pulmoes: [0.0, 0.25, 3.3],
-    alveolos: [0.55, 0.2, 2.6],
-    diafragma: [0.0, 0.6, 3.1],
+    nariz: [1.0, 0.25, 1.4],
+    faringe: [1.4, 0.12, 1.1],
+    laringe: [0.85, 0.2, 1.65],
+    traqueia: [0.65, 0.2, 2.15],
+    bronquios: [0.2, 0.2, 2.1],
+    pulmoes: [0.0, 0.25, 2.8],
+    alveolos: [0.5, 0.2, 2.2],
+    diafragma: [0.0, 0.5, 2.7],
   }
-  if (parte === 'alveolos') alvo.x = 0.35
+  if (parte === 'alveolos') alvo.x += 0.12
   const [dx, dy, dz] = desvio[parte]
   return { posicao: alvo.clone().add(new Vector3(dx, dy, dz)), alvo }
 }

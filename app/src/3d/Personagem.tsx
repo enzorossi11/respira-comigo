@@ -1,22 +1,25 @@
 /**
  * O "amigo": personagem de desenho animado que respira junto com a criança.
  *
- * Tudo é feito com formas simples (esferas, cápsulas, tubos), sombreado em
- * poucos tons e com contorno, no mesmo estilo dos ícones do app. O tronco é de
- * "vidro" para mostrar os órgãos, que também são simplificados: pulmões como
- * dois balões, traqueia como um tubo com anéis, brônquios como galhos.
+ * Proporções de gente (cabeça, pescoço, ombros, cintura, cotovelos, joelhos),
+ * mas feito com formas simples, sombreado em poucos tons e com contorno, no
+ * mesmo estilo dos ícones do app. Menino e menina se diferenciam no rosto
+ * (sobrancelha, cílios, boca), no cabelo (franja e laço), no corpo (ombros e
+ * quadril) e na roupa (bermuda e tênis, ou saia e sapatilha).
  *
- * No caminho do ar, só a parte da parada atual fica colorida, com contorno
- * escuro e uma pulsação lenta; o resto fica cinza-claro e transparente.
+ * O tronco é de "vidro" para mostrar os órgãos, que são simplificados:
+ * pulmões como dois balões, traqueia como um tubo com anéis, brônquios como
+ * galhos. No caminho do ar, só a parte da parada atual fica colorida, com
+ * contorno escuro e um brilho que sobe e desce devagar; o resto fica cinza.
  */
 import { Html, Line, Outlines } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useEffect, useMemo, useRef, type ReactNode } from 'react'
 import {
-  CapsuleGeometry,
-  CatmullRomCurve3,
   BackSide,
+  CatmullRomCurve3,
   Color,
+  CylinderGeometry,
   DoubleSide,
   Group,
   LatheGeometry,
@@ -27,21 +30,37 @@ import {
   TubeGeometry,
   Vector2,
   Vector3,
+  type BufferGeometry,
 } from 'three'
 import { type Parte } from '../conteudo/etapas'
 import { PARADAS } from '../conteudo/paradas'
 import { useApp } from '../store'
 import { NOITE, ROUPA } from './cores'
 import { lerPulso } from './enchimento'
-import { CHAO_Y, RAIO_CABECA, centroDaParte, medidas, pontosDoAr, posicaoRotulo, type Medidas } from './forma'
+import {
+  CHAO_Y,
+  NARIZ,
+  QUEIXO,
+  RAIO_CABECA,
+  centroDaParte,
+  ladoPulmao,
+  medidas,
+  pontosDoAr,
+  posicaoRotulo,
+  superficieRosto,
+  type Medidas,
+} from './forma'
 import { toon, vidro } from './materiais'
 import { CORES_CABELO, TONS, type Perfil } from './perfil'
 import { alturaPulo, balancoOps, usePerfilAtual } from './reacao'
 
 const CINZA = new Color('#DCD8EA')
 const BERMUDA = '#3D4A8F'
-const SAPATO = '#FF8A5B'
-const BOCHECHA = '#FF9EAA'
+const TENIS = '#FF8A5B'
+const SAIA = '#E86A92'
+const SAPATILHA = '#E86A92'
+const LACO = '#FF5C8A'
+const IRIS = '#6B4A2E'
 
 /** Cor de cada parte do caminho do ar (cores claras, de desenho). */
 const COR_PARTE: Record<Parte, string> = {
@@ -56,8 +75,9 @@ const COR_PARTE: Record<Parte, string> = {
 }
 
 const R = RAIO_CABECA
-/** z da superfície da cabeça num ponto (x, y) do rosto */
-const naFace = (x: number, y: number, alem = 0) => Math.sqrt(Math.max(0, R * R - x * x - y * y)) + alem
+const escurecer = (cor: string, k: number) => new Color(cor).multiplyScalar(k)
+
+/* A espessura dos contornos (Outlines) é em pixels de tela. */
 
 /* ------------------------------------------------------------------ cabeça */
 
@@ -71,13 +91,53 @@ interface PropsCabeca {
   semContorno?: boolean
 }
 
-/** Cabeça redonda com olhos grandes, bochechas e sorriso. Centro em (0, 0, 0). */
+/** Um olho: branco, íris, pupila e um pontinho de brilho. */
+function Olho({ lado, menina, m }: { lado: 1 | -1; menina: boolean; m: Record<string, MeshToonMaterial> }) {
+  const x = lado * 0.36 * R
+  const y = 0.02 * R
+  const z = superficieRosto(x, y) - 0.022
+  const k = menina ? 1.1 : 1
+  return (
+    <group position={[x, y, z]} rotation={[0, lado * 0.32, 0]} scale={k}>
+      <mesh material={m.branco} scale={[1.2, 1, 0.5]}>
+        <sphereGeometry args={[0.058, 24, 16]} />
+      </mesh>
+      <mesh material={m.iris} position={[0, -0.002, 0.02]} scale={[1, 1, 0.45]}>
+        <sphereGeometry args={[0.04, 20, 14]} />
+      </mesh>
+      <mesh material={m.pupila} position={[0, -0.002, 0.03]} scale={[1, 1, 0.4]}>
+        <sphereGeometry args={[0.021, 14, 10]} />
+      </mesh>
+      <mesh material={m.brilho} position={[0.013, 0.014, 0.036]}>
+        <sphereGeometry args={[0.009, 10, 8]} />
+      </mesh>
+      {/* pálpebra de cima: um traço; na menina, mais grosso e com cílios */}
+      <mesh material={menina ? m.pupila : m.palpebra} position={[0, 0.006, 0.012]} rotation={[0.2, 0, 0]} scale={[1.2, 1, 1]}>
+        <torusGeometry args={[0.058, menina ? 0.008 : 0.005, 6, 24, Math.PI]} />
+      </mesh>
+      {menina &&
+        [0, 1, 2].map((i) => (
+          <mesh
+            key={i}
+            material={m.pupila}
+            position={[lado * (0.052 + i * 0.012), 0.04 - i * 0.012, 0.01]}
+            rotation={[0, 0, lado * (-0.5 - i * 0.35)]}
+          >
+            <capsuleGeometry args={[0.0055, 0.026, 3, 6]} />
+          </mesh>
+        ))}
+    </group>
+  )
+}
+
+/** Cabeça com rosto, orelhas e cabelo. Centro em (0, 0, 0). */
 export function CabecaAmigo({ perfil, transparente = false, prepararPele, semContorno = false }: PropsCabeca) {
   const tom = (TONS[perfil.pele] ?? TONS[2]).amostra
   const corCabelo = (CORES_CABELO[perfil.corCabelo] ?? CORES_CABELO[1]).amostra
+  const menina = perfil.corpo === 'feminino'
   const m = useMemo(() => {
     const pele = transparente ? vidro(tom, 0.2) : toon(tom)
-    const nariz = transparente ? vidro(tom, 0.35) : toon(new Color(tom).multiplyScalar(0.93))
+    const nariz = transparente ? vidro(tom, 0.35) : toon(escurecer(tom, 0.95))
     prepararPele?.(pele)
     prepararPele?.(nariz)
     const cabelo = toon(corCabelo, { side: DoubleSide })
@@ -85,92 +145,201 @@ export function CabecaAmigo({ perfil, transparente = false, prepararPele, semCon
     return {
       pele,
       nariz,
+      orelha: toon(escurecer(tom, 0.88)),
       cabelo,
-      olho: toon(NOITE),
+      branco: toon('#ffffff'),
+      iris: toon(IRIS),
+      pupila: toon(NOITE),
       brilho: toon('#ffffff'),
-      bochecha: Object.assign(toon(BOCHECHA), { transparent: true, opacity: 0.75 }),
-      boca: toon('#7A3B52'),
+      palpebra: toon(escurecer(tom, 0.6)),
+      bochecha: Object.assign(toon('#FF8FA0'), { transparent: true, opacity: menina ? 0.6 : 0.28 }),
+      boca: toon(menina ? '#D9506F' : '#8A4A3A'),
+      laco: toon(LACO),
     }
-  }, [tom, corCabelo, transparente, prepararPele])
+  }, [tom, corCabelo, transparente, prepararPele, menina])
 
   const longo = perfil.cabelo === 'longo'
-  const menina = perfil.corpo === 'feminino'
   const contorno = !transparente && !semContorno
+  const ct = (px = 3.5) => contorno && <Outlines thickness={px} color={NOITE} />
+
+  // posições do rosto (sobre a superfície)
+  const yBoca = -0.5 * R
+  const yBochecha = -0.24 * R
 
   return (
     <group>
-      {/* cabeça e orelhas */}
+      {/* cabeça + queixo (deixam o rosto mais fino embaixo) e orelhas */}
       <mesh material={m.pele}>
         <sphereGeometry args={[R, 48, 36]} />
-        {contorno && <Outlines thickness={4.5} color={NOITE} />}
+        {ct(4)}
       </mesh>
-      {[-1, 1].map((s) => (
-        <mesh key={s} material={m.pele} position={[s * R * 0.96, -0.03, -0.02]} scale={[0.5, 1, 0.8]}>
-          <sphereGeometry args={[0.13, 20, 16]} />
-          {contorno && <Outlines thickness={4} color={NOITE} />}
+      {/* de vidro, o queixo apareceria como um segundo círculo por dentro da cabeça */}
+      {!transparente && (
+        <mesh material={m.pele} position={QUEIXO.centro}>
+          <sphereGeometry args={[QUEIXO.raio, 40, 30]} />
+          {ct(4)}
         </mesh>
+      )}
+      {([-1, 1] as const).map((s) => (
+        <group key={s} position={[s * R * 0.97, -0.07, -0.03]}>
+          <mesh material={m.pele} scale={[0.42, 1, 0.75]}>
+            <sphereGeometry args={[0.1, 20, 16]} />
+            {ct(3)}
+          </mesh>
+          <mesh material={m.orelha} position={[s * 0.012, 0, 0.02]} scale={[0.3, 0.7, 0.5]}>
+            <sphereGeometry args={[0.08, 14, 10]} />
+          </mesh>
+        </group>
       ))}
 
-      {/* olhos grandes com brilho */}
-      {[-1, 1].map((s) => {
-        const x = s * 0.2
-        const y = 0.05
-        const z = naFace(x, y, -0.03)
-        return (
-          <group key={s} position={[x, y, z]}>
-            <mesh material={m.olho} scale={[1, 1.3, 0.55]}>
-              <sphereGeometry args={[0.075, 20, 16]} />
-            </mesh>
-            <mesh material={m.brilho} position={[0.022, 0.04, 0.035]}>
-              <sphereGeometry args={[0.024, 12, 10]} />
-            </mesh>
-            {menina &&
-              [0, 1].map((k) => (
-                <mesh key={k} material={m.olho} position={[s * (0.06 + k * 0.025), 0.085 - k * 0.025, 0]} rotation={[0, 0, s * (-0.7 - k * 0.5)]}>
-                  <capsuleGeometry args={[0.009, 0.04, 4, 6]} />
-                </mesh>
-              ))}
-            {/* sobrancelha */}
-            <mesh material={m.cabelo} position={[0, 0.15, 0.0]} rotation={[0, 0, s * 0.12 + Math.PI / 2]}>
-              <capsuleGeometry args={[0.016, 0.09, 4, 8]} />
-            </mesh>
-          </group>
+      {/* olhos */}
+      <Olho lado={-1} menina={menina} m={m} />
+      <Olho lado={1} menina={menina} m={m} />
+
+      {/* sobrancelhas: retas e grossas no menino, finas e arqueadas na menina */}
+      {([-1, 1] as const).map((s) => {
+        const x = s * 0.36 * R
+        const y = 0.27 * R
+        const z = superficieRosto(x, y) - 0.006
+        return menina ? (
+          <mesh key={s} material={m.cabelo} position={[x, y - 0.04, z - 0.01]} rotation={[0.25, s * 0.3, 0]}>
+            <torusGeometry args={[0.07, 0.0085, 6, 24, Math.PI * 0.62]} />
+          </mesh>
+        ) : (
+          <mesh key={s} material={m.cabelo} position={[x, y, z]} rotation={[0.2, s * 0.32, Math.PI / 2 + s * 0.08]}>
+            <capsuleGeometry args={[0.017, 0.1, 4, 8]} />
+          </mesh>
         )
       })}
 
+      {/* nariz pequeno */}
+      <mesh material={m.nariz} position={NARIZ.centro} scale={[0.85, 1, 0.9]}>
+        <sphereGeometry args={[NARIZ.raio, 20, 16]} />
+      </mesh>
+      <mesh material={m.nariz} position={[0, NARIZ.centro.y + 0.07, NARIZ.centro.z - 0.025]} rotation={[-0.35, 0, 0]}>
+        <capsuleGeometry args={[0.028, 0.08, 4, 10]} />
+      </mesh>
+
+      {/* boca: sorriso fino no menino; lábios rosados na menina */}
+      <mesh material={m.boca} position={[0, yBoca, superficieRosto(0, yBoca) - 0.006]} rotation={[0.3, 0, Math.PI]}>
+        <torusGeometry args={[menina ? 0.06 : 0.068, menina ? 0.017 : 0.012, 8, 24, Math.PI * 0.85]} />
+      </mesh>
+      {menina && (
+        <mesh material={m.boca} position={[0, yBoca - 0.055, superficieRosto(0, yBoca - 0.055) - 0.008]} scale={[1.6, 0.6, 0.5]}>
+          <sphereGeometry args={[0.024, 14, 10]} />
+        </mesh>
+      )}
+
       {/* bochechas */}
-      {[-1, 1].map((s) => (
-        <mesh key={s} material={m.bochecha} position={[s * 0.33, -0.12, naFace(s * 0.33, -0.12, -0.04)]} scale={[1, 0.62, 0.3]}>
-          <sphereGeometry args={[0.075, 16, 12]} />
+      {([-1, 1] as const).map((s) => (
+        <mesh
+          key={s}
+          material={m.bochecha}
+          position={[s * 0.56 * R, yBochecha, superficieRosto(s * 0.56 * R, yBochecha) - 0.022]}
+          rotation={[0, s * 0.55, 0]}
+          scale={[1, 0.62, 0.3]}
+        >
+          <sphereGeometry args={[0.055, 16, 12]} />
         </mesh>
       ))}
 
-      {/* nariz e sorriso */}
-      <mesh material={m.nariz} position={[0, -0.08, naFace(0, -0.08, -0.035)]}>
-        <sphereGeometry args={[0.085, 20, 16]} />
-      </mesh>
-      <mesh material={m.boca} position={[0, -0.22, naFace(0, -0.22, -0.015)]} rotation={[0.25, 0, Math.PI]}>
-        <torusGeometry args={[0.09, 0.022, 8, 24, Math.PI]} />
-      </mesh>
+      <Cabelo menina={menina} longo={longo} material={m.cabelo} contorno={contorno} laco={m.laco} soTouca={transparente} />
+    </group>
+  )
+}
 
-      {/* cabelo: uma "touca" inclinada para trás, e mechas se for comprido */}
-      <mesh material={m.cabelo} rotation={[-0.5, 0, 0]}>
-        <sphereGeometry args={[R * 1.07, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.56]} />
-        {contorno && <Outlines thickness={4} color={NOITE} />}
-      </mesh>
-      {longo && (
-        <>
-          <mesh material={m.cabelo} position={[0, -0.42, -0.28]} scale={[1, 1, 0.55]}>
-            <capsuleGeometry args={[R * 0.9, 0.55, 8, 24]} />
-            {contorno && <Outlines thickness={4} color={NOITE} />}
+/**
+ * Cabelo. Menino: curto com topete (ou na altura do pescoço). Menina: franja,
+ * chanel ou comprido até as costas, e sempre um laço.
+ */
+function Cabelo({
+  menina,
+  longo,
+  material,
+  contorno,
+  laco,
+  soTouca,
+}: {
+  menina: boolean
+  longo: boolean
+  material: MeshToonMaterial
+  contorno: boolean
+  laco: MeshToonMaterial
+  /** só a touca (com a cabeça de vidro, as outras peças virariam manchas sobrepostas) */
+  soTouca: boolean
+}) {
+  const ct = () => contorno && <Outlines thickness={3.5} color={NOITE} />
+  const touca = (
+    <mesh material={material} rotation={[menina ? -0.42 : -0.55, 0, 0]}>
+      <sphereGeometry args={[R * 1.06, 40, 20, 0, Math.PI * 2, 0, Math.PI * (menina ? 0.58 : 0.52)]} />
+      {ct()}
+    </mesh>
+  )
+  if (soTouca) return touca
+  return (
+    <group>
+      {/* "touca": cobre o alto e a parte de trás da cabeça */}
+      {touca}
+
+      {menina ? (
+        // franja reta na testa
+        <mesh material={material} position={[0, R * 0.56, R * 0.62]} rotation={[0.75, 0, Math.PI / 2]} scale={[1, 1, 0.55]}>
+          <capsuleGeometry args={[0.1, R * 0.95, 6, 16]} />
+          {ct()}
+        </mesh>
+      ) : (
+        // topete: três tufos para o lado
+        [-0.16, 0.02, 0.18].map((x, i) => (
+          <mesh key={i} material={material} position={[x, R * 0.72 - i * 0.02, R * 0.52]} rotation={[0.6, 0, -0.4]} scale={[1.25, 0.75, 0.9]}>
+            <sphereGeometry args={[0.1, 16, 12]} />
+            {ct()}
           </mesh>
+        ))
+      )}
+
+      {/* costeletas (menino) ou laterais do cabelo (menina); compridas, caem na frente dos ombros */}
+      {([-1, 1] as const).map((s) =>
+        menina ? (
+          longo ? (
+            <mesh key={s} material={material} position={[s * R * 0.86, -0.42, 0.1]} rotation={[0.12, 0, s * 0.06]} scale={[0.8, 1, 0.7]}>
+              <capsuleGeometry args={[0.12, 0.75, 6, 16]} />
+              {ct()}
+            </mesh>
+          ) : (
+            <mesh key={s} material={material} position={[s * R * 0.9, -0.12, -0.02]} scale={[0.75, 1, 1]}>
+              <capsuleGeometry args={[0.12, 0.2, 6, 16]} />
+              {ct()}
+            </mesh>
+          )
+        ) : (
+          <mesh key={s} material={material} position={[s * R * 0.93, 0.02, 0.06]}>
+            <capsuleGeometry args={[0.035, longo ? 0.28 : 0.1, 4, 8]} />
+          </mesh>
+        ),
+      )}
+
+      {/* parte de trás: vai só até os ombros (mais abaixo, apareceria pela blusa de vidro) */}
+      {longo && (
+        <mesh material={material} position={[0, -0.2, -0.22]} scale={[1, 1, 0.5]}>
+          <capsuleGeometry args={[R * 0.86, 0.22, 8, 24]} />
+          {ct()}
+        </mesh>
+      )}
+
+      {/* laço da menina, do lado do cabelo */}
+      {menina && (
+        <group position={[R * 0.55, R * 0.74, R * 0.46]} rotation={[0.35, 0.55, -0.45]}>
           {[-1, 1].map((s) => (
-            <mesh key={s} material={m.cabelo} position={[s * 0.56, -0.42, 0.06]}>
-              <capsuleGeometry args={[0.13, 0.5, 6, 12]} />
-              {contorno && <Outlines thickness={4} color={NOITE} />}
+            <mesh key={s} material={laco} position={[s * 0.09, 0, 0]} rotation={[0, 0, s * Math.PI / 2]} scale={[1, 1, 0.5]}>
+              <coneGeometry args={[0.085, 0.17, 16]} />
+              {ct()}
             </mesh>
           ))}
-        </>
+          <mesh material={laco}>
+            <sphereGeometry args={[0.045, 12, 10]} />
+            {ct()}
+          </mesh>
+        </group>
       )}
     </group>
   )
@@ -217,7 +386,7 @@ function geometriaPulmao(altura: number, largura: number): LatheGeometry {
 
 interface Peca {
   parte: Parte
-  geometria: () => import('three').BufferGeometry
+  geometria: () => BufferGeometry
   posicao?: [number, number, number]
   rotacao?: [number, number, number]
   escala?: [number, number, number]
@@ -227,32 +396,32 @@ interface Peca {
   nome?: 'pulmaoE' | 'pulmaoD' | 'diafragma'
 }
 
+const alturaDiafragma = (md: Medidas) => md.pulmaoY - md.pulmaoAltura - 0.22
+
 function pecasDosOrgaos(md: Medidas): Peca[] {
   const ar = pontosDoAr(md, 1)
   const arE = pontosDoAr(md, -1)
-  const lp = md.largura * 0.42
+  const xp = ladoPulmao(md)
   const pecas: Peca[] = [
     // nariz por dentro e garganta (dentro da cabeça)
-    { parte: 'nariz', geometria: () => tubo(ar.slice(0, 4), (u) => 0.05 - u * 0.012) },
-    { parte: 'faringe', geometria: () => tubo(ar.slice(3, 6), 0.058) },
+    { parte: 'nariz', geometria: () => tubo(ar.slice(0, 4), (u) => 0.036 - u * 0.008) },
+    { parte: 'faringe', geometria: () => tubo(ar.slice(3, 6), 0.042) },
     // laringe: um tubo mais largo, com a "tampinha" (epiglote) em cima
-    { parte: 'laringe', geometria: () => tubo(ar.slice(5, 7), 0.075, 12) },
+    { parte: 'laringe', geometria: () => tubo(ar.slice(5, 7), 0.058, 12) },
     {
       parte: 'laringe',
-      geometria: () => new SphereGeometry(0.06, 16, 12),
-      posicao: [0, ar[5].y + 0.03, ar[5].z + 0.05],
+      geometria: () => new SphereGeometry(0.045, 16, 12),
+      posicao: [0, ar[5].y + 0.025, ar[5].z + 0.04],
       escala: [1, 0.35, 0.8],
       rotacao: [0.5, 0, 0],
     },
     // traqueia com anéis
-    { parte: 'traqueia', geometria: () => tubo(ar.slice(6, 9), 0.056, 24) },
+    { parte: 'traqueia', geometria: () => tubo(ar.slice(6, 9), 0.042, 24) },
   ]
-  const yIni = ar[6].y - 0.04
-  const yFim = ar[8].y + 0.02
-  for (let y = yIni; y > yFim; y -= 0.075) {
+  for (let y = ar[6].y - 0.035; y > ar[8].y + 0.015; y -= 0.06) {
     pecas.push({
       parte: 'traqueia',
-      geometria: () => new TorusGeometry(0.06, 0.013, 8, 24),
+      geometria: () => new TorusGeometry(0.046, 0.01, 8, 24),
       posicao: [0, y, ar[6].z],
       rotacao: [Math.PI / 2, 0, 0],
       semContorno: true,
@@ -263,24 +432,25 @@ function pecasDosOrgaos(md: Medidas): Peca[] {
     [ar, 1],
     [arE, -1],
   ] as const) {
-    pecas.push({ parte: 'bronquios', geometria: () => tubo([pts[8], pts[9], pts[10], pts[11]], (u) => 0.045 - u * 0.015, 32) })
+    pecas.push({ parte: 'bronquios', geometria: () => tubo([pts[8], pts[9], pts[10], pts[11]], (u) => 0.034 - u * 0.012, 32) })
     const meio = pts[10]
+    const k = md.pulmaoAltura / 0.34
     for (const [dx, dy] of [
-      [0.16, 0.12],
-      [0.2, -0.2],
-      [0.06, -0.3],
+      [0.12, 0.1],
+      [0.15, -0.17],
+      [0.05, -0.26],
     ]) {
-      const fim = new Vector3(s * (Math.abs(meio.x) + dx), md.pulmaoY + dy * (md.pulmaoAltura / 0.38), meio.z)
-      const mid = meio.clone().lerp(fim, 0.5).add(new Vector3(0, 0.03, 0))
-      pecas.push({ parte: 'bronquios', geometria: () => tubo([meio, mid, fim], (u) => 0.026 - u * 0.012, 16), semContorno: true })
+      const fim = new Vector3(s * (Math.abs(meio.x) + dx), md.pulmaoY + dy * k, meio.z)
+      const mid = meio.clone().lerp(fim, 0.5).add(new Vector3(0, 0.025, 0))
+      pecas.push({ parte: 'bronquios', geometria: () => tubo([meio, mid, fim], (u) => 0.02 - u * 0.009, 16), semContorno: true })
     }
   }
   // pulmões (balões) e diafragma (cúpula)
   for (const s of [-1, 1] as const) {
     pecas.push({
       parte: 'pulmoes',
-      geometria: () => geometriaPulmao(md.pulmaoAltura, lp * 0.55),
-      posicao: [s * lp * 1.08, md.pulmaoY, 0.05],
+      geometria: () => geometriaPulmao(md.pulmaoAltura, md.largura * 0.26),
+      posicao: [s * xp, md.pulmaoY, 0.03],
       rotacao: [0, 0, s * -0.06],
       escala: [1, 1, 0.85],
       nome: s === 1 ? 'pulmaoD' : 'pulmaoE',
@@ -288,15 +458,13 @@ function pecasDosOrgaos(md: Medidas): Peca[] {
   }
   pecas.push({
     parte: 'diafragma',
-    geometria: () => new SphereGeometry(md.largura * 0.85, 40, 14, 0, Math.PI * 2, 0, 1.05),
-    posicao: [0, md.pulmaoY - md.pulmaoAltura - 0.3, 0.05],
-    escala: [1, 0.8, 0.62],
+    geometria: () => new SphereGeometry(md.largura * 0.66, 40, 14, 0, Math.PI * 2, 0, 1.05),
+    posicao: [0, alturaDiafragma(md), 0.03],
+    escala: [1, 0.8, 0.6],
     nome: 'diafragma',
   })
   return pecas
 }
-
-/* A espessura dos contornos (Outlines) é em pixels de tela. */
 
 /** Material de uma parte, com o estado de destaque aplicado. */
 function aplicarEstado(mat: MeshToonMaterial, cor: Color, estado: 'normal' | 'aceso' | 'apagado') {
@@ -348,12 +516,9 @@ function Orgaos({ md, destaque }: { md: Medidas; destaque: Parte | null }) {
     const { enchimento: e } = lerPulso(t)
     for (const n of ['pulmaoE', 'pulmaoD'] as const) refs.current[n]?.scale.set(1 + 0.08 * e, 1 + 0.06 * e, 0.85 * (1 + 0.08 * e))
     const d = refs.current.diafragma
-    if (d) d.position.y = md.pulmaoY - md.pulmaoAltura - 0.3 - 0.05 * e
-    // a parte acesa "respira" devagar: brilho e tamanho sobem e descem (1 vez a cada 2,5 s, sem piscar)
-    if (acesa) {
-      const onda = 0.5 + 0.5 * Math.sin(t * 2.5)
-      mats[acesa].emissiveIntensity = 0.15 + 0.3 * onda
-    }
+    if (d) d.position.y = alturaDiafragma(md) - 0.045 * e
+    // a parte acesa "respira" devagar: o brilho sobe e desce (1 vez a cada 2,5 s, sem piscar)
+    if (acesa) mats[acesa].emissiveIntensity = 0.15 + 0.3 * (0.5 + 0.5 * Math.sin(t * 2.5))
   })
 
   const contorno = (p: Peca) => !p.semContorno && (!acesa || p.parte === acesa)
@@ -381,20 +546,170 @@ function Orgaos({ md, destaque }: { md: Medidas; destaque: Parte | null }) {
 
 /* ------------------------------------------------------------- corpo */
 
+/**
+ * Tronco: ombros, peito, cintura e quadril (perfil girado em volta do eixo y,
+ * achatado na frente/atrás). Os números são frações da largura dos ombros.
+ */
+const PERFIL_TRONCO = {
+  masculino: [
+    [0, 0],
+    [0.62, 0],
+    [0.7, 0.06],
+    [0.68, 0.24],
+    [0.66, 0.42],
+    [0.76, 0.62],
+    [0.9, 0.8],
+    [0.95, 0.88],
+    [0.8, 0.95],
+    [0.3, 1],
+    [0, 1],
+  ],
+  feminino: [
+    [0, 0],
+    [0.7, 0],
+    [0.8, 0.07],
+    [0.72, 0.24],
+    [0.6, 0.42],
+    [0.72, 0.6],
+    [0.82, 0.78],
+    [0.86, 0.87],
+    [0.72, 0.95],
+    [0.28, 1],
+    [0, 1],
+  ],
+} as const
+
+/** Cintura: a parte de baixo do tronco, opaca, na cor da bermuda ou da saia. */
+function geometriaCintura(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
+  const base = md.troncoBase - 0.1
+  const altura = md.troncoTopo - base
+  const p = PERFIL_TRONCO[corpo]
+  const ate = 0.2 // fração do tronco coberta pela cintura
+  const r = (y: number) => {
+    // raio do perfil em y (interpolação linear)
+    for (let i = 1; i < p.length; i++) {
+      const [r0, y0] = p[i - 1]
+      const [r1, y1] = p[i]
+      if (y <= y1 && y1 > y0) return r0 + ((r1 - r0) * (y - y0)) / (y1 - y0)
+    }
+    return p[p.length - 1][0]
+  }
+  const pts = [0, 0.001, 0.06, 0.12, ate].map((y) => new Vector2(r(y) * md.largura * 1.03, base + y * altura))
+  pts.unshift(new Vector2(0, base))
+  pts.push(new Vector2(0, base + ate * altura))
+  const g = new LatheGeometry(pts, 48)
+  g.scale(1, 1, 0.6)
+  return g
+}
+
+function geometriaTronco(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
+  const base = md.troncoBase - 0.1
+  const altura = md.troncoTopo - base
+  const pts = PERFIL_TRONCO[corpo].map(([r, y]) => new Vector2(r * md.largura, base + y * altura))
+  const g = new LatheGeometry(pts, 48)
+  g.scale(1, 1, 0.6) // achata: o corpo é mais largo do que fundo
+  return g
+}
+
+/** Braço com cotovelo levemente dobrado, manga curta e mão com polegar. */
+function Braco({ lado, md, m, ombroX }: { lado: 1 | -1; md: Medidas; m: Record<string, MeshToonMaterial>; ombroX: number }) {
+  const ombroY = md.troncoTopo - 0.12
+  const total = ombroY - (md.quadril - 0.22)
+  const ua = total * 0.47
+  const fa = total * 0.4
+  const r = md.membro
+  return (
+    <group position={[lado * ombroX, ombroY, 0]} rotation={[0, 0, lado * 0.09]}>
+      <mesh material={m.roupa} position={[0, -0.05, 0]}>
+        <sphereGeometry args={[r * 1.45, 20, 16]} />
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+      <mesh material={m.roupa} position={[0, -0.14, 0]}>
+        <capsuleGeometry args={[r * 1.32, 0.12, 6, 16]} />
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+      <mesh material={m.pele} position={[0, -ua / 2, 0]}>
+        <capsuleGeometry args={[r, ua - r, 6, 16]} />
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+      {/* antebraço, um pouco para a frente */}
+      <group position={[0, -ua, 0]} rotation={[-0.18, 0, -lado * 0.04]}>
+        <mesh material={m.pele} position={[0, -fa / 2, 0]}>
+          <capsuleGeometry args={[r * 0.88, fa - r, 6, 16]} />
+          <Outlines thickness={3.5} color={NOITE} />
+        </mesh>
+        <group position={[0, -fa - r * 0.6, 0.01]}>
+          <mesh material={m.pele} scale={[0.78, 1.15, 0.5]}>
+            <sphereGeometry args={[r * 1.3, 18, 14]} />
+            <Outlines thickness={3} color={NOITE} />
+          </mesh>
+          <mesh material={m.pele} position={[-lado * r * 0.75, r * 0.25, r * 0.4]} rotation={[0.4, 0, lado * 0.6]}>
+            <capsuleGeometry args={[r * 0.32, r * 0.7, 4, 8]} />
+            <Outlines thickness={2.5} color={NOITE} />
+          </mesh>
+        </group>
+      </group>
+    </group>
+  )
+}
+
+/** Perna com coxa, canela e calçado. */
+function Perna({ lado, md, m, quadrilX, menina }: { lado: 1 | -1; md: Medidas; m: Record<string, MeshToonMaterial>; quadrilX: number; menina: boolean }) {
+  const r = md.membro
+  const alto = md.quadril + 0.04
+  const tornozelo = CHAO_Y + 0.14
+  const coxa = (alto - tornozelo) * 0.5
+  const canela = alto - tornozelo - coxa
+  return (
+    <group position={[lado * quadrilX, 0, 0]}>
+      <mesh material={m.pele} position={[0, alto - coxa / 2, 0]}>
+        <capsuleGeometry args={[r * 1.3, coxa - r, 6, 16]} />
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+      <mesh material={m.pele} position={[0, tornozelo + canela / 2, 0]}>
+        <capsuleGeometry args={[r * 1.02, canela - r, 6, 16]} />
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+      {/* bermuda (menino) */}
+      {!menina && (
+        <mesh material={m.bermuda} position={[0, alto - 0.14, 0]}>
+          <capsuleGeometry args={[r * 1.62, 0.2, 6, 16]} />
+          <Outlines thickness={3.5} color={NOITE} />
+        </mesh>
+      )}
+      {/* tênis (menino) ou sapatilha (menina) */}
+      <group position={[0, CHAO_Y + 0.08, 0.07]}>
+        <mesh material={m.calcado} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, menina ? 0.7 : 0.85]}>
+          <capsuleGeometry args={[r * 1.12, 0.17, 6, 16]} />
+          <Outlines thickness={3.5} color={NOITE} />
+        </mesh>
+        {!menina && (
+          <mesh material={m.sola} position={[0, -0.055, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[1.05, 1, 0.35]}>
+            <capsuleGeometry args={[r * 1.12, 0.19, 6, 16]} />
+          </mesh>
+        )}
+      </group>
+    </group>
+  )
+}
+
 function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas; caminho: boolean; children?: ReactNode }) {
   const tom = (TONS[perfil.pele] ?? TONS[2]).amostra
+  const menina = perfil.corpo === 'feminino'
   const roupa = ROUPA[perfil.corpo]
   const m = useMemo(
     () => ({
       pele: toon(tom),
       roupa: toon(roupa),
-      // a camiseta é de "vidro" clarinho, para os órgãos aparecerem com a cor deles
+      // a blusa/camiseta é de "vidro" clarinho, para os órgãos aparecerem com a cor deles
       vidroTronco: vidro(new Color(roupa).lerp(new Color('#ffffff'), 0.45), 0.3),
       vidroPescoco: vidro(tom, 0.4),
       bermuda: toon(BERMUDA),
-      sapato: toon(SAPATO),
+      saia: toon(SAIA, { side: DoubleSide }),
+      calcado: toon(menina ? SAPATILHA : TENIS),
+      sola: toon('#ffffff'),
     }),
-    [tom, roupa],
+    [tom, roupa, menina],
   )
   useEffect(() => {
     // no caminho do ar o tronco fica bem mais transparente, para os órgãos aparecerem
@@ -402,67 +717,57 @@ function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas;
     m.vidroPescoco.opacity = caminho ? 0.14 : 0.4
   }, [caminho, m])
 
-  const tronco = useMemo(() => {
-    const raio = md.largura
-    return new CapsuleGeometry(raio, Math.max(0.05, md.tronco - raio * 2), 12, 32)
+  const tronco = useMemo(() => geometriaTronco(md, perfil.corpo), [md, perfil.corpo])
+  const cintura = useMemo(() => geometriaCintura(md, perfil.corpo), [md, perfil.corpo])
+  const saia = useMemo(() => {
+    const topo = md.largura * 0.72
+    const g = new CylinderGeometry(topo, topo * 1.5, 0.5, 40, 1, true)
+    g.scale(1, 1, 0.72)
+    return g
   }, [md])
-  useEffect(() => () => tronco.dispose(), [tronco])
+  useEffect(
+    () => () => {
+      tronco.dispose()
+      cintura.dispose()
+      saia.dispose()
+    },
+    [tronco, cintura, saia],
+  )
   const troncoRef = useRef<Mesh>(null)
   useFrame(({ clock }) => {
     const { enchimento: e } = lerPulso(clock.elapsedTime)
-    troncoRef.current?.scale.set(1 + 0.03 * e, 1, 0.72 * (1 + 0.05 * e))
+    troncoRef.current?.scale.set(1 + 0.03 * e, 1, 1 + 0.05 * e)
   })
 
-  const yTronco = (md.troncoBase + md.troncoTopo) / 2
-  const ombroY = md.troncoTopo - 0.32
-  const comprBraco = ombroY - (md.quadril + 0.05)
-  const comprPerna = md.quadril - (CHAO_Y + 0.2)
+  const ombroX = md.largura * (menina ? 0.82 : 0.9)
+  const quadrilX = md.largura * (menina ? 0.36 : 0.33)
 
   return (
     <group>
-      {/* pernas, bermuda e sapatos */}
-      {[-1, 1].map((s) => (
-        <group key={s} position={[s * md.largura * 0.42, 0, 0]}>
-          <mesh material={m.pele} position={[0, CHAO_Y + 0.2 + comprPerna / 2, 0]}>
-            <capsuleGeometry args={[md.membro, comprPerna, 8, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-          <mesh material={m.bermuda} position={[0, md.quadril - 0.28, 0]}>
-            <capsuleGeometry args={[md.membro * 1.35, 0.2, 8, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-          <mesh material={m.sapato} position={[0, CHAO_Y + 0.12, 0.08]} rotation={[Math.PI / 2, 0, 0]}>
-            <capsuleGeometry args={[md.membro * 0.95, 0.2, 8, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-        </group>
-      ))}
+      <Perna lado={-1} md={md} m={m} quadrilX={quadrilX} menina={menina} />
+      <Perna lado={1} md={md} m={m} quadrilX={quadrilX} menina={menina} />
+      <Braco lado={-1} md={md} m={m} ombroX={ombroX} />
+      <Braco lado={1} md={md} m={m} ombroX={ombroX} />
 
-      {/* braços (com manguinha) e mãos */}
-      {[-1, 1].map((s) => (
-        <group key={s} position={[s * md.largura * 0.98, ombroY, 0]} rotation={[0, 0, s * 0.12]}>
-          <mesh material={m.pele} position={[0, -comprBraco / 2, 0]}>
-            <capsuleGeometry args={[md.membro * 0.82, comprBraco - 0.2, 8, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-          <mesh material={m.roupa} position={[0, -0.12, 0]}>
-            <capsuleGeometry args={[md.membro * 1.08, 0.18, 8, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-          <mesh material={m.pele} position={[0, -comprBraco + 0.02, 0]}>
-            <sphereGeometry args={[md.membro * 1.05, 20, 16]} />
-            <Outlines thickness={3.5} color={NOITE} />
-          </mesh>
-        </group>
-      ))}
+      {/* cintura opaca: bermuda (menino) ou saia (menina) */}
+      <mesh geometry={cintura} material={menina ? m.saia : m.bermuda}>
+        <Outlines thickness={3.5} color={NOITE} />
+      </mesh>
+
+      {/* saia (menina) */}
+      {menina && (
+        <mesh geometry={saia} material={m.saia} position={[0, md.quadril - 0.12, 0]}>
+          <Outlines thickness={3.5} color={NOITE} />
+        </mesh>
+      )}
 
       {/* órgãos ficam entre o corpo e o vidro do tronco */}
       {children}
 
-      {/* tronco (camiseta de "vidro") e pescoço */}
-      <mesh ref={troncoRef} geometry={tronco} material={m.vidroTronco} position={[0, yTronco, 0]} renderOrder={5} />
-      <mesh material={m.vidroPescoco} position={[0, md.troncoTopo + 0.12, 0.02]} renderOrder={5}>
-        <cylinderGeometry args={[0.17, 0.19, 0.42, 24, 1, true]} />
+      {/* tronco (blusa/camiseta de "vidro") e pescoço */}
+      <mesh ref={troncoRef} geometry={tronco} material={m.vidroTronco} renderOrder={5} />
+      <mesh material={m.vidroPescoco} position={[0, md.troncoTopo + 0.13, 0.0]} renderOrder={5}>
+        <cylinderGeometry args={[0.1, 0.12, 0.36, 24, 1, true]} />
       </mesh>
     </group>
   )
@@ -477,7 +782,7 @@ function AlveolosAmpliados({ posicao, origem }: { posicao: Vector3; origem: Vect
     const out: [number, number, number][] = []
     for (let i = 0; i < 12; i++) {
       const a = (i / 12) * Math.PI * 2
-      const r = 0.07 + (i % 3) * 0.03
+      const r = 0.06 + (i % 3) * 0.025
       out.push([Math.cos(a) * r, Math.sin(a * 1.3) * r * 0.9, Math.sin(a) * r * 0.5])
     }
     return out
@@ -492,7 +797,7 @@ function AlveolosAmpliados({ posicao, origem }: { posicao: Vector3; origem: Vect
       <Line points={[origem, posicao]} color={NOITE} lineWidth={3} dashed dashSize={0.05} gapSize={0.04} />
       <group position={posicao}>
         <mesh>
-          <sphereGeometry args={[0.24, 32, 24]} />
+          <sphereGeometry args={[0.2, 32, 24]} />
           {/* fundo da lupa: só a parte de trás da esfera, para não cobrir os saquinhos */}
           <meshBasicMaterial color="#ffffff" side={BackSide} />
           <Outlines thickness={3.5} color={NOITE} />
@@ -500,7 +805,7 @@ function AlveolosAmpliados({ posicao, origem }: { posicao: Vector3; origem: Vect
         <group ref={ref}>
           {bolhas.map((p, i) => (
             <mesh key={i} position={p} material={mats[i % 2]}>
-              <sphereGeometry args={[0.05, 18, 14]} />
+              <sphereGeometry args={[0.042, 18, 14]} />
               <Outlines thickness={2} color={NOITE} />
             </mesh>
           ))}
@@ -517,7 +822,7 @@ function Rotulo({ parte, posicao, alvo }: { parte: Parte; posicao: Vector3; alvo
     <>
       <Line points={[alvo, posicao]} color={NOITE} lineWidth={3} />
       <mesh position={alvo}>
-        <sphereGeometry args={[0.03, 12, 10]} />
+        <sphereGeometry args={[0.025, 12, 10]} />
         <meshBasicMaterial color={NOITE} />
       </mesh>
       <Html position={posicao} center distanceFactor={2.6} zIndexRange={[10, 0]} pointerEvents="none">
@@ -560,7 +865,7 @@ export function Personagem() {
         <CabecaAmigo perfil={perfil} transparente={caminho} />
       </group>
 
-      {destaque === 'alveolos' && alvo && rotulo && <AlveolosAmpliados posicao={rotulo.clone().add(new Vector3(0, -0.45, 0))} origem={alvo} />}
+      {destaque === 'alveolos' && alvo && rotulo && <AlveolosAmpliados posicao={rotulo.clone().add(new Vector3(0, -0.4, 0))} origem={alvo} />}
       {destaque && alvo && rotulo && <Rotulo parte={destaque} posicao={rotulo} alvo={alvo} />}
     </group>
   )

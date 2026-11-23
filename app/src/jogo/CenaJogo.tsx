@@ -22,7 +22,7 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
-import { RAIO_CABECA } from '../3d/forma'
+import { NARINA, NARIZ, SAIDA_NARINA } from '../3d/forma'
 import { toon } from '../3d/materiais'
 import { PERFIL_PADRAO, TONS } from '../3d/perfil'
 import { ROUPA } from '../3d/cores'
@@ -111,11 +111,8 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
  * vista de fora. Ela é girada e posicionada para a narina ficar exatamente na
  * entrada do túnel; um shader abre o buraco da narina.
  */
-/** Ponto da narina e direção para onde ela "olha", no espaço da cabeça (centro = 0) */
-const NARINA_CABECA = new Vector3(0, -0.13, RAIO_CABECA + 0.015)
-const SAIDA_NARINA = new Vector3(0, -0.55, 0.84).normalize()
-/** Raio do buraco da narina no espaço da cabeça (menor que o nariz, que tem 0,085) */
-const RAIO_FURO = 0.045
+/** Raio do buraco da narina no espaço da cabeça (menor que o nariz) */
+const RAIO_FURO = NARIZ.raio * 0.62
 
 function abrirNarina(m: MeshStandardMaterial | MeshToonMaterial, furo: { a: Vector3; b: Vector3; r: number }) {
   m.onBeforeCompile = (sh) => {
@@ -150,7 +147,7 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
   const { escala, giro, origem } = useMemo(() => {
     const escala = (R * 0.98) / RAIO_FURO
     const giro = new Quaternion().setFromUnitVectors(SAIDA_NARINA, q.tangente.clone().negate())
-    const origem = P.clone().sub(NARINA_CABECA.clone().applyQuaternion(giro).multiplyScalar(escala))
+    const origem = P.clone().sub(NARINA.clone().applyQuaternion(giro).multiplyScalar(escala))
     return { escala, giro, origem }
   }, [P, q, R])
 
@@ -178,11 +175,11 @@ function PersonagemGigante({ sim }: { sim: SimRef }) {
       <group position={origem} quaternion={giro} scale={escala}>
         <CabecaAmigo perfil={perfil} prepararPele={prepararPele} semContorno />
         {/* pescoço e ombros: escondem o túnel, que desce por dentro do corpo */}
-        <mesh position={[0, -0.85, -0.05]} material={materialPescoco}>
-          <cylinderGeometry args={[0.27, 0.3, 0.7, 32]} />
+        <mesh position={[0, -0.68, -0.04]} material={materialPescoco}>
+          <cylinderGeometry args={[0.22, 0.24, 0.56, 32]} />
         </mesh>
-        <mesh position={[0, -1.75, -0.05]} scale={[1, 1, 0.75]} material={materialCamiseta}>
-          <capsuleGeometry args={[0.75, 0.6, 12, 32]} />
+        <mesh position={[0, -1.4, -0.04]} scale={[1, 1, 0.75]} material={materialCamiseta}>
+          <capsuleGeometry args={[0.6, 0.48, 12, 32]} />
         </mesh>
       </group>
       {/* fundo da narina (o túnel começa logo atrás) */}

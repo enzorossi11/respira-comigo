@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PARADAS } from '../conteudo/paradas'
-import { caminhoDoAr, cameraDaParte, centroDaParte, CHAO_Y, faixaDaIdade, fracoesDosPontos, medidas, pontosDoAr, TRECHO_PARTE } from './forma'
+import { caminhoDoAr, cameraDaParte, centroDaParte, CHAO_Y, faixaDaIdade, fracoesDosPontos, medidas, NARINA, NARIZ, pontosDoAr, RAIO_CABECA, superficieRosto, TRECHO_PARTE } from './forma'
 import { IDADE_MAX, IDADE_MIN, normalizarPerfil, PERFIL_PADRAO } from './perfil'
 
 describe('planta do personagem de desenho', () => {
@@ -27,13 +27,30 @@ describe('planta do personagem de desenho', () => {
   })
 })
 
+describe('rosto', () => {
+  it('o nariz fica no meio do rosto, encostado na pele, e a narina embaixo dele', () => {
+    expect(NARIZ.centro.z).toBeGreaterThan(RAIO_CABECA * 0.8)
+    expect(Math.abs(NARIZ.centro.z - superficieRosto(0, NARIZ.centro.y))).toBeLessThan(NARIZ.raio)
+    expect(NARINA.y).toBeLessThan(NARIZ.centro.y)
+  })
+
+  it('o queixo deixa o rosto mais fino embaixo (rosto de gente, não uma bola)', () => {
+    const larguraEm = (y: number) => {
+      let x = 0
+      while (superficieRosto(x, y) > 0) x += 0.005
+      return x
+    }
+    expect(larguraEm(-0.4 * RAIO_CABECA)).toBeLessThan(larguraEm(0))
+  })
+})
+
 describe('caminho do ar', () => {
   const m = medidas(PERFIL_PADRAO)
 
   it('começa na narina, desce sempre e termina dentro de um pulmão de cada lado', () => {
     for (const s of [1, -1] as const) {
       const p = pontosDoAr(m, s)
-      expect(p[0].z).toBeGreaterThan(0.5) // a narina fica na frente do rosto
+      expect(p[0].z).toBeGreaterThan(RAIO_CABECA * 0.85) // a narina fica na frente do rosto
       for (let i = 4; i < p.length; i++) expect(p[i].y).toBeLessThan(p[i - 1].y + 1e-9)
       expect(Math.sign(p[p.length - 1].x)).toBe(s)
     }

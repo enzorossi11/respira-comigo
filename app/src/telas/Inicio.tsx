@@ -38,11 +38,14 @@ export function Inicio() {
 
   return (
     <section className="painel" aria-labelledby="titulo-inicio">
-      <div className="ola">
-        <h2 id="titulo-inicio" className="titulo-grande">
-          Oi! Vamos respirar juntos?
-        </h2>
-        <p className="frase texto-suave">Escolha um cartão.</p>
+      <div className="cabeca-painel">
+        <div className="ola">
+          <h2 id="titulo-inicio" className="titulo-grande">
+            Oi! Vamos respirar juntos?
+          </h2>
+          <p className="frase texto-suave">Escolha um cartão.</p>
+        </div>
+        <BotaoOuvir texto={FALA} />
       </div>
 
       <ol className="agenda" aria-label="O que fazer">
@@ -61,8 +64,6 @@ export function Inicio() {
           </li>
         ))}
       </ol>
-
-      <BotaoOuvir texto={FALA} />
 
       <div className="rodape-inicio">
         <button className="btn btn-secundario" onClick={editarPerfil}>

@@ -24,13 +24,15 @@ export function Perfil() {
 
   return (
     <section className="painel perfil" aria-labelledby="titulo-perfil">
-      <div className="ola">
-        <h2 id="titulo-perfil" className="titulo-grande">
-          Monte o seu amigo
-        </h2>
-        <p className="frase texto-suave">Ele vai respirar com você.</p>
+      <div className="cabeca-painel">
+        <div className="ola">
+          <h2 id="titulo-perfil" className="titulo-grande">
+            Monte o seu amigo
+          </h2>
+          <p className="frase texto-suave">Ele vai respirar com você.</p>
+        </div>
+        <BotaoOuvir texto={FALA} />
       </div>
-      <BotaoOuvir texto={FALA} />
 
       <div className="escolha">
         <span className="escolha-titulo">Corpo</span>

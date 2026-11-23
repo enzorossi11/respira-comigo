@@ -82,12 +82,12 @@ export function Respirar() {
   if (s.concluida && !ativo) {
     return (
       <section className="painel" aria-labelledby="titulo-fim-respirar">
-        <div className="ola">
+        <div className="cabeca-painel">
           <h2 id="titulo-fim-respirar" className="titulo-grande">
             Pronto! Como você está?
           </h2>
+          <BotaoOuvir texto="Pronto! Como você está? Toque em uma carinha." />
         </div>
-        <BotaoOuvir texto="Pronto! Como você está? Toque em uma carinha." />
         <div className="sentimentos" role="radiogroup" aria-label="Como você está">
           {(['bem', 'meio', 'mal'] as const).map((t) => (
             <button key={t} role="radio" aria-checked={sentimento === t} className="opcao" onClick={() => setSentimento(t)}>
@@ -131,10 +131,10 @@ export function Respirar() {
 
       {!ativo && (
         <>
-          <p className="frase texto-suave" style={{ textAlign: 'center' }}>
-            Balão cresce: puxe o ar. Balão diminui: solte o ar.
-          </p>
-          <BotaoOuvir texto={FALA_INICIO} />
+          <div className="cabeca-painel">
+            <p className="frase texto-suave">Balão cresce: puxe o ar. Balão diminui: solte o ar.</p>
+            <BotaoOuvir texto={FALA_INICIO} />
+          </div>
         </>
       )}
 

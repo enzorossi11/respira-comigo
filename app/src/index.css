@@ -35,6 +35,8 @@
   --cor-claro: var(--aprender-claro);
 
   --raio: 28px;
+  /* altura da barra do topo */
+  --topo: 84px;
   --sombra: 0 2px 0 rgba(42, 47, 85, 0.06), 0 12px 28px rgba(42, 47, 85, 0.08);
   --fonte: 'Nunito', system-ui, sans-serif;
 
@@ -63,7 +65,7 @@ a { color: var(--aprender-esc); }
 
 /* ------------------------------------------------------------------- topo */
 .topo {
-  position: sticky; top: 0; z-index: 30; height: 84px; padding: 0 20px;
+  position: sticky; top: 0; z-index: 30; height: var(--topo); padding: 0 20px;
   display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 12px;
   background: rgba(255, 249, 240, 0.92); backdrop-filter: blur(8px); border-bottom: 2px solid var(--linha);
 }
@@ -90,7 +92,7 @@ a { color: var(--aprender-esc); }
 .conteudo.com-3d { grid-template-columns: minmax(0, 1fr) minmax(400px, 560px); }
 .conteudo.sem-3d { grid-template-columns: 1fr; }
 .palco {
-  position: sticky; top: 84px; height: calc(100dvh - 84px);
+  position: sticky; top: var(--topo); height: calc(100dvh - var(--topo));
   background: radial-gradient(circle at 50% 40%, #ffffff 0%, #f6f1ff 55%, #eef7f5 100%);
 }
 .palco[hidden] { display: none; }
@@ -240,7 +242,7 @@ a { color: var(--aprender-esc); }
 
 /* ------------------------------------------------------------------ jogo */
 .conteudo.tela-jornada .lado { padding: 0; background: #2a0f18; border: 0; }
-.jornada { height: calc(100dvh - 84px); min-height: 520px; }
+.jornada { height: calc(100dvh - var(--topo)); min-height: 520px; }
 .jornada-area { position: relative; height: 100%; overflow: hidden; touch-action: none; cursor: crosshair; outline: none; user-select: none; }
 .jornada-area canvas { display: block; }
 
@@ -292,6 +294,52 @@ a { color: var(--aprender-esc); }
 .regras li { display: flex; align-items: center; gap: 14px; padding: 8px 16px 8px 8px; border-radius: 20px; background: #fff; font-weight: 800; font-size: 1.2rem; text-align: left; }
 .regras li svg { flex: none; }
 .cartao-botoes { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+
+/* ------------------------------------------------------ título com "Ouvir" */
+.cabeca-painel { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.cabeca-painel .btn-ouvir { flex: none; align-self: flex-start; }
+
+/*
+ * Computador: o painel da direita cabe inteiro na altura da tela, sem rolagem.
+ * Os tamanhos acompanham a altura da janela (vh) e nunca passam do tamanho cheio.
+ */
+@media (min-width: 901px) {
+  :root { --topo: clamp(64px, 8.5vh, 84px); }
+  .btn-redondo { width: clamp(52px, 6.6vh, 64px); height: clamp(52px, 6.6vh, 64px); }
+  .topo-titulo h1 { font-size: clamp(1.3rem, 2.6vh, 1.6rem); }
+  .conteudo.com-3d { flex: none; height: calc(100dvh - var(--topo)); min-height: 0; grid-template-rows: minmax(0, 1fr); }
+  .com-3d .lado { min-height: 0; overflow-y: auto; padding: clamp(14px, 2.6vh, 28px) 28px; display: flex; flex-direction: column; }
+  .com-3d .painel { margin-block: auto; }
+  .painel { gap: clamp(8px, 1.7vh, 20px); }
+  .titulo-grande { font-size: clamp(1.55rem, 3.7vh, 2.6rem); }
+  .frase { font-size: clamp(1.02rem, 2.2vh, 1.35rem); }
+  .btn { min-height: clamp(46px, 6vh, 64px); font-size: clamp(1.02rem, 2.1vh, 1.25rem); padding-block: 8px; }
+  .btn-enorme { min-height: clamp(54px, 7.8vh, 84px); font-size: clamp(1.15rem, 2.5vh, 1.5rem); }
+  .btn-ouvir { min-height: clamp(42px, 5.2vh, 56px); font-size: clamp(0.95rem, 1.9vh, 1.1rem); padding-inline: 16px; }
+  .escolha { gap: clamp(4px, 0.9vh, 10px); }
+  .escolha-titulo { font-size: clamp(0.98rem, 2vh, 1.15rem); }
+  .opcao { min-height: clamp(46px, 6.4vh, 72px); }
+  .amostra { width: clamp(42px, 5.6vh, 60px); height: clamp(42px, 5.6vh, 60px); border-width: 4px; }
+  .agenda { gap: clamp(8px, 1.5vh, 16px); }
+  .cartao-area { padding-block: clamp(8px, 1.5vh, 16px); }
+  .cartao-area > svg { width: clamp(54px, 8.6vh, 84px); height: clamp(54px, 8.6vh, 84px); }
+  .cartao-area strong { font-size: clamp(1.3rem, 3vh, 1.7rem); }
+  .cartao-num { width: clamp(40px, 5.2vh, 52px); height: clamp(40px, 5.2vh, 52px); }
+  .cartao-parada { padding: clamp(14px, 2.6vh, 28px) 22px; gap: clamp(6px, 1.3vh, 14px); }
+  .cartao-parada .ilustra svg { width: clamp(78px, 13vh, 128px); height: clamp(78px, 13vh, 128px); }
+  .cartao-parada h2 { font-size: clamp(1.7rem, 3.8vh, 2.4rem); }
+  .parabens { padding: clamp(14px, 2.6vh, 26px) 22px; gap: clamp(6px, 1.3vh, 14px); }
+  .estrelas svg { width: clamp(44px, 7vh, 80px); height: clamp(44px, 7vh, 80px); }
+  .balao { width: clamp(150px, 25vh, 260px); height: clamp(150px, 25vh, 260px); }
+  .balao-fase { font-size: clamp(1.4rem, 3vh, 2rem); }
+  .balao-num { font-size: clamp(2.4rem, 5.4vh, 3.6rem); }
+  .ritmos .opcao { min-height: clamp(76px, 10.5vh, 112px); }
+  .ritmos .opcao svg { width: clamp(38px, 5.6vh, 56px); height: clamp(38px, 5.6vh, 56px); }
+  .sentimentos .opcao { min-height: clamp(84px, 11.5vh, 120px); }
+  .sentimentos .opcao svg { width: clamp(44px, 6.4vh, 64px); height: clamp(44px, 6.4vh, 64px); }
+  .ajustes summary { padding-block: clamp(8px, 1.3vh, 14px); }
+  .nota { font-size: clamp(0.78rem, 1.6vh, 0.85rem); }
+}
 
 /* ------------------------------------------------------------- utilidades */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
