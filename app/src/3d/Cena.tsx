@@ -20,7 +20,8 @@ const CAMERA_TELA: Record<Exclude<Tela, 'caminho'>, { posicao: [number, number, 
   inicio: { posicao: [1.6, 0.5, 8.4], alvo: [0, -0.3, 0] },
   perfil: { posicao: [0.8, 0.5, 8.0], alvo: [0, -0.25, 0] },
   jornada: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
-  respirar: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
+  // um pouco de lado, para a barriga crescendo aparecer no contorno
+  respirar: { posicao: [4.3, 0.65, 4.4], alvo: [0.1, 0.1, 0] },
   dados: { posicao: [0, 0.55, 6.0], alvo: [0, 0.15, 0] },
 }
 

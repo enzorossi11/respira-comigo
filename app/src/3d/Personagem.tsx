@@ -514,9 +514,9 @@ function Orgaos({ md, destaque }: { md: Medidas; destaque: Parte | null }) {
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
     const { enchimento: e } = lerPulso(t)
-    for (const n of ['pulmaoE', 'pulmaoD'] as const) refs.current[n]?.scale.set(1 + 0.08 * e, 1 + 0.06 * e, 0.85 * (1 + 0.08 * e))
+    for (const n of ['pulmaoE', 'pulmaoD'] as const) refs.current[n]?.scale.set(1 + 0.14 * e, 1 + 0.08 * e, 0.85 * (1 + 0.14 * e))
     const d = refs.current.diafragma
-    if (d) d.position.y = alturaDiafragma(md) - 0.045 * e
+    if (d) d.position.y = alturaDiafragma(md) - 0.08 * e
     // a parte acesa "respira" devagar: o brilho sobe e desce (1 vez a cada 2,5 s, sem piscar)
     if (acesa) mats[acesa].emissiveIntensity = 0.15 + 0.3 * (0.5 + 0.5 * Math.sin(t * 2.5))
   })
@@ -583,18 +583,8 @@ const PERFIL_TRONCO = {
 function geometriaCintura(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
   const base = md.troncoBase - 0.1
   const altura = md.troncoTopo - base
-  const p = PERFIL_TRONCO[corpo]
   const ate = 0.2 // fração do tronco coberta pela cintura
-  const r = (y: number) => {
-    // raio do perfil em y (interpolação linear)
-    for (let i = 1; i < p.length; i++) {
-      const [r0, y0] = p[i - 1]
-      const [r1, y1] = p[i]
-      if (y <= y1 && y1 > y0) return r0 + ((r1 - r0) * (y - y0)) / (y1 - y0)
-    }
-    return p[p.length - 1][0]
-  }
-  const pts = [0, 0.001, 0.06, 0.12, ate].map((y) => new Vector2(r(y) * md.largura * 1.03, base + y * altura))
+  const pts = [0, 0.001, 0.06, 0.12, ate].map((y) => new Vector2(raioTronco(corpo, y) * md.largura * 1.03, base + y * altura))
   pts.unshift(new Vector2(0, base))
   pts.push(new Vector2(0, base + ate * altura))
   const g = new LatheGeometry(pts, 48)
@@ -602,10 +592,70 @@ function geometriaCintura(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
   return g
 }
 
-function geometriaTronco(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
+/**
+ * Respiração no tronco: ao puxar o ar a barriga cresce para a frente e para
+ * os lados (respiração pela barriga, a que acalma) e o peito sobe um pouco.
+ * Desloca os vértices a partir das posições originais, guardadas em `base`.
+ */
+function respirarTronco(g: LatheGeometry, base: Float32Array, md: Medidas, e: number) {
+  const pos = g.attributes.position
+  const y0 = md.troncoBase - 0.1
+  const h = md.troncoTopo - y0
+  const zMax = md.largura * 0.6
+  for (let i = 0; i < pos.count; i++) {
+    const x = base[i * 3]
+    const y = base[i * 3 + 1]
+    const z = base[i * 3 + 2]
+    const v = (y - y0) / h
+    const barriga = Math.exp(-((v - 0.36) ** 2) / (2 * 0.13 ** 2))
+    const peito = Math.exp(-((v - 0.68) ** 2) / (2 * 0.12 ** 2))
+    const frente = Math.max(0, z / zMax) ** 1.2
+    const lados = Math.abs(x) / md.largura
+    pos.setXYZ(
+      i,
+      x * (1 + e * (0.24 * barriga + 0.05 * peito) * lados),
+      y + e * 0.03 * peito,
+      z + e * zMax * (0.95 * barriga + 0.15 * peito) * frente,
+    )
+  }
+  pos.needsUpdate = true
+  g.computeVertexNormals()
+}
+
+/** raio do perfil do tronco numa altura v (0 a 1), por interpolação */
+function raioTronco(corpo: Perfil['corpo'], v: number): number {
+  const p = PERFIL_TRONCO[corpo]
+  for (let i = 1; i < p.length; i++) {
+    const [r0, y0] = p[i - 1]
+    const [r1, y1] = p[i]
+    if (v <= y1 && y1 > y0) return r0 + ((r1 - r0) * (v - y0)) / (y1 - y0)
+  }
+  return p[p.length - 1][0]
+}
+
+/** Barriga: faixa do tronco entre a cintura e o peito, de "tecido" (opaca). */
+const BARRIGA: [number, number] = [0.17, 0.47]
+
+function geometriaBarriga(md: Medidas, corpo: Perfil['corpo']): LatheGeometry {
   const base = md.troncoBase - 0.1
   const altura = md.troncoTopo - base
-  const pts = PERFIL_TRONCO[corpo].map(([r, y]) => new Vector2(r * md.largura, base + y * altura))
+  const [de, ate] = BARRIGA
+  const pts: Vector2[] = []
+  for (let k = 0; k <= 12; k++) {
+    const v = de + ((ate - de) * k) / 12
+    pts.push(new Vector2(raioTronco(corpo, v) * md.largura * 1.012, base + v * altura))
+  }
+  const g = new LatheGeometry(pts, 48)
+  g.scale(1, 1, 0.6)
+  return g
+}
+
+/** Tronco de vidro; com `de` > 0, só do peito para cima (a barriga fica de tecido). */
+function geometriaTronco(md: Medidas, corpo: Perfil['corpo'], de = 0): LatheGeometry {
+  const base = md.troncoBase - 0.1
+  const altura = md.troncoTopo - base
+  const perfil = de > 0 ? [[raioTronco(corpo, de), de], ...PERFIL_TRONCO[corpo].filter(([, y]) => y > de)] : PERFIL_TRONCO[corpo]
+  const pts = perfil.map(([r, y]) => new Vector2(r * md.largura, base + y * altura))
   const g = new LatheGeometry(pts, 48)
   g.scale(1, 1, 0.6) // achata: o corpo é mais largo do que fundo
   return g
@@ -717,7 +767,18 @@ function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas;
     m.vidroPescoco.opacity = caminho ? 0.14 : 0.4
   }, [caminho, m])
 
-  const tronco = useMemo(() => geometriaTronco(md, perfil.corpo), [md, perfil.corpo])
+  // no caminho do ar o vidro vai até embaixo (para ver o diafragma); nas outras telas, só no peito
+  const tronco = useMemo(() => geometriaTronco(md, perfil.corpo, caminho ? 0 : BARRIGA[1] - 0.015), [md, perfil.corpo, caminho])
+  const baseTronco = useMemo(() => Float32Array.from(tronco.attributes.position.array), [tronco])
+  const barriga = useMemo(() => geometriaBarriga(md, perfil.corpo), [md, perfil.corpo])
+  // a "pança": uma bola achatada dentro da barriga que, ao puxar o ar, sai pela frente
+  const panca = useMemo(() => {
+    const y0 = md.troncoBase - 0.1
+    const v = 0.33
+    const r = raioTronco(perfil.corpo, v) * md.largura
+    return { y: y0 + v * (md.troncoTopo - y0), r }
+  }, [md, perfil.corpo])
+  const pancaRef = useRef<Mesh>(null)
   const cintura = useMemo(() => geometriaCintura(md, perfil.corpo), [md, perfil.corpo])
   const saia = useMemo(() => {
     const topo = md.largura * 0.72
@@ -728,15 +789,28 @@ function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas;
   useEffect(
     () => () => {
       tronco.dispose()
+      barriga.dispose()
       cintura.dispose()
       saia.dispose()
     },
-    [tronco, cintura, saia],
+    [tronco, barriga, cintura, saia],
   )
-  const troncoRef = useRef<Mesh>(null)
+  const bracos = useRef<Group>(null)
+  const ultimo = useRef(-1)
   useFrame(({ clock }) => {
     const { enchimento: e } = lerPulso(clock.elapsedTime)
-    troncoRef.current?.scale.set(1 + 0.03 * e, 1, 1 + 0.05 * e)
+    // só recalcula quando o enchimento muda de verdade (economiza no celular)
+    if (Math.abs(e - ultimo.current) > 0.002 || tronco.userData.e === undefined) {
+      tronco.userData.e = e
+      respirarTronco(tronco, baseTronco, md, e)
+      ultimo.current = e
+    }
+    // a pança cresce para a frente e um pouco para os lados (o contorno acompanha)
+    if (pancaRef.current) {
+      pancaRef.current.scale.set(0.94 + 0.3 * e, 0.6 + 0.12 * e, 0.5 + 0.75 * e)
+    }
+    // os ombros sobem um pouquinho junto com o peito
+    if (bracos.current) bracos.current.position.y = 0.03 * e
   })
 
   const ombroX = md.largura * (menina ? 0.82 : 0.9)
@@ -746,8 +820,10 @@ function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas;
     <group>
       <Perna lado={-1} md={md} m={m} quadrilX={quadrilX} menina={menina} />
       <Perna lado={1} md={md} m={m} quadrilX={quadrilX} menina={menina} />
-      <Braco lado={-1} md={md} m={m} ombroX={ombroX} />
-      <Braco lado={1} md={md} m={m} ombroX={ombroX} />
+      <group ref={bracos}>
+        <Braco lado={-1} md={md} m={m} ombroX={ombroX} />
+        <Braco lado={1} md={md} m={m} ombroX={ombroX} />
+      </group>
 
       {/* cintura opaca: bermuda (menino) ou saia (menina) */}
       <mesh geometry={cintura} material={menina ? m.saia : m.bermuda}>
@@ -764,8 +840,22 @@ function Corpo({ perfil, md, caminho, children }: { perfil: Perfil; md: Medidas;
       {/* órgãos ficam entre o corpo e o vidro do tronco */}
       {children}
 
+      {/* barriga de "tecido": é ela que enche e esvazia, bem visível. No caminho
+          do ar some, para dar para ver o diafragma pelo vidro. */}
+      {!caminho && (
+        <>
+          <mesh geometry={barriga} material={m.roupa}>
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+          <mesh ref={pancaRef} material={m.roupa} position={[0, panca.y, 0.0]} scale={[0.94, 0.6, 0.5]}>
+            <sphereGeometry args={[panca.r, 40, 28]} />
+            <Outlines thickness={3.5} color={NOITE} />
+          </mesh>
+        </>
+      )}
+
       {/* tronco (blusa/camiseta de "vidro") e pescoço */}
-      <mesh ref={troncoRef} geometry={tronco} material={m.vidroTronco} renderOrder={5} />
+      <mesh geometry={tronco} material={m.vidroTronco} renderOrder={5} />
       <mesh material={m.vidroPescoco} position={[0, md.troncoTopo + 0.13, 0.0]} renderOrder={5}>
         <cylinderGeometry args={[0.1, 0.12, 0.36, 24, 1, true]} />
       </mesh>
