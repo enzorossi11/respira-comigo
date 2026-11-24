@@ -29,16 +29,29 @@ export function superficieRosto(x: number, y: number): number {
   return Math.max(cabeca, queixo)
 }
 
-/** Nariz (no espaço da cabeça): uma bolinha pequena no meio do rosto. */
+/**
+ * Nariz de desenho (no espaço da cabeça): a ponta é uma bola que sai bem do
+ * rosto, com as duas "asas" do lado e as duas narinas embaixo.
+ */
 export const NARIZ = (() => {
   const y = -0.2 * RAIO_CABECA
-  const raio = 0.065
-  return { centro: new Vector3(0, y, superficieRosto(0, y) - 0.012), raio }
+  const raio = 0.07
+  // o centro fica um pouco à frente da pele: assim a bola inteira (e o contorno) aparece
+  return { centro: new Vector3(0, y, superficieRosto(0, y) + 0.022), raio, escala: new Vector3(1, 0.95, 0.85) }
 })()
 
-/** Narina: embaixo do nariz, "olhando" para baixo e para a frente. */
-export const NARINA = NARIZ.centro.clone().add(new Vector3(0, -0.045, 0.035))
-export const SAIDA_NARINA = new Vector3(0, -0.6, 0.8).normalize()
+/** As duas narinas, na parte de baixo da ponta do nariz (lado -1 e +1). */
+export const NARINAS = ([-1, 1] as const).map((lado) => {
+  const direcao = new Vector3(lado * 0.36, -0.74, 0.56).normalize()
+  return { lado, direcao, centro: direcao.clone().multiply(NARIZ.escala).multiplyScalar(NARIZ.raio).add(NARIZ.centro) }
+})
+
+/** Narina por onde o ar entra no jogo (a do lado +x) e a direção de quem chega até ela. */
+export const NARINA = NARINAS[1].centro
+export const SAIDA_NARINA = new Vector3(0.16, -0.55, 0.82).normalize()
+
+/** Onde o caminho do ar começa no desenho: dentro da ponta do nariz, entre as narinas. */
+export const ENTRADA_AR = NARIZ.centro.clone().add(new Vector3(0, -0.028, 0))
 
 /* ------------------------------------------------------------ proporções */
 
@@ -106,9 +119,8 @@ export function pontosDoAr(m: Medidas, s: 1 | -1): Vector3[] {
   const c = m.cabeca
   const R = RAIO_CABECA
   const laringeTopo = m.troncoTopo + 0.14
-  const narina = c.clone().add(NARINA)
   return [
-    narina, // 0 narina
+    c.clone().add(ENTRADA_AR), // 0 entrada (dentro da ponta do nariz)
     new Vector3(0, c.y - 0.14 * R, 0.72 * R), // 1 dentro do nariz
     new Vector3(0, c.y - 0.06 * R, 0.4 * R), // 2 fundo do nariz
     new Vector3(0, c.y - 0.24 * R, 0.08), // 3 nasofaringe

@@ -22,7 +22,7 @@ import { anguloEpiglote, posVirus, type Obstaculo } from './obstaculos'
 import { CAMINHOS, paraMundo, quadroEm, raioEm, S, S_BIFURCACAO, type Caminho, type Lado } from './percurso'
 import type { Simulacao } from './simulacao'
 import { texturaParede } from './texturas'
-import { NARINA, NARIZ, SAIDA_NARINA } from '../3d/forma'
+import { NARINA, SAIDA_NARINA } from '../3d/forma'
 import { toon } from '../3d/materiais'
 import { PERFIL_PADRAO, TONS } from '../3d/perfil'
 import { ROUPA } from '../3d/cores'
@@ -111,8 +111,13 @@ function Tunel({ c, s0, s1, outro }: { c: Caminho; s0: number; s1: number; outro
  * vista de fora. Ela é girada e posicionada para a narina ficar exatamente na
  * entrada do túnel; um shader abre o buraco da narina.
  */
-/** Raio do buraco da narina no espaço da cabeça (menor que o nariz) */
-const RAIO_FURO = NARIZ.raio * 0.62
+/**
+ * Raio do buraco no espaço da cabeça: abre só a narina (embaixo da ponta), e o
+ * resto do nariz continua à mostra. Ele também define o tamanho da cabeça
+ * gigante, que precisa ficar do tamanho certo para a garganta passar por dentro
+ * do pescoço.
+ */
+const RAIO_FURO = 0.03
 
 function abrirNarina(m: MeshStandardMaterial | MeshToonMaterial, furo: { a: Vector3; b: Vector3; r: number }) {
   m.onBeforeCompile = (sh) => {

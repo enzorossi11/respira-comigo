@@ -25,6 +25,7 @@ import {
   LatheGeometry,
   Mesh,
   MeshToonMaterial,
+  Quaternion,
   SphereGeometry,
   TorusGeometry,
   TubeGeometry,
@@ -39,6 +40,7 @@ import { NOITE, ROUPA } from './cores'
 import { lerPulso } from './enchimento'
 import {
   CHAO_Y,
+  NARINAS,
   NARIZ,
   QUEIXO,
   RAIO_CABECA,
@@ -75,6 +77,7 @@ const COR_PARTE: Record<Parte, string> = {
 }
 
 const R = RAIO_CABECA
+const EIXO_Z = new Vector3(0, 0, 1)
 const escurecer = (cor: string, k: number) => new Color(cor).multiplyScalar(k)
 
 /* A espessura dos contornos (Outlines) é em pixels de tela. */
@@ -137,14 +140,19 @@ export function CabecaAmigo({ perfil, transparente = false, prepararPele, semCon
   const menina = perfil.corpo === 'feminino'
   const m = useMemo(() => {
     const pele = transparente ? vidro(tom, 0.2) : toon(tom)
-    const nariz = transparente ? vidro(tom, 0.35) : toon(escurecer(tom, 0.95))
+    // o nariz fica sólido até na cabeça de vidro, como os olhos e a boca: continua sendo um nariz
+    // no jogo (sem contorno) um tom mais escuro destaca o nariz no rosto gigante
+    const nariz = toon(escurecer(tom, prepararPele ? 0.8 : 0.93))
+    const narina = toon(escurecer(tom, 0.38))
     prepararPele?.(pele)
     prepararPele?.(nariz)
+    prepararPele?.(narina)
     const cabelo = toon(corCabelo, { side: DoubleSide })
     if (transparente) Object.assign(cabelo, { transparent: true, opacity: 0.22, depthWrite: false })
     return {
       pele,
       nariz,
+      narina,
       orelha: toon(escurecer(tom, 0.88)),
       cabelo,
       branco: toon('#ffffff'),
@@ -161,6 +169,8 @@ export function CabecaAmigo({ perfil, transparente = false, prepararPele, semCon
   const longo = perfil.cabelo === 'longo'
   const contorno = !transparente && !semContorno
   const ct = (px = 3.5) => contorno && <Outlines thickness={px} color={NOITE} />
+  // o nariz mantém o contorno até na cabeça de vidro
+  const ctNariz = (px: number) => !semContorno && <Outlines thickness={px} color={NOITE} />
 
   // posições do rosto (sobre a superfície)
   const yBoca = -0.5 * R
@@ -212,13 +222,36 @@ export function CabecaAmigo({ perfil, transparente = false, prepararPele, semCon
         )
       })}
 
-      {/* nariz pequeno */}
-      <mesh material={m.nariz} position={NARIZ.centro} scale={[0.85, 1, 0.9]}>
-        <sphereGeometry args={[NARIZ.raio, 20, 16]} />
+      {/* nariz de desenho: ponte, duas asas, a ponta redonda e as duas narinas embaixo.
+          Na cabeça de vidro ficam só a ponta e as narinas: a ponte e as asas, quase todas
+          dentro do rosto, apareceriam como pedaços soltos. */}
+      {!transparente && (
+        <>
+          <mesh material={m.nariz} position={[0, NARIZ.centro.y + 0.07, NARIZ.centro.z - 0.024]} rotation={[-0.42, 0, 0]}>
+            <capsuleGeometry args={[0.032, 0.085, 4, 12]} />
+          </mesh>
+          {([-1, 1] as const).map((s) => (
+            <mesh key={s} material={m.nariz} position={[s * 0.058, NARIZ.centro.y - 0.022, NARIZ.centro.z - 0.045]}>
+              <sphereGeometry args={[0.04, 20, 14]} />
+            </mesh>
+          ))}
+        </>
+      )}
+      <mesh material={m.nariz} position={NARIZ.centro} scale={NARIZ.escala}>
+        <sphereGeometry args={[NARIZ.raio, 28, 20]} />
+        {ctNariz(3)}
       </mesh>
-      <mesh material={m.nariz} position={[0, NARIZ.centro.y + 0.07, NARIZ.centro.z - 0.025]} rotation={[-0.35, 0, 0]}>
-        <capsuleGeometry args={[0.028, 0.08, 4, 10]} />
-      </mesh>
+      {NARINAS.map((n) => (
+        <mesh
+          key={n.lado}
+          material={m.narina}
+          position={n.centro}
+          quaternion={new Quaternion().setFromUnitVectors(EIXO_Z, n.direcao)}
+          scale={[1.2, 0.72, 0.4]}
+        >
+          <sphereGeometry args={[0.019, 16, 10]} />
+        </mesh>
+      ))}
 
       {/* boca: sorriso fino no menino; lábios rosados na menina */}
       <mesh material={m.boca} position={[0, yBoca, superficieRosto(0, yBoca) - 0.006]} rotation={[0.3, 0, Math.PI]}>
@@ -404,7 +437,7 @@ function pecasDosOrgaos(md: Medidas): Peca[] {
   const xp = ladoPulmao(md)
   const pecas: Peca[] = [
     // nariz por dentro e garganta (dentro da cabeça)
-    { parte: 'nariz', geometria: () => tubo(ar.slice(0, 4), (u) => 0.036 - u * 0.008) },
+    { parte: 'nariz', geometria: () => tubo(ar.slice(0, 4), (u) => 0.03 - u * 0.004) },
     { parte: 'faringe', geometria: () => tubo(ar.slice(3, 6), 0.042) },
     // laringe: um tubo mais largo, com a "tampinha" (epiglote) em cima
     { parte: 'laringe', geometria: () => tubo(ar.slice(5, 7), 0.058, 12) },
