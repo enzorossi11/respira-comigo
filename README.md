@@ -42,7 +42,7 @@
 
 **Título:** Respira Comigo
 **Tema:** Sistema respiratório · Saúde e Bem-Estar (ODS 3)
-**Equipe:** Enzo Rossi, Mariane Paiva, Maria Eduarda Morais e Gleicy Crispim
+**Equipe:** Enzo Rossi, Mariane Paiva, Maria Eduarda Morais, Gleicy Crispim e Murilo Rosendo
 
 O Respira Comigo é uma aplicação web em que um personagem 3D mostra o caminho que o ar percorre no corpo, do nariz até os alvéolos, e depois respira junto com a criança, num ritmo calmo. O conteúdo também vira uma viagem interativa, em que a criança guia o ar por dentro do corpo com o dedo ou o mouse.
 
@@ -290,6 +290,7 @@ respira-comigo/
 | Mariane Paiva | 2026200252 |
 | Maria Eduarda Morais | 2026220032 |
 | Gleicy Crispim | 2026225830 |
+| Murilo Rosendo | 2025112808 |
 
 ---
 
