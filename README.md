@@ -11,11 +11,11 @@
 
 <p align="center">
   <a href="https://enzorossi11.github.io/respira-comigo/"><b>Abrir o app</b></a> ·
-  <a href="docs/demo.mp4"><b>Vídeo de demonstração</b></a>
+  <a href="https://enzorossi11.github.io/respira-comigo/video-checkpoint-2.mp4"><b>Vídeo de demonstração</b></a>
 </p>
 
 <p align="center">
-  <a href="docs/demo.mp4"><img src="docs/demo.gif" alt="Demonstração: a criança monta o amigo, aprende o caminho do ar, faz a viagem e respira" width="820"></a>
+  <a href="https://enzorossi11.github.io/respira-comigo/video-checkpoint-2.mp4"><img src="docs/demo.gif" alt="Demonstração: a criança monta o amigo, aprende o caminho do ar, faz a viagem e respira" width="820"></a>
 </p>
 
 ---
@@ -133,7 +133,7 @@ As decisões de interface seguem recomendações de acessibilidade cognitiva e d
 
 ## 5. Protótipo
 
-[Vídeo de demonstração](docs/demo.mp4)
+**Vídeo de demonstração:** [assistir no navegador](https://enzorossi11.github.io/respira-comigo/video-checkpoint-2.mp4) · [arquivo no repositório](docs/video-checkpoint-2.mp4)
 
 | Monte o seu amigo | Início: os três cartões |
 |---|---|
@@ -273,7 +273,8 @@ respira-comigo/
 ├── assets/               logo, paleta e tipografia
 └── docs/
     ├── prints/           capturas de tela
-    ├── demo.mp4          vídeo de demonstração
+    ├── video-checkpoint-2.mp4   vídeo de demonstração
+    ├── demo.gif          prévia animada do app
     ├── pitch.md
     ├── identidade-visual.md
     └── bases-de-dados.md

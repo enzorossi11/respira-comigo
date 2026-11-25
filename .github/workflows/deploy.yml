@@ -31,6 +31,8 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Vídeo de demonstração junto com o site
+        run: cp ../docs/video-checkpoint-2.mp4 dist/
       - uses: actions/upload-pages-artifact@v3
         if: github.ref == 'refs/heads/main'
         with:
